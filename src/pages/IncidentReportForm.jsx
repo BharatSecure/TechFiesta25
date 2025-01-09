@@ -1,6 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useEffect  } from "react";
 
 const IncidentReportForm = () => {
+
   const [formData, setFormData] = useState({
     incidentType: "",
     customIncidentType: "",
@@ -11,6 +12,35 @@ const IncidentReportForm = () => {
 
   const [file, setFile] = useState(null);
   const [loadingLocation, setLoadingLocation] = useState(false);
+
+  useEffect(() => {
+    const subscribeToNotifications = async () => {
+      if ("serviceWorker" in navigator && "PushManager" in window) {
+        try {
+          const registration = await navigator.serviceWorker.ready;
+          const subscription = await registration.pushManager.subscribe({
+            userVisibleOnly: true,
+            applicationServerKey: "BE38RCKNK0Ig5qBWT0SpZ4ya9OV05THWXOnGhselt3IWPWgN__M3lNHULW1PjXV2SuZz96dWuNNFFaB1jiGsPyc", // Replace with your VAPID key
+          });
+
+          // Send subscription to backend
+          await fetch("http://localhost:8000/api/save-subscription/", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(subscription),
+          });
+
+          console.log("Subscribed to notifications:", subscription);
+        } catch (error) {
+          console.error("Error subscribing to notifications:", error);
+        }
+      }
+    };
+
+    subscribeToNotifications();
+  }, []); // Runs only once when the component mounts
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -45,7 +75,7 @@ const IncidentReportForm = () => {
     );
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     const incidentType =
@@ -61,6 +91,28 @@ const IncidentReportForm = () => {
 
     console.log("Reported Incident:", submittedData);
     alert("Incident reported successfully!");
+
+    try {
+      // Send incident data to the backend
+      const response = await fetch("http://localhost:8000/api/report-incident/", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(submittedData),
+      });
+  
+      if (response.ok) {
+        alert("Incident reported successfully!");
+      } else {
+        alert("Failed to report incident. Please try again.");
+      }
+    } catch (error) {
+      console.error("Error reporting incident:", error);
+      alert("An error occurred. Please try again.");
+    }
+  
+    // Reset form
     setFormData({
       incidentType: "",
       customIncidentType: "",
@@ -275,3 +327,4 @@ const IncidentReportForm = () => {
 };
 
 export default IncidentReportForm;
+

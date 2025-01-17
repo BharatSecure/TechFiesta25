@@ -1,5 +1,4 @@
 import React from "react";
-import SpeechToText from "../components/SpeechToText";
 import VoiceInput from "../components/VoiceToText";
 import HeatMap from "../components/Heatmap";
 

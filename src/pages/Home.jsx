@@ -1,11 +1,14 @@
 import React from "react";
 import SpeechToText from "../components/SpeechToText";
+import VoiceInput from "../components/VoiceToText";
+import HeatMap from "../components/Heatmap";
 
 const Home = () => {
   return (
     <div>
       <h1>Welcome to the Home Page</h1>
-      <SpeechToText />
+     <VoiceInput/>
+     <HeatMap/>
     </div>
   );
 };

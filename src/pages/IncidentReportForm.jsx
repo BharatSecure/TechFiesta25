@@ -6,7 +6,7 @@ const IncidentReportForm = () => {
     customIncidentType: "",
     location: "",
     description: "",
-    severity: "Low",
+    severity: "Low", // Display "Low", "Medium", "High"
   });
 
   const [file, setFile] = useState(null);
@@ -53,9 +53,17 @@ const IncidentReportForm = () => {
         ? formData.customIncidentType
         : formData.incidentType;
 
+    // Map the string severity to its corresponding numeric value
+    const severityMap = {
+      Low: 0.2,
+      Medium: 0.6,
+      High: 0.8,
+    };
+
     const submittedData = {
       ...formData,
       incidentType,
+      severity: severityMap[formData.severity], // Map the severity here
       file: file ? file.name : "No file uploaded",
     };
 
@@ -229,7 +237,7 @@ const IncidentReportForm = () => {
             required
           >
             <option value="Low">Low</option>
-            <option value="Moderate">Moderate</option>
+            <option value="Medium">Medium</option>
             <option value="High">High</option>
           </select>
         </div>

@@ -8,12 +8,14 @@ import UserDashboard from "./pages/UserDashboard";
 import { IncidentsProvider } from "./context/IncidentsContext";
 import AdminDashboard from "./pages/AdminDashboard";
 
+
 const App = () => {
   return (
     <div>
       <IncidentsProvider>
         <BrowserRouter>
           <Navbar />
+         
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/report-incident" element={<IncidentReportForm />} />

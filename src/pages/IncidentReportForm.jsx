@@ -183,7 +183,9 @@ const IncidentReportForm = () => {
             id="location"
             name="location"
             value={
-              formData.location.latitude && formData.location.longitude
+              typeof formData.location === "string"
+                ? formData.location
+                : formData.location.latitude && formData.location.longitude
                 ? `Latitude: ${formData.location.latitude}, Longitude: ${formData.location.longitude}`
                 : ""
             }
@@ -195,7 +197,6 @@ const IncidentReportForm = () => {
               border: "1px solid #ccc",
               borderRadius: "5px",
             }}
-            readOnly
           />
           <button
             type="button"
@@ -214,6 +215,7 @@ const IncidentReportForm = () => {
             {loadingLocation ? "Fetching Location..." : "Get Current Location"}
           </button>
         </div>
+
         <div style={{ marginBottom: "15px" }}>
           <label
             htmlFor="description"

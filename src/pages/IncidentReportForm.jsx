@@ -71,7 +71,7 @@ const IncidentReportForm = () => {
     const submittedData = {
       ...formData,
       incidentType,
-      severity: severityMap[formData.severity], // Map the severity here
+      severity: severityMap[formData.severity], // Map the severity to numeric value
       file: file ? file.name : "No file uploaded",
     };
 
@@ -79,13 +79,14 @@ const IncidentReportForm = () => {
     let incidents = JSON.parse(localStorage.getItem("incidents")) || [];
     incidents.push({
       location: formData.location, // store the incident location
-      severity: formData.severity,
+      severity: severityMap[formData.severity], // store the numeric value of severity
     });
     localStorage.setItem("incidents", JSON.stringify(incidents));
 
     console.log("Reported Incident:", submittedData);
     alert("Incident reported successfully!");
 
+    // Reset the form after submission
     setFormData({
       incidentType: "",
       customIncidentType: "",

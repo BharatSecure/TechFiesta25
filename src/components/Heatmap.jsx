@@ -4,23 +4,23 @@ import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 import "leaflet.heat";
 
+/*STATIC HEATMAP*/
 const HeatMapLayer = ({ data }) => {
   const map = useMap();
 
   React.useEffect(() => {
     const heat = L.heatLayer(data, {
       radius: 25,
-      blur: 15,
-      maxZoom: 17,
+      blur: 20,
+      maxZoom: 15,
       gradient: {
-        0.0: "rgba(255, 0, 0, 1.0)", // Green (Low severity)
-        0.3: "rgba(255, 0, 0, 1.0)", // Yellow (Medium severity)
-        0.6: "rgba(255, 0, 0, 1.0)", // Orange (Medium-high severity)
+        0.3: "rgba(255, 255, 0, 1.0)", // Yellow (Medium severity)
+        0.6: "rgba(255, 165, 0, 1.0)", // Orange (Medium-high severity)
         1.0: "rgba(255, 0, 0, 1.0)", // Red (High severity)
       },
       max: 2.0, // Increase this value to allow higher intensity levels
-      minOpacity: 0.2, // Make lower intensity points more visible
-      maxOpacity: 0.8, // Fully opaque for high-intensity points
+      minOpacity: 0.4, // Make lower intensity points more visible
+      maxOpacity: 1, // Fully opaque for high-intensity points
       scaleRadius: true,
     }).addTo(map);
 

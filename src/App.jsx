@@ -8,7 +8,6 @@ import UserDashboard from "./pages/UserDashboard";
 import { IncidentsProvider } from "./context/IncidentsContext";
 import AdminDashboard from "./pages/AdminDashboard";
 
-
 const App = () => {
   return (
     <div>

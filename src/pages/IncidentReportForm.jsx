@@ -4,7 +4,10 @@ const IncidentReportForm = () => {
   const [formData, setFormData] = useState({
     incidentType: "",
     customIncidentType: "",
-    location: "",
+    location: {
+      latitude: "",
+      longitude: "",
+    },
     description: "",
     severity: "Low", // Display "Low", "Medium", "High"
   });
@@ -31,10 +34,15 @@ const IncidentReportForm = () => {
     navigator.geolocation.getCurrentPosition(
       (position) => {
         const { latitude, longitude } = position.coords;
-        setFormData({
-          ...formData,
-          location: `Latitude: ${latitude}, Longitude: ${longitude}`,
-        });
+
+        setFormData((prevData) => ({
+          ...prevData,
+          location: {
+            latitude: latitude,
+            longitude: longitude,
+          },
+        }));
+
         setLoadingLocation(false);
       },
       (error) => {
@@ -174,7 +182,11 @@ const IncidentReportForm = () => {
             type="text"
             id="location"
             name="location"
-            value={formData.location}
+            value={
+              formData.location.latitude && formData.location.longitude
+                ? `Latitude: ${formData.location.latitude}, Longitude: ${formData.location.longitude}`
+                : ""
+            }
             onChange={handleChange}
             placeholder="Enter or fetch location"
             style={{
@@ -183,7 +195,7 @@ const IncidentReportForm = () => {
               border: "1px solid #ccc",
               borderRadius: "5px",
             }}
-            required
+            readOnly
           />
           <button
             type="button"

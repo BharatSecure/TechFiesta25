@@ -6,5 +6,5 @@
 @tailwind utilities;
 
 body {
-    @apply font-ubuntu ; /* Set Ubuntu as the default font */
+    @apply font-ubuntu !important; /* Set Ubuntu as the default font */
   }

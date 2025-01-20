@@ -1,12 +1,14 @@
-import React from 'react'
-import '../../about-components/Hero.jsx'
+import React from "react";
+import Hero from "../../about-components/Hero.jsx"; 
+import Features from "../../about-components/Features.jsx";
 
 const AboutUs = () => {
   return (
-    <>
-        <Hero/>
-    </>
-  )
-}
+    <div style={{fontFamily: "ubuntu", backgroundColor:"white"}}>
+      <Hero />
+      <Features />
+    </div>
+  );
+};
 
-export default AboutUs
+export default AboutUs;

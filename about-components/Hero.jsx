@@ -11,7 +11,7 @@ const Hero = () => {
         position: "relative",
         height: "70vh",
         backgroundImage:
-          "url('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcScBKwakApO0OB_nhCmSd36rp6148VDXGqjQjF61wtgJF2WZE88iymiBtUgsKRpMTFzDWQ&usqp=CAU')",
+          "url('https://cdn.pixabay.com/photo/2019/11/19/22/24/watch-4638673_640.jpg')",
         backgroundSize: "cover",
         backgroundPosition: "center",
         display: "flex",
@@ -29,7 +29,7 @@ const Hero = () => {
           left: 0,
           right: 0,
           bottom: 0,
-          backgroundColor: "rgba(0, 0, 0, 0.5)",
+          backgroundColor: "rgba(0, 0, 0, 0.43)",
         }}
       ></Box>
 
@@ -46,6 +46,7 @@ const Hero = () => {
             fontWeight: "bold",
             mb: 2,
             animation: "fadeIn 1s ease-in-out 1s",
+            fontFamily: "ubuntu",
           }}
         >
           About Us
@@ -58,6 +59,7 @@ const Hero = () => {
             margin: "0 auto",
             mb: 3,
             animation: "fadeIn 2s ease-in-out 2s",
+            fontFamily: "ubuntu",
           }}
         >
           Our Incident Reporting and Response System is designed to ensure
@@ -81,6 +83,7 @@ const Hero = () => {
             sx={{
               fontWeight: "bold",
               fontSize: "1.2rem",
+              fontFamily: "ubuntu",
             }}
           >
             Empowering Safety with Real-time Action

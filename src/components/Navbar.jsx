@@ -48,7 +48,7 @@ const Navbar = () => {
   return (
     <>
       <nav style={styles.navbar}>
-        <div style={styles.logo}>Incident Reporting</div>
+        <div  className="font-smooch text-5xl font-semibold">BharatSecure</div>
         <ul style={styles.navLinks}>
           <li style={styles.navItem}>
             <NavLink

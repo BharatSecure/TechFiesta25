@@ -7,10 +7,11 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        dosis: ['Dosis', 'sans-serif'], // Add the 'Dosis' font
+        dosis: ['Dosis', 'sans-serif'],       // Retain the 'Dosis' font
+        smooch: ['Smooch Sans', 'sans-serif'], // Add 'Smooch Sans' font
+        ubuntu: ['Ubuntu', 'sans-serif'],     // Add 'Ubuntu' font
       },
     },
   },
   plugins: [],
-}
-
+};

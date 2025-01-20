@@ -2,7 +2,7 @@ import React from "react";
 import { Box, Typography, Button, useTheme } from "@mui/material";
 import { LightbulbOutlined } from "@mui/icons-material";
 
-const Hero = () => {
+const Hero = ({onLearnMore}) => {
   const theme = useTheme();
 
   return (
@@ -92,6 +92,7 @@ const Hero = () => {
 
         {/* Optional Call to Action Button */}
         <Button
+          onClick={onLearnMore}
           variant="contained"
           sx={{
             mt: 4,

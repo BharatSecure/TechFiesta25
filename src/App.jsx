@@ -1,4 +1,4 @@
-import React from "react";
+
 import Navbar from "./components/Navbar";
 import "./App.css";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
@@ -8,7 +8,7 @@ import UserDashboard from "./pages/UserDashboard";
 import { IncidentsProvider } from "./context/IncidentsContext";
 import AdminDashboard from "./pages/AdminDashboard";
 import AboutUs from "../src/pages/AboutUs";
-import "animate.css";
+
 import HeatMap from "./components/Heatmap";
 import VoiceToText from "./components/VoiceToText";
 

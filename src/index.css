@@ -1,7 +1,10 @@
+@import 'bootstrap/dist/css/bootstrap.min.css';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 body{
-    background-color: gray !important;
+    background-color: #7CE5FF !important;
+    color: black;
 }

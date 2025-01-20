@@ -15,6 +15,20 @@ import { createTheme, ThemeProvider } from "@mui/material/styles";
 const theme = createTheme({
   typography: {
     fontFamily: "Ubuntu, sans-serif", // Set Ubuntu as the default font family
+    h3: {
+      fontWeight: 700,
+      fontSize: "2.5rem",
+      color: "#333", // Darker for better contrast
+    },
+    h5: {
+      fontWeight: 600,
+      fontSize: "1.25rem",
+      color: "#444", // Slightly darker for better readability
+    },
+    body1: {
+      color: "#555", // Slightly lighter text for body content
+      fontSize: "1rem",
+    },
   },
 });
 
@@ -52,16 +66,20 @@ const Features = forwardRef((props, ref) => {
     <div ref={ref}>
       <ThemeProvider theme={theme}>
         <CssBaseline /> {/* Apply baseline styles */}
-        <Box sx={{ py: 6, px: 2 }}>
+        <Box sx={{ py: 6, px: 2, backgroundColor: "#f9f9f9" }}>
           <Typography
             variant="h3"
             align="center"
-            sx={{ fontWeight: "bold", mb: 4 }}
+            sx={{
+              fontWeight: "bold",
+              mb: 4,
+              color: "#003366", // Dark blue for a more professional look
+            }}
           >
             Our Features
           </Typography>
 
-          <Stack spacing={4}>
+          <Stack spacing={6}>
             {features.map((feature, index) => (
               <Box
                 key={feature.id}
@@ -70,6 +88,10 @@ const Features = forwardRef((props, ref) => {
                   flexDirection: index % 2 === 0 ? "row" : "row-reverse",
                   alignItems: "center",
                   gap: 4,
+                  transition: "transform 0.3s ease",
+                  "&:hover": {
+                    transform: "scale(1.02)",
+                  },
                 }}
               >
                 <Link to={feature.linkTo} style={{ textDecoration: "none" }}>
@@ -77,13 +99,14 @@ const Features = forwardRef((props, ref) => {
                     sx={{
                       display: "flex",
                       flexDirection: "row",
-                      boxShadow: 3,
+                      boxShadow: 5,
                       width: "100%",
-                      backgroundColor: "#7CE5FF",
+                      backgroundColor: "#ffffff",
+                      borderRadius: 3,
                       transition: "transform 0.3s ease, box-shadow 0.3s ease",
                       "&:hover": {
                         transform: "scale(0.95)",
-                        boxShadow: 6,
+                        boxShadow: 10,
                       },
                     }}
                   >
@@ -91,7 +114,7 @@ const Features = forwardRef((props, ref) => {
                       component="img"
                       sx={{
                         width: "40%",
-                        objectFit: "contain",
+                        objectFit: "cover",
                         height: "auto",
                         borderRadius: 2,
                       }}
@@ -105,15 +128,21 @@ const Features = forwardRef((props, ref) => {
                         justifyContent: "center",
                         px: 4,
                         py: 3,
+                        backgroundColor: "#f0f0f0",
+                        borderRadius: 2,
                       }}
                     >
                       <Typography
                         variant="h5"
-                        sx={{ fontWeight: "bold", mb: 2 }}
+                        sx={{
+                          fontWeight: "bold",
+                          mb: 2,
+                          color: "#0066cc", // Bright color for title
+                        }}
                       >
                         {feature.title}
                       </Typography>
-                      <Typography variant="body1">
+                      <Typography variant="body1" sx={{ color: "#666" }}>
                         {feature.description}
                       </Typography>
                     </CardContent>

@@ -62,7 +62,7 @@ const UserDashboard = () => {
 
   return (
     <>
-    <div className="h-screen bg-gradient-to-r from-green-200 to-green-300">
+    <div className="h-screen bg-gradient-to-r from-green-100 to-green-200">
   <div className="p-8">
       {/* Header */}
       <header className="mb-6 text-center">

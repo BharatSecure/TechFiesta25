@@ -1,9 +1,9 @@
 import React, { useRef } from "react";
-import Hero from "../about-components/Hero.jsx";
-import Features from "../about-components/Features.jsx";
-import Team from "../about-components/Team.jsx";
-import Video from "../about-components/Video.jsx";
-import AboutUsDetails from "../about-components/AboutUsDetails.jsx";
+import Hero from "../components/about-components/Hero.jsx";
+import Features from "../components/about-components/Features.jsx";
+import Team from "../components/about-components/Team.jsx";
+import Video from "../components/about-components/Video.jsx";
+import AboutUsDetails from "../components/about-components/AboutUsDetails.jsx";
 import Footer from "../components/Footer.jsx";
 
 const AboutUs = () => {

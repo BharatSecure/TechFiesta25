@@ -10,7 +10,7 @@ import {
 
 const AboutUsDetails = () => {
   return (
-    <Container sx={{ py: 6, backgroundColor: "#affff880" }}>  
+    <Container sx={{ py: 6, backgroundColor: "#affff880" }}>
       <Typography
         variant="h4"
         sx={{
@@ -28,7 +28,22 @@ const AboutUsDetails = () => {
           incidents are reported and managed. Our mission is simple: to provide
           a platform that's not only easy to use but also highly effective in
           ensuring every voice is heard and every incident is addressed
-          promptly.
+          promptly. At BharatSecure, we understand that in times of distress,
+          quick and efficient communication can make all the difference. Our
+          platform is designed to bridge the gap between individuals and
+          authorities, ensuring that every report is taken seriously and acted
+          upon swiftly. Whether you're reporting an issue via text or voice, our
+          system guarantees that your concerns are delivered directly to the
+          relevant responders in real time. We believe that safety is a
+          fundamental right, and our goal is to empower communities by offering
+          a transparent, accessible, and inclusive reporting tool. By leveraging
+          the latest technology, we aim to create a secure environment where
+          everyone feels confident and supported in taking action. Our
+          commitment to innovation drives us to continuously enhance our
+          platform, ensuring that it remains at the forefront of incident
+          reporting and management. Join us on this journey to build safer, more
+          resilient communities—one report at a time. Together, we can make a
+          meaningful difference and ensure that no voice goes unheard.
         </Typography>
 
         <Typography

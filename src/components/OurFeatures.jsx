@@ -4,8 +4,8 @@ import { Link } from "react-router-dom";
 
 const OurFeatures = () => {
   return (
-    <div className="ml-8 mt-20">
-      <div className="flex justify-center items-center flex-col">
+    <div className="mt-20">
+      <div className="flex justify-center items-center flex-col" style={{backgroundColor: "#f5f5f5"}}>
         {/* Title */}
         <h1 className="text-sky-500 font-bold text-6xl">Our Features</h1>
 

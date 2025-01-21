@@ -3,6 +3,7 @@ import { MapContainer, TileLayer, useMap } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 import "leaflet.heat";
+import Footer from "./Footer";
 
 /*STATIC HEATMAP*/
 const HeatMapLayer = ({ data }) => {
@@ -311,6 +312,7 @@ const HeatMap = () => {
   ];
 
   return (
+    <>
     <div className="min-h-screen bg-gray-100 p-6">
       <h1 className="text-4xl font-extrabold text-center text-gray-800 mb-8">
         Heatmap Visualization
@@ -340,6 +342,10 @@ const HeatMap = () => {
         </div>
       </div>
     </div>
+
+   <Footer/>
+
+    </>
   );
   
 };

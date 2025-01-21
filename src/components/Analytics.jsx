@@ -5,7 +5,7 @@ import LineWithPrediction from './chart-components/LineChart';
 
 const Analytics = () => {
   return (
-    <div className="flex flex-col items-center mt-14">
+    <div className="flex flex-col items-center mt-14 mb-5">
       {/* Title */}
       <h1 className="text-sky-500 font-bold text-6xl mb-8">Analytics</h1>
 

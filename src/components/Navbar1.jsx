@@ -124,6 +124,7 @@ const Navbar = () => {
           </Box>
 
           {/* Login Button */}
+          <Link to={'/my-reports'}>
           <Button
             sx={{
               color: "#003366",
@@ -131,10 +132,11 @@ const Navbar = () => {
               border: "2px solid #003366",
               borderRadius: 3,
             }}
-            onClick={() => handleNavigation("/login")}
+           
           >
             Login
           </Button>
+          </Link>
         </Toolbar>
       </Container>
     </AppBar>

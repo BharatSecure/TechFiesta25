@@ -1,5 +1,5 @@
 
-import Navbar from "./components/Navbar";
+import Navbar1 from "./components/Navbar1";
 import "./App.css";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Home from "./pages/Home";
@@ -17,7 +17,7 @@ const App = () => {
     <div>
       <IncidentsProvider>
         <BrowserRouter>
-          <Navbar />
+          <Navbar1 />
 
           <Routes>
             <Route path="/" element={<Home />} />

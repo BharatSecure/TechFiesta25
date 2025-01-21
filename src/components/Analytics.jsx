@@ -1,4 +1,4 @@
-import React from 'react';
+
 import OnSeriesItemClick from './chart-components/PieChart';
 import SimpleBarChart from './chart-components/BarChart';
 import LineWithPrediction from './chart-components/LineChart';

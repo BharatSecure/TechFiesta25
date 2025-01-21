@@ -15,8 +15,8 @@ const AboutUs = () => {
       <Hero onLearnMore={scrollToFeatures} />{" "}
       {/* Pass scroll function as prop */}
       <Features ref={featuresRef} /> {/* Attach ref to Features component */}
-      <Team />
       <Video />
+      <Team />
     </div>
   );
 };

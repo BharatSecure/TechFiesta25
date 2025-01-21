@@ -311,18 +311,37 @@ const HeatMap = () => {
   ];
 
   return (
-    <MapContainer
-      center={[18.5204, 76.8567]}
-      zoom={7}
-      style={{ height: "100vh", width: "100%" }}
-    >
-      <TileLayer
-        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-      />
-      <HeatMapLayer data={heatmapData} />
-    </MapContainer>
+    <div className="min-h-screen bg-gray-100 p-6">
+      <h1 className="text-4xl font-extrabold text-center text-gray-800 mb-8">
+        Heatmap Visualization
+      </h1>
+      <p className="text-center text-gray-600 max-w-3xl mx-auto mb-8">
+        Explore our interactive heatmap to identify high-risk areas based on real-time incident reports. 
+        The heatmap uses color-coded zones to highlight regions with frequent safety concerns, helping you 
+        stay informed and cautious. Stay safe by avoiding red zones or reporting any new incidents directly 
+        from the map.
+      </p>
+      <div className="max-w-5xl mx-auto p-6 bg-white shadow-lg rounded-xl border border-gray-300">
+        <h2 className="text-2xl font-semibold text-gray-700 mb-6">
+          Geographic Heatmap
+        </h2>
+        <div className="relative h-[500px] overflow-hidden rounded-lg">
+          <MapContainer
+            center={[18.5204, 76.8567]}
+            zoom={7}
+            className="h-full w-full"
+          >
+            <TileLayer
+              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            />
+            <HeatMapLayer data={heatmapData} />
+          </MapContainer>
+        </div>
+      </div>
+    </div>
   );
+  
 };
 
 export default HeatMap;

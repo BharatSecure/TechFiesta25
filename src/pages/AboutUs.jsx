@@ -3,6 +3,7 @@ import Hero from "../../about-components/Hero.jsx";
 import Features from "../../about-components/Features.jsx";
 import Team from "../../about-components/Team.jsx";
 import Video from "../../about-components/Video.jsx";
+import Footer from "../components/Footer.jsx";
 
 const AboutUs = () => {
   const featuresRef = useRef(null); 
@@ -17,6 +18,7 @@ const AboutUs = () => {
       <Features ref={featuresRef} /> {/* Attach ref to Features component */}
       <Team />
       <Video />
+      <Footer/>
     </div>
   );
 };

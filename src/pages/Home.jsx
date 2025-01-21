@@ -3,6 +3,7 @@ import Sos from "../components/Sos";
 import OurFeatures from "../components/OurFeatures";
 
 import Analytics from "../components/Analytics";
+import Footer from "../components/Footer";
 
 
 const Home = () => {
@@ -11,7 +12,7 @@ const Home = () => {
       <Sos/>
      <OurFeatures/>
      <Analytics/>
-    
+    <Footer/>
     </div>
   );
 };

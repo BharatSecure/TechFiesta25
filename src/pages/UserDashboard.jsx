@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState , useEffect} from "react";
 import { MdReportProblem } from 'react-icons/md';
 import { MdCheckCircle } from 'react-icons/md';
 import { MdHourglassEmpty } from 'react-icons/md';
@@ -19,6 +19,12 @@ const UserDashboard = () => {
     resolvedIncidents: 10,
     unresolvedIncidents: 5,
   };
+
+const [total,setTotal]=useState()
+const [resolved,setResolved]=useState(0)
+const [unresolved,setUnResolved]=useState(0)
+
+
 
   const incidents = [
     {
@@ -60,6 +66,33 @@ const UserDashboard = () => {
     return "bg-yellow-100 text-yellow-700";
   };
 
+
+  useEffect(() => {
+    let totalIncidents = 0;
+    let resolvedIncidents = 0;
+    let unresolvedIncidents = 0;
+  
+  
+    incidents.forEach((inci) => {
+      totalIncidents++;
+      if (inci.status === "Resolved") {
+        resolvedIncidents++;
+      } else {
+        unresolvedIncidents++;
+      }
+    });
+  
+    
+    setTotal(totalIncidents);
+    setResolved(resolvedIncidents);
+    setUnResolved(unresolvedIncidents);
+  }, [incidents]);
+
+   
+
+  
+  
+
   return (
     <>
     <div className="h-screen bg-gradient-to-r from-green-100 to-green-200">
@@ -74,7 +107,7 @@ const UserDashboard = () => {
         <div className="bg-white p-6 rounded-xl shadow-lg hover:shadow-lg transition-all transform hover:scale-105 flex items-center justify-evenly w-80 border-4 border-r-4 border-b-red-500 border-l-red-500 border-r-red-500 cursor-pointer">
           <div>
             <h3 className="text-xl font-semibold text-gray-700">Total Incidents</h3>
-            <p className="text-3xl font-bold text-gray-900">{dashboardStats.totalIncidents}</p>
+            <p className="text-3xl font-bold text-gray-900">{total}</p>
           </div>
           <MdReportProblem className="text-red-500 mr-2 text-6xl " /> 
         </div>
@@ -82,7 +115,7 @@ const UserDashboard = () => {
         <div className="bg-white p-6 rounded-xl shadow-lg hover:shadow-lg transition-all transform hover:scale-105 flex items-center justify-evenly w-80 border-4 border-r-4 border-b-green-500 border-l-green-500 border-r-green-500 cursor-pointer">
           <div>
             <h3 className="text-xl font-semibold text-gray-700">Resolved Incidents</h3>
-            <p className="text-3xl font-bold text-gray-900">{dashboardStats.resolvedIncidents}</p>
+            <p className="text-3xl font-bold text-gray-900">{resolved}</p>
           </div>
           <MdCheckCircle className="text-green-500 mr-2 text-6xl " /> 
         </div>
@@ -90,7 +123,7 @@ const UserDashboard = () => {
         <div className="bg-white p-6 rounded-xl shadow-lg hover:shadow-lg transition-all transform hover:scale-105 flex items-center justify-evenly w-80 border-4 border-r-4 border-b-yellow-500 border-l-yellow-500 border-r-yellow-500 cursor-pointer">
           <div>
             <h3 className="text-xl font-semibold text-gray-700">Unresolved Incidents</h3>
-            <p className="text-3xl font-bold text-gray-900">{dashboardStats.unresolvedIncidents}</p>
+            <p className="text-3xl font-bold text-gray-900">{unresolved}</p>
           </div>
           <MdHourglassEmpty className="text-yellow-500 mr-2 text-6xl " /> 
         </div>
@@ -112,6 +145,8 @@ const UserDashboard = () => {
         </thead>
         <tbody>
           {incidents.map((incident) => (
+
+          
             <tr
               key={incident.id}
               className="hover:bg-gray-50 transition-all cursor-pointer"
@@ -140,7 +175,7 @@ const UserDashboard = () => {
               <td className="p-4 text-gray-600">{incident.Location}</td>
               <td className="p-4 text-center">
               <Popover>
-  <PopoverTrigger><MdChat  title="Contact Authorities"   className="text-sky-500 cursor-pointer hover:text-sky-700 transition-all" /></PopoverTrigger>
+  <PopoverTrigger><MdChat  title="Contact Authorities"   className="text-sky-500 cursor-pointer hover:text-sky-700 transition-all text-3xl" /></PopoverTrigger>
   <PopoverContent><div className="p-4 bg-white w-full h-full">
   <h3 className="text-lg font-bold text-gray-800 mb-2">Chat with Authorities</h3>
   <p className="text-gray-600 mb-4">

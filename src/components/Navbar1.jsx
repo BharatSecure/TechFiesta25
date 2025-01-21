@@ -132,9 +132,9 @@ const Navbar = () => {
               border: "2px solid #003366",
               borderRadius: 3,
             }}
-           
+            onClick={() => handleNavigation("/login")}
           >
-            Login
+            Sign Up
           </Button>
           </Link>
         </Toolbar>

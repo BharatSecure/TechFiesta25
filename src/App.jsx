@@ -11,6 +11,8 @@ import AboutUs from "../src/pages/AboutUs";
 
 import HeatMap from "./components/Heatmap";
 import VoiceToText from "./components/VoiceToText";
+import SignUp from "./pages/SignUp";
+import Login from "./pages/Login";
 
 const App = () => {
   return (
@@ -27,6 +29,8 @@ const App = () => {
             <Route path="/about" element={<AboutUs />} />
             <Route path="/heatmap" element={<HeatMap />} />
             <Route path="/voice-report" element={<VoiceToText />} />
+            <Route path="/signUp" element={<SignUp />} />
+            <Route path="/login" element={<Login/>} />
           </Routes>
         </BrowserRouter>
       </IncidentsProvider>

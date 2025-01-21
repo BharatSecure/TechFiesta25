@@ -111,14 +111,14 @@ const Navbar = () => {
                 onMouseLeave: handleMenuClose,
               }}
             >
-              <MenuItem onClick={() => navigate("/feature1")}>
-                Feature 1
+              <MenuItem onClick={() => navigate("/report-incident")}>
+                Report Incident
               </MenuItem>
-              <MenuItem onClick={() => navigate("/feature2")}>
-                Feature 2
+              <MenuItem onClick={() => navigate("/heatmap")}>
+                Heatmaps
               </MenuItem>
-              <MenuItem onClick={() => navigate("/feature3")}>
-                Feature 3
+              <MenuItem onClick={() => navigate("/voice-report")}>
+                Voice Report
               </MenuItem>
             </Menu>
           </Box>

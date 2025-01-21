@@ -1,4 +1,6 @@
 import React, { useState } from "react";
+import { FaMicrophone } from "react-icons/fa";
+import Footer from "./Footer";
 
 const VoiceInput = () => {
   const [text, setText] = useState("");
@@ -56,72 +58,84 @@ const VoiceInput = () => {
   };
 
   return (
-    <div className="p-6 bg-gray-100 rounded-lg shadow-md max-w-2xl mx-auto mt-10">
-      <h2 className="text-2xl font-bold mb-4 text-gray-800">Voice Incident Reporting</h2>
-      
-      <div className="mb-4">
-        <label htmlFor="language" className="block font-bold text-gray-600 mb-2">
-          Select Language:
-        </label>
-        <select
-          id="language"
-          value={language}
-          onChange={(e) => setLanguage(e.target.value)}
-          className="p-2 border rounded w-full"
-        >
-          <option value="hi-IN">Hindi</option>
-          <option value="en-US">English</option>
-          <option value="mr-IN">Marathi</option>
-          <option value="es-ES">Spanish</option>
-          <option value="fr-FR">French</option>
-        </select>
-      </div>
+    <>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-gray-100 p-6 flex items-center justify-center">
+      <div className="p-6 bg-white rounded-lg shadow-md max-w-2xl w-full -mt-12">
+        <h1 className="text-center text-3xl font-bold text-gray-800 mb-2 flex justify-center items-center gap-3">
+          Voice Incident Reporting
+          <FaMicrophone />
+        </h1>
+        <p className="text-center text-gray-600 mb-6">
+          Use this form to report incidents using your voice. Choose your preferred language, start recording, and submit your report once you're done.
+        </p>
 
-      <textarea
-        className="w-full p-3 border rounded mb-4 text-gray-800"
-        rows="5"
-        value={text}
-        onChange={(e) => setText(e.target.value)}
-        placeholder="Your voice input will appear here"
-      />
-
-      <div className="flex gap-4">
-        {isListening ? (
-          <button
-            className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition"
-            onClick={stopListening}
+        <div className="mb-4">
+          <label htmlFor="language" className="block font-bold text-gray-600 mb-2">
+            Select Language:
+          </label>
+          <select
+            id="language"
+            value={language}
+            onChange={(e) => setLanguage(e.target.value)}
+            className="p-2 border rounded w-full focus:outline-none focus:ring-2 focus:ring-blue-300"
           >
-            Stop Listening
-          </button>
-        ) : (
-          !isStopped && (
-            <button
-              className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 transition"
-              onClick={startListening}
-            >
-              Start Listening
-            </button>
-          )
-        )}
+            <option value="hi-IN">Hindi</option>
+            <option value="en-US">English</option>
+            <option value="mr-IN">Marathi</option>
+            <option value="es-ES">Spanish</option>
+            <option value="fr-FR">French</option>
+          </select>
+        </div>
 
-        {isStopped && (
-          <div className="flex gap-4">
+        <textarea
+          className="w-full p-3 border rounded mb-4 text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-300"
+          rows="5"
+          value={text}
+          onChange={(e) => setText(e.target.value)}
+          placeholder="Your voice input will appear here"
+        />
+
+        <div className="flex gap-4">
+          {isListening ? (
             <button
-              className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition"
-              onClick={sendReport}
+              className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition w-full"
+              onClick={stopListening}
             >
-              Send Report
+              Stop Listening
             </button>
-            <button
-              className="px-4 py-2 bg-yellow-500 text-white rounded hover:bg-yellow-600 transition"
-              onClick={reRecord}
-            >
-              Re-record
-            </button>
-          </div>
-        )}
+          ) : (
+            !isStopped && (
+              <button
+                className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 transition w-full"
+                onClick={startListening}
+              >
+                Start Listening
+              </button>
+            )
+          )}
+
+          {isStopped && (
+            <div className="flex gap-4 w-full">
+              <button
+                className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition w-1/2"
+                onClick={sendReport}
+              >
+                Send Report
+              </button>
+              <button
+                className="px-4 py-2 bg-yellow-500 text-white rounded hover:bg-yellow-600 transition w-1/2"
+                onClick={reRecord}
+              >
+                Re-record
+              </button>
+            </div>
+          )}
+        </div>
       </div>
     </div>
+
+    <Footer/>
+    </>
   );
 };
 

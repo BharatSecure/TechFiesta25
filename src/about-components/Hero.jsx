@@ -129,7 +129,7 @@ const Hero = ({ onLearnMore }) => {
             animation: "fadeIn 3s ease-in-out 2s", // Animation for the button
           }}
         >
-          Learn More
+          Explore Features
         </Button>
       </Box>
     </Box>

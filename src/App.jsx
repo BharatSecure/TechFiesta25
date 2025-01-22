@@ -13,6 +13,7 @@ import HeatMap from "./components/Heatmap";
 import VoiceToText from "./components/VoiceToText";
 import SignUp from "./pages/SignUp";
 import Login from "./pages/Login";
+import Blogs from "./pages/Blog";
 
 const App = () => {
   return (
@@ -31,6 +32,7 @@ const App = () => {
             <Route path="/voice-report" element={<VoiceToText />} />
             <Route path="/signUp" element={<SignUp />} />
             <Route path="/login" element={<Login/>} />
+            <Route path="/blogs" element={<Blogs/>} />
           </Routes>
         </BrowserRouter>
       </IncidentsProvider>

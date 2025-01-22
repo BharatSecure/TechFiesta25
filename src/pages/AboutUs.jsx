@@ -1,4 +1,5 @@
-import React, { useRef } from "react";
+import React, { useEffect, useRef } from "react";
+import { useLocation } from "react-router-dom";
 import Hero from "../components/about-components/Hero.jsx";
 import Features from "../components/about-components/Features.jsx";
 import Team from "../components/about-components/Team.jsx";
@@ -7,7 +8,16 @@ import AboutUsDetails from "../components/about-components/AboutUsDetails.jsx";
 import Footer from "../components/Footer.jsx";
 
 const AboutUs = () => {
-  const featuresRef = useRef(null); 
+  const featuresRef = useRef(null); // Create a reference for Features section
+  const location = useLocation(); // Get the current location
+
+  useEffect(() => {
+    // Scroll to the Features section if the hash is '#features'
+    if (location.hash === "#features") {
+      featuresRef.current?.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [location]); // Run when the location changes
+
   const scrollToFeatures = () => {
     featuresRef.current?.scrollIntoView({ behavior: "smooth" });
   };
@@ -16,12 +26,10 @@ const AboutUs = () => {
     <div style={{ fontFamily: "ubuntu", backgroundColor: "white" }}>
       <Hero onLearnMore={scrollToFeatures} />
       <AboutUsDetails />
-      {" "}
-      {/* Pass scroll function as prop */}
-      <Features ref={featuresRef} /> {/* Attach ref to Features component */}
+      <Features ref={featuresRef} /> {/* Attach ref to Features */}
       <Video />
       <Team />
-      <Footer/>
+      <Footer />
     </div>
   );
 };

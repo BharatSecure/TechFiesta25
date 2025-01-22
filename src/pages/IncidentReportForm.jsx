@@ -102,7 +102,7 @@ const IncidentReportForm = () => {
       </div>
 
       {/* Form */}
-      <div className="w-full max-w-lg bg-white p-8 shadow-lg rounded-lg">
+      <div className="w-full max-w-lg bg-red-300 p-8 shadow-lg rounded-lg">
         <form onSubmit={handleSubmit}>
           {/* Incident Type */}
           <div className="mb-6">

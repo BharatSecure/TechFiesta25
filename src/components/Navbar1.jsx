@@ -124,7 +124,7 @@ const Navbar = () => {
           </Box>
 
           {/* Login Button */}
-          <Link to={'/my-reports'}>
+          <Link to={'/login'}>
           <Button
             sx={{
               color: "#003366",
@@ -134,7 +134,7 @@ const Navbar = () => {
             }}
             onClick={() => handleNavigation("/login")}
           >
-            Sign Up
+            Login
           </Button>
           </Link>
         </Toolbar>

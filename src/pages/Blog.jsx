@@ -58,7 +58,7 @@ const staticBlogs = [
     content:
       "I appreciate the end-to-end tracking feature, which keeps me informed about the status of my reports.",
     image:
-      "https://www.google.com/images/branding/product/2x/maps_96in128dp.png",
+      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRIpMbgNj4w-c4oDdaPcNNqvVt_cbLeCH7kVA&s",
   },
   {
     title: "Enhancing Safety",
@@ -67,7 +67,7 @@ const staticBlogs = [
     content:
       "The voice-based reporting option is an excellent addition for accessibility. It shows that this platform is built with inclusivity in mind",
     image:
-      "https://files.oaiusercontent.com/file-5P2gc5UJrPHMB2x3S8rADm?se=2025-01-22T11%3A54%3A50Z&sp=r&sv=2024-08-04&sr=b&rscc=max-age%3D604800%2C%20immutable%2C%20private&rscd=attachment%3B%20filename%3D57454cdb-70ba-4297-89fc-690fedfaa35f.webp&sig=gJXGKmv9BNcAtrr0e3ngke3SUXJr%2Bb7Vve2tNhgPOV4%3D",
+      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRek89pxIYLa6MGMj7QkGdrQ9BAgjZD1-0MMg&s",
   },
   // Add more static blog posts here
 ];
@@ -88,7 +88,7 @@ const BlogPostCard = ({ blog }) => (
     <CardMedia
       component="img"
       sx={{ height: "250px", objectFit: "cover" }}
-      image={blog.image }
+      image={blog.image}
       alt={blog.title}
     />
     <CardContent>
@@ -170,7 +170,7 @@ const Blogs = () => {
 
   return (
     <>
-      <Container sx={{ py: 4, px:3, backgroundColor: "#ffecd6" }}>
+      <Container sx={{ py: 4, px: 3, backgroundColor: "#ffecd6" }}>
         <Box sx={{ textAlign: "center", mb: 4 }}>
           <Typography
             variant="h3"

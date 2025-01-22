@@ -17,7 +17,7 @@ const teamMembers = [
   {
     id: 1,
     name: "Jacell Jamble",
-    role: "UI/UX Designer",
+    role: "Team Lead",
     imageUrl: "https://avatars.githubusercontent.com/u/160160322?v=4",
     github: "https://github.com/JACELL100",
     linkedin: "https://linkedin.com/in/jacell-jamble-8236ba286",

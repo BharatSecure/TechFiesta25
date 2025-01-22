@@ -2,26 +2,26 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from .models import Incident, Subscription
 from .serializers import IncidentSerializer
-from webpush import send_user_notification
-
+from django.core.mail import send_mail
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 import json
+import requests
+import math
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+from twilio.rest import Client
 
-from django.views.decorators.csrf import csrf_exempt
-from pywebpush import webpush, WebPushException
-
-class ReportIncident(APIView):
-    def post(self, request):
-        serializer = IncidentSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            send_notification(
-                "New Incident Reported!",
-                f"Incident: {serializer.data['title']}"
+def post(self, request):
+    serializer = IncidentSerializer(data=request.data)
+    if serializer.is_valid():
+        serializer.save()
+        send_notification(
+            "New Incident Reported!",
+            f"Incident: {serializer.data['title']}"
             )
-            return Response(serializer.data, status=201)
-        return Response(serializer.errors, status=400)
+        return Response(serializer.data, status=201)
+    return Response(serializer.errors, status=400)
 
 @csrf_exempt
 def save_subscription(request):
@@ -53,41 +53,54 @@ def save_subscription(request):
         return JsonResponse({"error": "Invalid request method"}, status=405)
 
 
-def send_notification(title, message):
-    subscriptions = Subscription.objects.all()
-    payload = {"head": title, "body": message}
-    for sub in subscriptions:
-        send_user_notification(subscription_info={
-            "endpoint": sub.endpoint,
-            "keys": {"auth": sub.auth, "p256dh": sub.p256dh},
-        }, payload=payload, ttl=1000)
+def send_sms(message, number):
+    account_sid = 'ACa342288beff5795775a39a8ba798b51b'
+    auth_token = 'f35864d84f9fd0b14453405c8168d76d'
+    client = Client(account_sid, auth_token)
+    sms = client.messages.create(
+    messaging_service_sid='MGa0dd71e727f8ff58f14fc197430c0988',
+    body=message,
+    to = number
+    # to='+918452950512'
+    )
+    return Response({'message': 'sms sent successfully'})
 
-@csrf_exempt
-def report_incident(request):
-    if request.method == 'POST':
-        data = json.loads(request.body)
-        # Process the incident data (e.g., save to database)
-        # Notify all subscribers
-        for subscription in Subscription.objects.all():
-            try:
-                webpush(
-                    subscription_info={
-                        "endpoint": subscription.endpoint,
-                        "keys": {
-                            "p256dh": subscription.p256dh,
-                            "auth": subscription.auth,
-                        }
-                    },
-                    data=json.dumps({
-                        "title": "New Incident Reported",
-                        "message": f"{data['incidentType']}: {data['description']}",
-                    }),
-                    vapid_private_key="bFhHq38UhmlZPJOVvFUycd1lsx3NNs8Ri_riFj_AhQk",
-                    vapid_claims={
-                        "sub": "mailto:admin@example.com"
-                    }
-                )
-            except WebPushException as ex:
-                print(f"Failed to send notification: {ex}")
 
-        return JsonResponse({"message": "Incident reported and notifications sent"})
+def send_email_example(subject, message, email):
+    send_mail(
+        subject=subject,
+        message=message,
+        from_email='mayankhmehta80@gmail.com',
+        recipient_list=[email],
+        fail_silently=False,
+    )
+    return Response({'message': 'email sent successfully'})
+
+
+# Function to get coordinates from Geoapify Geocoding API
+def get_coordinates(location, api_key):
+    api_key = "5b3ce3597851110001cf6248c3e5474dc5b64991afad8ceec07950da"
+    url = f"https://api.geoapify.com/v1/geocode/search?text={location}&apiKey={api_key}"
+    response = requests.get(url)
+    data = response.json()
+    if data['features']:
+        coords = data['features'][0]['geometry']['coordinates']
+        return coords[1], coords[0]  # Return latitude, longitude
+    else:
+        raise ValueError(f"Could not find coordinates for location: {location}")
+
+# Function to calculate route distance using Geoapify Route API
+def great_circle_distance(lat1, lon1, lat2, lon2):
+    # Convert degrees to radians
+    lat1, lon1, lat2, lon2 = map(math.radians, [lat1, lon1, lat2, lon2])
+    
+    # Haversine formula
+    dlat = lat2 - lat1
+    dlon = lon2 - lon1
+    a = math.sin(dlat / 2)**2 + math.cos(lat1) * math.cos(lat2) * math.sin(dlon / 2)**2
+    c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
+    
+    # Earth radius in kilometers
+    R = 6371.0
+    distance = R * c
+    return distance

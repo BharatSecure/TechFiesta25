@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   AppBar,
   Box,
@@ -10,21 +10,23 @@ import {
   Menu,
   MenuItem,
 } from "@mui/material";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate, Link, useLocation } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 import logo from "/logo.png";
 
 const Navbar = () => {
-  const [activeLink, setActiveLink] = useState("");
   const [anchorEl, setAnchorEl] = useState(null); // To open/close dropdown
   const navigate = useNavigate();
+  const location = useLocation(); // Get the current location
   const { isLoggedIn } = useAuth();
 
-  // Handle active link selection
-  const handleNavigation = (route) => {
-    setActiveLink(route);
-    navigate(route);
+  // Set active link based on the current route
+  const getActiveLink = () => {
+    if (location.pathname === "/") return "/"; // If the current URL is '/', mark home as active
+    return location.pathname;
   };
+
+  const activeLink = getActiveLink();
 
   // Handle dropdown open/close
   const handleMenuClick = (event) => {
@@ -33,6 +35,11 @@ const Navbar = () => {
 
   const handleMenuClose = () => {
     setAnchorEl(null);
+  };
+
+  // Handle active link selection and navigate
+  const handleNavigation = (route) => {
+    navigate(route);
   };
 
   return (
@@ -206,7 +213,7 @@ const Navbar = () => {
                   border: "2px solid #003366",
                   borderRadius: 3,
                 }}
-                onClick={() => handleNavigation("/login")}
+                onClick={() => handleNavigation("/my-reports")}
               >
                 Dash Board
               </Button>

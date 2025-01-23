@@ -1,14 +1,24 @@
 import { Link } from "react-router-dom";
 import { FaFacebook, FaTwitter, FaInstagram, FaLinkedin } from "react-icons/fa";
+import { IconButton } from "@mui/material";
 
 const Footer = () => {
   return (
     <footer className="bg-sky-100 text-gray-800 py-8 mt-7">
       <div className="container mx-auto flex flex-col lg:flex-row justify-between items-center px-6">
-        <div className="mb-6 lg:mb-0">
-          <h2 className="font-bold text-sky-600 font-smooch text-3xl">
-            BharatSecure
-          </h2>
+        <div className="mb-6 lg:mb-0 flex">
+          <IconButton onClick={() => handleNavigation("/")}>
+            <img
+              src="/logo.png" 
+              alt="Logo"
+              style={{ width: 22, height: 22,}}
+            />
+          </IconButton>
+          <Link to={"/"}>
+            <h2 className="font-bold text-sky-600 font-smooch text-3xl hover:text-sky-700">
+              BharatSecure
+            </h2>
+          </Link>
         </div>
 
         <div className="mb-6 lg:mb-0">

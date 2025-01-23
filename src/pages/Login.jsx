@@ -51,6 +51,7 @@ const Login = () => {
       login();
       console.log("Login Data:", formData);
       console.log(isLoggedIn);
+      window.location.href = "/my-reports";
     }
   };
 

@@ -101,15 +101,13 @@ const UserDashboard = () => {
               <span className="text-sky-600">Your Dashboard</span>
             </h1>
           </header>
-          <div className="flex justify-end p-4">
-            <button
-              onClick={handleLogout}
-              className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition"
-            >
-              Logout
-            </button>
-          </div>
-
+          <button
+            onClick={handleLogout}
+            className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition"
+            style={{ float: "right", position: "relative", top: "-50px" }}
+          >
+            Logout
+          </button>
           {/* Dashboard Stats Cards */}
           <div className="flex flex-row gap-6 mb-6 justify-center mt-16 ml-8 ">
             <div className="bg-white p-6 rounded-xl shadow-lg hover:shadow-lg transition-all transform hover:scale-105 flex items-center justify-evenly w-80 border-4 border-r-4 border-b-red-500 border-l-red-500 border-r-red-500 cursor-pointer">

@@ -76,6 +76,7 @@ const SignUp = () => {
       // Logic to handle signup (e.g., API call)
       console.log("Signup Data:", formData);
       login();
+      window.location.href = "/my-reports";
       console.log(isLoggedIn);
     }
   };

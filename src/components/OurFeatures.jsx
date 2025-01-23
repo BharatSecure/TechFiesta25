@@ -34,14 +34,12 @@ const OurFeatures = () => {
                 </p>
               </div>
               <div className="flex justify-center p-6 pt-2 gap-4">
-                <Link to={"/voice-report"}>
-                  <button
-                    className="rounded-md bg-gradient-to-r from-sky-500 to-sky-700 py-2 px-6 text-white text-sm font-semibold shadow-md hover:shadow-lg hover:from-sky-700 hover:to-sky-900 transition-all"
-                    type="button"
-                  >
-                    Try Now
-                  </button>
-                </Link>
+                <button
+                  className="rounded-md bg-gradient-to-r from-sky-500 to-sky-700 py-2 px-6 text-white text-sm font-semibold shadow-md hover:shadow-lg hover:from-sky-700 hover:to-sky-900 transition-all"
+                  type="button"
+                >
+                  Try Now
+                </button>
               </div>
             </div>
           </Link>
@@ -67,14 +65,12 @@ const OurFeatures = () => {
                 </p>
               </div>
               <div className="flex justify-center p-6 pt-2 gap-4">
-                <Link to={"/report-incident"}>
-                  <button
-                    className="rounded-md bg-gradient-to-r from-yellow-500 to-yellow-700 py-2 px-6 text-white text-sm font-semibold shadow-md hover:shadow-lg hover:from-yellow-700 hover:to-yellow-900 transition-all"
-                    type="button"
-                  >
-                    Try Now
-                  </button>
-                </Link>
+                <button
+                  className="rounded-md bg-gradient-to-r from-yellow-500 to-yellow-700 py-2 px-6 text-white text-sm font-semibold shadow-md hover:shadow-lg hover:from-yellow-700 hover:to-yellow-900 transition-all"
+                  type="button"
+                >
+                  Try Now
+                </button>
               </div>
             </div>
           </Link>
@@ -94,18 +90,18 @@ const OurFeatures = () => {
                   Heatmap
                 </h4>
                 <p className="text-base text-slate-600 mt-3 leading-relaxed">
-                Pinpoint high-risk areas with our interactive incident heatmap. Visualize the frequency and severity of incidents to proactively address potential hazards.
+                  Pinpoint high-risk areas with our interactive incident
+                  heatmap. Visualize the frequency and severity of incidents to
+                  proactively address potential hazards.
                 </p>
               </div>
               <div className="flex justify-center p-6 pt-2 gap-4">
-                <Link to={"/heatmap"}>
-                  <button
-                    className="rounded-md bg-gradient-to-r from-green-500 to-green-700 py-2 px-6 text-white text-sm font-semibold shadow-md hover:shadow-lg hover:from-green-700 hover:to-green-900 transition-all"
-                    type="button"
-                  >
-                    Try Now
-                  </button>
-                </Link>
+                <button
+                  className="rounded-md bg-gradient-to-r from-green-500 to-green-700 py-2 px-6 text-white text-sm font-semibold shadow-md hover:shadow-lg hover:from-green-700 hover:to-green-900 transition-all"
+                  type="button"
+                >
+                  Try Now
+                </button>
               </div>
             </div>
           </Link>

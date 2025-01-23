@@ -3,6 +3,7 @@ import { MdReportProblem } from "react-icons/md";
 import { MdCheckCircle } from "react-icons/md";
 import { MdHourglassEmpty } from "react-icons/md";
 import { MdChat } from "react-icons/md";
+import { Navigate, useNavigate } from "react-router-dom";
 
 import {
   Popover,
@@ -14,7 +15,8 @@ import { useAuth } from "@/context/AuthContext";
 
 const UserDashboard = () => {
   const { logout } = useAuth();
-
+  const navigate = useNavigate();
+  
   const dashboardStats = {
     totalIncidents: 15,
     resolvedIncidents: 10,
@@ -69,8 +71,8 @@ const UserDashboard = () => {
   };
 
   const handleLogout = () => {
-    window.location.href = "/";
     logout();
+    navigate("/login");
   };
   useEffect(() => {
     let totalIncidents = 0;

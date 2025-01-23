@@ -12,8 +12,10 @@ import {
 } from "@mui/material";
 import Footer from "../components/Footer";
 import { useAuth } from "@/context/AuthContext";
+import { useNavigate } from "react-router-dom";
 
 const SignUp = () => {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -28,7 +30,7 @@ const SignUp = () => {
   });
 
   const [errors, setErrors] = useState({});
-  const { isLoggedIn, login } = useAuth();
+  const { isLoggedIn, login } = useAuth(); // Extract login state
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -75,9 +77,17 @@ const SignUp = () => {
     if (validate()) {
       // Logic to handle signup (e.g., API call)
       console.log("Signup Data:", formData);
-      login();
-      window.location.href = "/my-reports";
-      console.log(isLoggedIn);
+
+      // Simulate successful login after signup
+      login(); // Perform login after successful signup
+
+      // Log the current login state
+      console.log("Login State after Signup:", isLoggedIn); // Log the login state
+
+      // Navigate to the dashboard ("/my-reports") if login is successful
+      if (isLoggedIn) {
+        navigate("/my-reports");
+      }
     }
   };
 

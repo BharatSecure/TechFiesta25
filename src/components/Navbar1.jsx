@@ -11,14 +11,14 @@ import {
   MenuItem,
 } from "@mui/material";
 import { useNavigate, Link } from "react-router-dom";
-
-// Logo path (replace with your local logo path)
+import { useAuth } from "@/context/AuthContext";
 import logo from "/logo.png";
 
 const Navbar = () => {
   const [activeLink, setActiveLink] = useState("");
   const [anchorEl, setAnchorEl] = useState(null); // To open/close dropdown
   const navigate = useNavigate();
+  const { isLoggedIn } = useAuth();
 
   // Handle active link selection
   const handleNavigation = (route) => {
@@ -183,19 +183,35 @@ const Navbar = () => {
           </Box>
 
           {/* Login Button */}
-          <Link to={"/login"}>
-            <Button
-              sx={{
-                color: "#003366",
-                fontWeight: "bold",
-                border: "2px solid #003366",
-                borderRadius: 3,
-              }}
-              onClick={() => handleNavigation("/login")}
-            >
-              Login
-            </Button>
-          </Link>
+          {!isLoggedIn ? (
+            <Link to={"/login"}>
+              <Button
+                sx={{
+                  color: "#003366",
+                  fontWeight: "bold",
+                  border: "2px solid #003366",
+                  borderRadius: 3,
+                }}
+                onClick={() => handleNavigation("/login")}
+              >
+                Login
+              </Button>
+            </Link>
+          ) : (
+            <Link to={"/my-reports"}>
+              <Button
+                sx={{
+                  color: "#003366",
+                  fontWeight: "bold",
+                  border: "2px solid #003366",
+                  borderRadius: 3,
+                }}
+                onClick={() => handleNavigation("/login")}
+              >
+                Dash Board
+              </Button>
+            </Link>
+          )}
         </Toolbar>
       </Container>
     </AppBar>

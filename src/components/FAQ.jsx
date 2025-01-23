@@ -36,7 +36,7 @@ const FAQSection = () => {
   ];
 
   return (
-    <div className="faq-section py-12 bg-gradient-to-r from-indigo-100 via-sky-200 to-blue-300 mt-10">
+    <div className="faq-section py-12 bg-gradient-to-r from-indigo-100 via-sky-200 to-blue-300">
       <h2 className="text-sky-600 font-extrabold text-5xl lg:text-6xl tracking-wide mt-7 text-center mb-8">
         Frequently Asked Questions
       </h2>

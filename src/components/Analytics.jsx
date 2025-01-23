@@ -4,7 +4,7 @@ import LineWithPrediction from "./chart-components/LineChart";
 
 const Analytics = () => {
   return (
-    <div className="flex flex-col items-center mt-14 px-4">
+    <div className="flex flex-col items-center mt-14 mb-12 px-4">
       {/* Title */}
       <h1 className="text-sky-600 font-extrabold text-6xl mb-12 text-center">
         Analytics Dashboard

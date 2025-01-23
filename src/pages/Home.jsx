@@ -6,6 +6,7 @@ import Analytics from "../components/Analytics";
 import Footer from "../components/Footer";
 import FAQSection from "@/components/FAQ";
 // import EmergencyGuidelines from "@/components/EmergencyGuidelines";
+import Testimonials from "@/components/Testimonials";
 
 const Home = () => {
   return (
@@ -14,6 +15,7 @@ const Home = () => {
       <OurFeatures />
       {/* <EmergencyGuidelines /> */}
       <Analytics />
+      <Testimonials />
       <FAQSection />
       <Footer />
     </div>

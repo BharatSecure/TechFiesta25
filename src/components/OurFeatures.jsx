@@ -8,7 +8,7 @@ const OurFeatures = () => {
         style={{ backgroundColor: "#edf2f8" }}
       >
         {/* Title */}
-        <h1 className="text-sky-600 font-extrabold text-5xl lg:text-6xl tracking-wide">
+        <h1 className="text-sky-600 font-extrabold text-5xl lg:text-6xl tracking-wide mt-7">
           Our Features
         </h1>
         {/* Grid Section */}
@@ -58,10 +58,12 @@ const OurFeatures = () => {
               </div>
               <div className="p-6 text-center">
                 <h4 className="mb-2 text-2xl font-bold text-slate-800">
-                  Report
+                  Report Incident
                 </h4>
                 <p className="text-base text-slate-600 mt-3 leading-relaxed">
-                  Easily report incidents using our user-friendly online form.
+                  Simplify incident reporting with our convenient online form.
+                  Quickly and efficiently submit all necessary details with our
+                  streamlined process
                 </p>
               </div>
               <div className="flex justify-center p-6 pt-2 gap-4">
@@ -92,7 +94,7 @@ const OurFeatures = () => {
                   Heatmap
                 </h4>
                 <p className="text-base text-slate-600 mt-3 leading-relaxed">
-                  Identify high-risk areas using our incident heatmap.
+                Pinpoint high-risk areas with our interactive incident heatmap. Visualize the frequency and severity of incidents to proactively address potential hazards.
                 </p>
               </div>
               <div className="flex justify-center p-6 pt-2 gap-4">

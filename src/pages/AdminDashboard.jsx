@@ -1,106 +1,154 @@
-import { useContext } from "react";
-import { IncidentsContext } from "../context/IncidentsContext";
+import React, { useState, useEffect } from "react";
+import { MdReportProblem, MdCheckCircle, MdHourglassEmpty, MdChat } from "react-icons/md";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import Footer from "@/components/Footer";
 
 const AdminDashboard = () => {
-  const { incidents, setIncidents } = useContext(IncidentsContext);
+  const [total, setTotal] = useState(0);
+  const [resolved, setResolved] = useState(0);
+  const [unresolved, setUnresolved] = useState(0);
 
-  const handleClick = (index) => {
-    const updatedIncidents = [...incidents];
-    updatedIncidents[index].Status = true;
-    setIncidents(updatedIncidents);
+  const incidents = [
+    {
+      id: 3319,
+      user: "John Doe",
+      title: "Broken Streetlight",
+      description: "A streetlight is broken near the park.",
+      severity: "Medium",
+      location: "Latitude: 19.185664, Longitude: 72.8367104",
+      status: "Resolved",
+    },
+    {
+      id: 1269,
+      user: "Jane Smith",
+      title: "Pothole on Road",
+      description: "A big pothole on the main road.",
+      severity: "High",
+      location: "Latitude: 19.185664, Longitude: 72.8367104",
+      status: "Under Process",
+    },
+    {
+      id: 1012,
+      user: "Michael Johnson",
+      title: "Flooding in Basement",
+      description: "Water leakage in the building basement.",
+      severity: "Low",
+      location: "Latitude: 19.185664, Longitude: 72.8367104",
+      status: "Under Process",
+    },
+  ];
+
+  const getSeverityColor = (severity) => {
+    if (severity === "Low") return "text-green-700 border-green-600 bg-green-200";
+    if (severity === "Medium") return "text-yellow-700 border-yellow-600 bg-yellow-200";
+    if (severity === "High") return "text-red-700 border-red-600 bg-red-200";
   };
+
+  const getStatusColor = (status) => {
+    if (status === "Resolved") return "bg-green-100 text-green-700";
+    if (status === "Not Resolved") return "bg-red-100 text-red-700";
+    return "bg-yellow-100 text-yellow-700";
+  };
+
+  useEffect(() => {
+    let totalIncidents = 0;
+    let resolvedIncidents = 0;
+    let unresolvedIncidents = 0;
+
+    incidents.forEach((incident) => {
+      totalIncidents++;
+      if (incident.status === "Resolved") {
+        resolvedIncidents++;
+      } else {
+        unresolvedIncidents++;
+      }
+    });
+
+    setTotal(totalIncidents);
+    setResolved(resolvedIncidents);
+    setUnresolved(unresolvedIncidents);
+  }, [incidents]);
 
   return (
     <>
-      {incidents.length === 0 ? (
-        <div className="ml-16 mt-12 font-sans text-base">
-          No incidents reported yet
-        </div>
-      ) : (
-        incidents.map((incident, index) => (
-          <div
-            key={index}
-            className="max-w-md mx-auto bg-white shadow-lg rounded-lg p-6 border hover:-translate-y-5 cursor-pointer transition-all mt-14"
-          >
-            <div className="flex justify-between items-center">
-              <h3 className="text-lg font-bold text-gray-800">
-                {incident.IncidentID}
-              </h3>
-              <span
-                className={`px-3 py-1 text-xl font-bold text-white ${
-                  incident.Severity === "High"
-                    ? "bg-red-500"
-                    : incident.Severity === "Medium"
-                    ? "bg-yellow-500"
-                    : incident.Severity === "Low"
-                    ? "bg-green-500"
-                    : "bg-black text-white"
-                } rounded-full`}
-              >
-                {incident.Severity}
-              </span>
+      <div className="h-screen bg-gradient-to-r from-teal-100 to-teal-200">
+        <div className="p-8">
+          {/* Header */}
+          <header className="mb-6 text-center">
+            <h1 className="text-3xl font-bold text-gray-800">
+              <span className="text-emerald-600">Admin Dashboard</span>
+            </h1>
+          </header>
+
+          {/* Dashboard Stats Cards */}
+          <div className="flex flex-row gap-6 mb-6 justify-center mt-16">
+            <div className="bg-white p-6 rounded-lg shadow-md transition-transform transform hover:scale-105 w-80">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-xl font-medium text-gray-700">Total Incidents</h3>
+                  <p className="text-3xl font-bold text-gray-900">{total}</p>
+                </div>
+                <MdReportProblem className="text-red-500 text-6xl" />
+              </div>
             </div>
-            <div className="mt-4">
-              <p className="text-gray-600">
-                <span className="font-bold">Name:</span> {incident.Name}
-              </p>
-              <p className="text-gray-600">
-                <span className="font-bold">Type:</span> {incident.IncidentType}
-              </p>
-              <p className="text-gray-600">
-                <span className="font-bold">Location:</span> {incident.Location}
-              </p>
-              <p className="text-gray-600">
-                <span className="font-bold">Description:</span>{" "}
-                {incident.Description}
-              </p>
-              <br />
-              {incident.Status ? (
-                <span className="text-green-600 font-bold text-xl">
-                  Completed
-                </span>
-              ) : (
-                <button
-                  onClick={() => handleClick(index)}
-                  className="bg-green-600 text-white px-3 py-1 rounded-lg border-2 border-green-600 hover:bg-green-900 hover:text-black hover:border-green-600 hover:border-2"
-                >
-                  Mark as Completed
-                </button>
-              )}
-              <div className="mt-2 bg-gray-100 border border-gray-300 rounded-lg p-4 relative">
-                <p className="font-bold text-gray-700">Uploaded File:</p>
-                {incident.file ? (
-                  <div>
-                    <p className="text-gray-600">
-                      <span className="font-bold">Name:</span>{" "}
-                      {incident.file.name}
-                    </p>
-                    <p className="text-gray-600">
-                      <span className="font-bold">Type:</span>{" "}
-                      {incident.file.type}
-                    </p>
-                    <p className="text-gray-600">
-                      <span className="font-bold">Size:</span>{" "}
-                      {incident.file.size} KB
-                    </p>
-                    <a
-                      href={`/path/to/file/${incident.file.name}`} // Update this with the actual file URL
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="absolute bottom-4 right-4 bg-blue-600 text-white px-3 py-1 rounded-lg hover:bg-blue-700 transition-all "
-                      style={{ textDecoration: "none" }}
-                    >
-                      View File
-                    </a>
-                  </div>
-                ) : (
-                  <p className="text-gray-600">No file uploaded.</p>
-                )}
+
+            <div className="bg-white p-6 rounded-lg shadow-md transition-transform transform hover:scale-105 w-80">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-xl font-medium text-gray-700">Resolved Incidents</h3>
+                  <p className="text-3xl font-bold text-gray-900">{resolved}</p>
+                </div>
+                <MdCheckCircle className="text-green-500 text-6xl" />
+              </div>
+            </div>
+
+            <div className="bg-white p-6 rounded-lg shadow-md transition-transform transform hover:scale-105 w-80">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-xl font-medium text-gray-700">Unresolved Incidents</h3>
+                  <p className="text-3xl font-bold text-gray-900">{unresolved}</p>
+                </div>
+                <MdHourglassEmpty className="text-yellow-500 text-6xl" />
               </div>
             </div>
           </div>
-        ))
-      )}
+
+          {/* Incidents Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-12">
+            {incidents.map((incident) => (
+              <div key={incident.id} className="bg-white p-6 rounded-lg shadow-lg">
+                <h3 className="text-lg font-semibold text-gray-800">{incident.title}</h3>
+                <p className="text-gray-600 text-sm mb-2">{incident.description}</p>
+                <p className="text-gray-600 text-sm mb-2">Reported By: {incident.user}</p>
+                <p className={`mb-2 px-3 py-1 rounded ${getSeverityColor(incident.severity)}`}>
+                  Severity: {incident.severity}
+                </p>
+                <p className={`mb-2 px-3 py-1 rounded ${getStatusColor(incident.status)}`}>
+                  Status: {incident.status}
+                </p>
+                <p className="text-gray-600 text-sm mb-4">{incident.location}</p>
+                <Popover>
+                  <PopoverTrigger>
+                    <button className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+                      Chat with User
+                    </button>
+                  </PopoverTrigger>
+                  <PopoverContent>
+                    <div className="p-4">
+                      <h4 className="text-md font-semibold text-gray-800">Chat with User</h4>
+                      <p className="text-sm text-gray-600">
+                        Discuss the incident and provide updates or support.
+                      </p>
+                    </div>
+                  </PopoverContent>
+                </Popover>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <Footer />
     </>
   );
 };

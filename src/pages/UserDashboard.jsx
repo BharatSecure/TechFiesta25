@@ -74,6 +74,7 @@ const [unresolved,setUnResolved]=useState(0)
   
   
     incidents.forEach((inci) => {
+      
       totalIncidents++;
       if (inci.status === "Resolved") {
         resolvedIncidents++;

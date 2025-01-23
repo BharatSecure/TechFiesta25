@@ -12,7 +12,7 @@ import {
 } from "@mui/material";
 import Footer from "../components/Footer";
 import { useAuth } from "@/context/AuthContext";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 
 const SignUp = () => {
   const navigate = useNavigate();
@@ -203,9 +203,9 @@ const SignUp = () => {
                 }}
               >
                 Already have an account?{" "}
-                <a href="/login" style={{ color: "#00509e" }}>
+                <Link to={"/login"} style={{ color: "#00509e" }}>
                   Log in
-                </a>
+                </Link>
               </Typography>
             </Grid>
           </Grid>

@@ -12,7 +12,7 @@ import {
 } from "@mui/material";
 import Footer from "../components/Footer";
 import { useAuth } from "@/context/AuthContext";
-import { useNavigate } from "react-router-dom"; // Import useNavigate
+import { useNavigate, Link } from "react-router-dom"; // Import useNavigate
 
 const Login = () => {
   const [formData, setFormData] = useState({
@@ -179,9 +179,9 @@ const Login = () => {
                 }}
               >
                 Don't have an account?{" "}
-                <a href="/signup" style={{ color: "#00509e" }}>
+                <Link to={"/signup"} style={{ color: "#00509e" }}>
                   Sign Up
-                </a>
+                </Link>
               </Typography>
             </Grid>
           </Grid>

@@ -10,8 +10,7 @@ import {
   Menu,
   MenuItem,
 } from "@mui/material";
-import { useNavigate } from "react-router-dom";
-import { Link } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 
 // Logo path (replace with your local logo path)
 import logo from "/logo.png";

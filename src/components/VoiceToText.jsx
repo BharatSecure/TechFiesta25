@@ -60,7 +60,7 @@ const VoiceInput = () => {
   return (
     <>
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-gray-100 p-6 flex items-center justify-center">
-      <div className="p-6 bg-white rounded-lg shadow-md max-w-2xl w-full -mt-12">
+      <div className="p-12 bg-red-300 rounded-lg shadow-md max-w-2xl w-full -mt-12">
         <h1 className="text-center text-3xl font-bold text-gray-800 mb-2 flex justify-center items-center gap-3">
           Voice Incident Reporting
           <FaMicrophone />

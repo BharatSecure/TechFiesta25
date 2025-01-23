@@ -11,6 +11,7 @@ import {
   FormControlLabel,
 } from "@mui/material";
 import Footer from "../components/Footer";
+import { useAuth } from "@/context/AuthContext";
 
 const SignUp = () => {
   const [formData, setFormData] = useState({
@@ -27,6 +28,7 @@ const SignUp = () => {
   });
 
   const [errors, setErrors] = useState({});
+  const { isLoggedIn, login } = useAuth();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -73,6 +75,9 @@ const SignUp = () => {
     if (validate()) {
       // Logic to handle signup (e.g., API call)
       console.log("Signup Data:", formData);
+      login();
+      window.location.href = "/my-reports";
+      console.log(isLoggedIn);
     }
   };
 

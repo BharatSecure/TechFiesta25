@@ -145,6 +145,12 @@ const Features = forwardRef((props, ref) => {
                       <Typography variant="body1" sx={{ color: "#666" }}>
                         {feature.description}
                       </Typography>
+                      <button
+                        className="mt-3 w-1/2 self-center rounded-md bg-gradient-to-r from-sky-500 to-sky-700 py-2 px-6 text-white text-sm font-semibold shadow-md hover:shadow-lg hover:from-sky-700 hover:to-sky-900 transition-all"
+                        type="button"
+                      >
+                        Try Now
+                      </button>
                     </CardContent>
                   </Card>
                 </Link>

@@ -14,7 +14,7 @@ const OurFeatures = () => {
         {/* Grid Section */}
         <div className="grid lg:grid-cols-3 mx-3 sm:grid-cols-1 gap-8 mt-12 p-6 rounded-lg">
           {/* Card 1 */}
-          <Link to={"/about#features"}>
+          <Link to={"/voice-report"}>
             <div className="flex flex-col bg-gradient-to-r from-blue-50 to-blue-100 shadow-lg hover:shadow-2xl transition-all transform hover:scale-105 border border-slate-300 rounded-lg overflow-hidden cursor-pointer">
               <div className="m-4 overflow-hidden rounded-md h-60 flex justify-center items-center">
                 <img
@@ -45,7 +45,7 @@ const OurFeatures = () => {
           </Link>
 
           {/* Card 2 */}
-          <Link to={"/about#features"}>
+          <Link to={"/report-incident"}>
             <div className="flex flex-col bg-gradient-to-r from-yellow-50 to-yellow-100 shadow-lg hover:shadow-2xl transition-all transform hover:scale-105 border border-slate-300 rounded-lg overflow-hidden cursor-pointer">
               <div className="m-4 overflow-hidden rounded-md h-60 flex justify-center items-center">
                 <img
@@ -76,7 +76,7 @@ const OurFeatures = () => {
           </Link>
 
           {/* Card 3 */}
-          <Link to={"/about#features"}>
+          <Link to={"/heatmap"}>
             <div className="flex flex-col bg-gradient-to-r from-green-50 to-green-100 shadow-lg hover:shadow-2xl transition-all transform hover:scale-105 border border-slate-300 rounded-lg overflow-hidden cursor-pointer">
               <div className="m-4 overflow-hidden rounded-md h-60 flex justify-center items-center">
                 <img

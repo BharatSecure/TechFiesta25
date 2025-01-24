@@ -51,11 +51,15 @@ const FAQSection = () => {
                 {item.question}
               </span>
             </button>
-            {open === index && (
-              <div className="px-8 py-5 bg-white border border-t-0 border-gray-300 rounded-b-xl shadow-md mt-4">
+            <div
+              className={`overflow-hidden transition-[max-height] duration-500 ease-in-out ${
+                open === index ? "max-h-40" : "max-h-0"
+              }`}
+            >
+              <div className="px-8 py-5 bg-white border border-t-0 border-gray-300 rounded-b-xl shadow-md">
                 <p className="text-gray-700">{item.answer}</p>
               </div>
-            )}
+            </div>
           </div>
         ))}
       </div>

@@ -39,8 +39,8 @@ const Video = () => {
             sx={{
               width: "100%",
               maxWidth: "900px",
-              height: "550px",
-              border: "none",
+              height: "auto", // Adjust height automatically to maintain the aspect ratio
+              borderRadius: "8px",
               boxShadow: 3,
               backgroundColor: "#000",
             }}

@@ -14,7 +14,6 @@ import {
   TextField,
 } from "@mui/material";
 import Footer from "@/components/Footer";
-import ScaleInComponent from "@/lib/ScaleInComponent";
 
 // Simulated fetch function to get blog posts from a backend API
 const fetchBlogs = async (page = 1, pageSize = 5) => {
@@ -223,119 +222,117 @@ const Blogs = () => {
         )}
 
         <Divider sx={{ my: 4 }} />
-        <ScaleInComponent>
-          <Box ref={formRef} sx={{ mt: 6 }}>
-            <Typography
-              variant="h5"
-              sx={{
-                fontWeight: "bold",
-                color: "#003366",
-                mb: 2,
-                fontFamily: "'Smooch Sans', sans-serif",
-                textAlign: "center",
-                fontSize: "2rem",
-              }}
-            >
-              Share Your Thoughts
-            </Typography>
-            <Box
-              component="form"
-              sx={{
-                display: "flex",
-                flexDirection: "column",
-                gap: 2,
-                maxWidth: 600,
-                mx: "auto",
-                p: 3,
-                boxShadow: 2,
-                borderRadius: 2,
-                backgroundColor: "#f9f9f9",
-              }}
-            >
-              <FormControl error={Boolean(formErrors.title)}>
-                <TextField
-                  label="Title"
-                  name="title"
-                  variant="outlined"
-                  fullWidth
-                  value={formData.title}
-                  onChange={handleChange}
-                  required
-                />
-                {formErrors.title && (
-                  <FormHelperText>{formErrors.title}</FormHelperText>
-                )}
-              </FormControl>
+        <Box ref={formRef} sx={{ mt: 6 }}>
+          <Typography
+            variant="h5"
+            sx={{
+              fontWeight: "bold",
+              color: "#003366",
+              mb: 2,
+              fontFamily: "'Smooch Sans', sans-serif",
+              textAlign: "center",
+              fontSize: "2rem",
+            }}
+          >
+            Share Your Thoughts
+          </Typography>
+          <Box
+            component="form"
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              gap: 2,
+              maxWidth: 600,
+              mx: "auto",
+              p: 3,
+              boxShadow: 2,
+              borderRadius: 2,
+              backgroundColor: "#f9f9f9",
+            }}
+          >
+            <FormControl error={Boolean(formErrors.title)}>
+              <TextField
+                label="Title"
+                name="title"
+                variant="outlined"
+                fullWidth
+                value={formData.title}
+                onChange={handleChange}
+                required
+              />
+              {formErrors.title && (
+                <FormHelperText>{formErrors.title}</FormHelperText>
+              )}
+            </FormControl>
 
-              <FormControl error={Boolean(formErrors.author)}>
-                <TextField
-                  label="Author"
-                  name="author"
-                  variant="outlined"
-                  fullWidth
-                  value={formData.author}
-                  onChange={handleChange}
-                  required
-                />
-                {formErrors.author && (
-                  <FormHelperText>{formErrors.author}</FormHelperText>
-                )}
-              </FormControl>
+            <FormControl error={Boolean(formErrors.author)}>
+              <TextField
+                label="Author"
+                name="author"
+                variant="outlined"
+                fullWidth
+                value={formData.author}
+                onChange={handleChange}
+                required
+              />
+              {formErrors.author && (
+                <FormHelperText>{formErrors.author}</FormHelperText>
+              )}
+            </FormControl>
 
-              <FormControl error={Boolean(formErrors.content)}>
-                <TextField
-                  label="Content"
-                  name="content"
-                  variant="outlined"
-                  fullWidth
-                  multiline
-                  rows={4}
-                  value={formData.content}
-                  onChange={handleChange}
-                  required
-                />
-                {formErrors.content && (
-                  <FormHelperText>{formErrors.content}</FormHelperText>
-                )}
-              </FormControl>
+            <FormControl error={Boolean(formErrors.content)}>
+              <TextField
+                label="Content"
+                name="content"
+                variant="outlined"
+                fullWidth
+                multiline
+                rows={4}
+                value={formData.content}
+                onChange={handleChange}
+                required
+              />
+              {formErrors.content && (
+                <FormHelperText>{formErrors.content}</FormHelperText>
+              )}
+            </FormControl>
 
-              <FormControl>
-                <Typography variant="body1" sx={{ fontWeight: "bold", mb: 1 }}>
-                  Upload Image
-                </Typography>
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={(e) => {
-                    const file = e.target.files[0];
-                    if (file) {
-                      const reader = new FileReader();
-                      reader.onload = () => {
-                        setFormData((prev) => ({
-                          ...prev,
-                          image: reader.result,
-                        }));
-                      };
-                      reader.readAsDataURL(file);
-                    }
-                  }}
-                />
-              </FormControl>
-
-              <Button
-                variant="contained"
-                sx={{
-                  backgroundColor: "#003366",
-                  color: "#fff",
-                  "&:hover": { backgroundColor: "#00509e" },
+            <FormControl>
+              <Typography variant="body1" sx={{ fontWeight: "bold", mb: 1 }}>
+                Upload Image
+              </Typography>
+              <input
+                type="file"
+                accept="image/*"
+                onChange={(e) => {
+                  const file = e.target.files[0];
+                  if (file) {
+                    const reader = new FileReader();
+                    reader.onload = () => {
+                      setFormData((prev) => ({
+                        ...prev,
+                        image: reader.result,
+                      }));
+                    };
+                    reader.readAsDataURL(file);
+                  }
                 }}
-                onClick={handleSubmit}
-              >
-                Submit
-              </Button>
-            </Box>
+              />
+            </FormControl>
+
+            <Button
+              variant="contained"
+              sx={{
+                backgroundColor: "#003366",
+                color: "#fff",
+                "&:hover": { backgroundColor: "#00509e" },
+              }}
+              onClick={handleSubmit}
+            >
+              Submit
+            </Button>
           </Box>
-        </ScaleInComponent>
+        </Box>
       </Container>
       <Footer />
     </>

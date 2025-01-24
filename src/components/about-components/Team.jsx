@@ -85,7 +85,12 @@ const MeetTheTeam = () => {
             >
               <CardMedia
                 component="img"
-                sx={{ width: "100%", height: 150, objectFit: "cover" }}
+                sx={{
+                  width: "100%",
+                  height: "auto",
+                  aspectRatio: "1 / 1", // Maintain a square aspect ratio
+                  objectFit: "cover", // Ensure the image fills the space properly
+                }}
                 image={member.imageUrl}
                 alt={member.name}
               />

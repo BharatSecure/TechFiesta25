@@ -28,7 +28,7 @@ const ScaleInComponent = ({ children }) => {
     <>
       <style>{`.scale-in-element {
     opacity: 0;
-    transform: scale(0); /* Start smaller */
+    transform: scale(0.5); /* Start smaller */
     transition: opacity 1s ease-out, transform 1s ease-out;
   }
   

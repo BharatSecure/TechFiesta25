@@ -7,7 +7,7 @@ const FadeInComponent = ({ children }) => {
   useEffect(() => {
     // Determine the threshold based on screen size
     const screenWidth = window.innerWidth;
-    const thresholdValue = screenWidth < 768 ? 0.1 : 0.3; // Smaller threshold for devices below 768px
+    const thresholdValue = screenWidth < 768 ? 0.1 : 0.25; // Smaller threshold for devices below 768px
 
     const observer = new IntersectionObserver(
       (entries) => {

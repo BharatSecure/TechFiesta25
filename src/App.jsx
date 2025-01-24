@@ -18,8 +18,8 @@ import { AuthProvider } from "./context/AuthContext";
 
 const App = () => {
   return (
-    <div>
-      <AuthProvider>
+    <AuthProvider>
+      <div>
         <IncidentsProvider>
           <BrowserRouter>
             <ScrollToTop />
@@ -38,8 +38,8 @@ const App = () => {
             </Routes>
           </BrowserRouter>
         </IncidentsProvider>
-      </AuthProvider>
-    </div>
+      </div>
+    </AuthProvider>
   );
 };
 

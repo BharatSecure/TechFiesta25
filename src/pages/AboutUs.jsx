@@ -14,12 +14,18 @@ const AboutUs = () => {
   useEffect(() => {
     // Scroll to the Features section if the hash is '#features'
     if (location.hash === "#features") {
-      featuresRef.current?.scrollIntoView({ behavior: "smooth" });
+      const offset = 60; // Adjust this value as per your requirement
+      const targetPosition =
+        featuresRef.current?.getBoundingClientRect().top + window.pageYOffset;
+      window.scrollTo({ top: targetPosition - offset, behavior: "smooth" });
     }
   }, [location]); // Run when the location changes
 
   const scrollToFeatures = () => {
-    featuresRef.current?.scrollIntoView({ behavior: "smooth" });
+    const offset = 60; // Adjust this value as per your requirement
+    const targetPosition =
+      featuresRef.current?.getBoundingClientRect().top + window.pageYOffset;
+    window.scrollTo({ top: targetPosition - offset, behavior: "smooth" });
   };
 
   return (

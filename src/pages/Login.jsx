@@ -12,6 +12,7 @@ import {
 } from "@mui/material";
 import Footer from "../components/Footer";
 import { useAuth } from "@/context/AuthContext";
+import { useNavigate, Link } from "react-router-dom"; // Import useNavigate
 
 const Login = () => {
   const [formData, setFormData] = useState({
@@ -21,7 +22,8 @@ const Login = () => {
   });
 
   const [errors, setErrors] = useState({});
-  const {isLoggedIn,login} = useAuth();
+  const { login, isLoggedIn } = useAuth();
+  const navigate = useNavigate(); // Initialize the useNavigate hook
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -41,17 +43,19 @@ const Login = () => {
       tempErrors.password = "Password must be at least 6 characters long";
 
     setErrors(tempErrors);
-
     return Object.keys(tempErrors).length === 0;
   };
 
   const handleLogin = () => {
     if (validate()) {
-      // Logic to handle login (e.g., API call)
-      login();
-      console.log("Login Data:", formData);
-      console.log(isLoggedIn);
-      window.location.href = "/my-reports";
+      try {
+        login(formData.email, formData.password, formData.rememberMe);
+        console.log("Login State after Signup:", isLoggedIn); // Log the login state
+        navigate("/my-reports"); // Redirect to the dashboard after successful login
+      } catch (error) {
+        console.error(error);
+        setErrors({ ...errors, general: error.message });
+      }
     }
   };
 
@@ -153,6 +157,18 @@ const Login = () => {
               >
                 Log In
               </Button>
+              {errors.general && (
+                <Typography
+                  color="error"
+                  sx={{
+                    mt: 2,
+                    fontFamily: "'Ubuntu', sans-serif",
+                    fontSize: "0.9rem",
+                  }}
+                >
+                  {errors.general}
+                </Typography>
+              )}
               <Typography
                 variant="body2"
                 sx={{
@@ -163,9 +179,9 @@ const Login = () => {
                 }}
               >
                 Don't have an account?{" "}
-                <a href="/signup" style={{ color: "#00509e" }}>
+                <Link to={"/signup"} style={{ color: "#00509e" }}>
                   Sign Up
-                </a>
+                </Link>
               </Typography>
             </Grid>
           </Grid>

@@ -1,18 +1,21 @@
-import { Link } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom"; // Import useNavigate hook
 import { FaFacebook, FaTwitter, FaInstagram, FaLinkedin } from "react-icons/fa";
 import { IconButton } from "@mui/material";
 
 const Footer = () => {
+  const navigate = useNavigate();
+
+  const handleFaqClick = () => {
+    // Navigate to Home page and scroll to FAQ section
+    navigate("/", { state: { scrollToFaq: true } });
+  };
+
   return (
-    <footer className="bg-sky-100 text-gray-800 py-8 ">
+    <footer className="bg-sky-100 text-gray-800 py-8 mt-7">
       <div className="container mx-auto flex flex-col lg:flex-row justify-between items-center px-6">
         <div className="mb-6 lg:mb-0 flex">
-          <IconButton onClick={() => handleNavigation("/")}>
-            <img
-              src="/logo.png" 
-              alt="Logo"
-              style={{ width: 22, height: 22,}}
-            />
+          <IconButton onClick={() => navigate("/")}>
+            <img src="/logo.png" alt="Logo" style={{ width: 22, height: 22 }} />
           </IconButton>
           <Link to={"/"}>
             <h2 className="font-bold text-sky-600 font-smooch text-3xl hover:text-sky-700">
@@ -42,6 +45,11 @@ const Footer = () => {
               <Link to="/about#features" className="hover:text-sky-500">
                 Features
               </Link>
+            </li>
+            <li>
+              <button onClick={handleFaqClick} className="hover:text-sky-500">
+                FAQ's
+              </button>
             </li>
           </ul>
         </div>

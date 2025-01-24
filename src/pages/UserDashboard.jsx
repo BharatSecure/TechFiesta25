@@ -15,11 +15,7 @@ import { useAuth } from "@/context/AuthContext";
 const UserDashboard = () => {
   const { logout } = useAuth();
 
-  const dashboardStats = {
-    totalIncidents: 15,
-    resolvedIncidents: 10,
-    unresolvedIncidents: 5,
-  };
+
 
   const [total, setTotal] = useState();
   const [resolved, setResolved] = useState(0);

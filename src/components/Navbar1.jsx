@@ -54,133 +54,152 @@ const Navbar = () => {
   };
 
   const sideMenu = (
-  <Box
-    sx={{
-      width: 250,
-      height: "100%",
-      backgroundColor: "#f5f5f5",
-      padding: 2,
-      display: "flex",
-      flexDirection: "column",
-      justifyContent: "space-between",
-    }}
-    onClick={() => toggleDrawer(false)}
-  >
-    <List>
-      {["/", "/about", "/blogs"].map((route, index) => {
-        const label = route.slice(1) || "Home";
-        return (
-          <ListItem
-            button
-            key={index}
-            onClick={() => handleNavigation(route)}
-            sx={{
-              marginBottom: 1,
-              borderRadius: 2,
-              backgroundColor: activeLink === route ? "#003366" : "#fff",
-              color: activeLink === route ? "#fff" : "#555",
-              "&:hover": {
-                backgroundColor: "#003366",
-                color: "#fff",
-              },
-            }}
-          >
-            <ListItemText
-              primary={label}
-              sx={{ textAlign: "center", fontWeight: "bold" }}
-            />
-          </ListItem>
-        );
-      })}
-      {/* Features Section */}
-      <ListItem
-        button
-        onClick={handleMenuClick}
-        sx={{
-          marginBottom: 1,
-          borderRadius: 2,
-          backgroundColor: "#fff",
-          color: "#555",
-          "&:hover": {
-            backgroundColor: "#003366",
-            color: "#fff",
-          },
-        }}
-      >
-        <ListItemText primary="Features" sx={{ textAlign: "center" }} />
-      </ListItem>
-      <Menu
-        anchorEl={anchorEl}
-        open={Boolean(anchorEl)}
-        onClose={handleMenuClose}
-        MenuListProps={{ onMouseLeave: handleMenuClose }}
-        sx={{
-          "& .MuiPaper-root": {
+    <Box
+      sx={{
+        width: 250,
+        height: "100%",
+        backgroundColor: "#f5f5f5",
+        padding: 2,
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "space-between",
+      }}
+      onClick={() => toggleDrawer(false)}
+    >
+      <List>
+        {["/", "/about", "/blogs"].map((route, index) => {
+          const label = route.slice(1) || "Home";
+          return (
+            <ListItem
+              button
+              key={index}
+              onClick={() => handleNavigation(route)}
+              sx={{
+                marginBottom: 1,
+                borderRadius: 2,
+                backgroundColor: activeLink === route ? "#003366" : "#fff",
+                color: activeLink === route ? "#fff" : "#555",
+                "&:hover": {
+                  backgroundColor: "#003366",
+                  color: "#fff",
+                },
+              }}
+            >
+              <ListItemText
+                primary={label}
+                sx={{ textAlign: "center", fontWeight: "bold" }}
+              />
+            </ListItem>
+          );
+        })}
+        {/* Features Section */}
+        <ListItem
+          button
+          onClick={handleMenuClick}
+          sx={{
+            marginBottom: 1,
             borderRadius: 2,
-            boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.1)",
-            minWidth: 180,
             backgroundColor: "#fff",
-          },
-          "& .MuiMenuItem-root": {
-            padding: "10px 20px",
-            fontSize: "1rem",
             color: "#555",
             "&:hover": {
-              fontWeight: "bold",
-              backgroundColor: "#f0f0f0",
-              color: "#003366",
+              backgroundColor: "#003366",
+              color: "#fff",
             },
+          }}
+        >
+          <ListItemText primary="Features" sx={{ textAlign: "center" }} />
+        </ListItem>
+        <Menu
+          anchorEl={anchorEl}
+          open={Boolean(anchorEl)}
+          onClose={handleMenuClose}
+          MenuListProps={{ onMouseLeave: handleMenuClose }}
+          sx={{
+            "& .MuiPaper-root": {
+              borderRadius: 2,
+              boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.1)",
+              minWidth: 180,
+              backgroundColor: "#fff",
+            },
+            "& .MuiMenuItem-root": {
+              padding: "10px 20px",
+              fontSize: "1rem",
+              color: "#555",
+              "&:hover": {
+                fontWeight: "bold",
+                backgroundColor: "#f0f0f0",
+                color: "#003366",
+              },
+            },
+          }}
+        >
+          <MenuItem
+            onClick={() => {
+              handleNavigation("/report-incident");
+              handleMenuClose();
+            }}
+          >
+            Report Incident
+          </MenuItem>
+          <MenuItem
+            onClick={() => {
+              handleNavigation("/heatmap");
+              handleMenuClose();
+            }}
+          >
+            Heatmaps
+          </MenuItem>
+          <MenuItem
+            onClick={() => {
+              handleNavigation("/voice-report");
+              handleMenuClose();
+            }}
+          >
+            Voice Report
+          </MenuItem>
+        </Menu>
+      </List>
+      {/* Footer Section */}
+      <Box sx={{ textAlign: "center", paddingTop: 2 }}>
+        <Typography variant="caption" sx={{ color: "#777" }}>
+          BharatSecure © 2025
+        </Typography>
+      </Box>
+    </Box>
+  );
+
+  return (
+    <AppBar
+      position="sticky"
+      sx={{
+        backgroundColor: "#9ee8e3",
+        boxShadow: 3,
+        padding: "0 20px",
+        "@media (max-width: 450px)": {
+          padding: "0",
+        },
+      }}
+    >
+      <Container
+        sx={{
+          "@media (max-width: 450px)": {
+            padding: "0",
           },
         }}
       >
-        <MenuItem
-          onClick={() => {
-            handleNavigation("/report-incident");
-            handleMenuClose();
-          }}
-        >
-          Report Incident
-        </MenuItem>
-        <MenuItem
-          onClick={() => {
-            handleNavigation("/heatmap");
-            handleMenuClose();
-          }}
-        >
-          Heatmaps
-        </MenuItem>
-        <MenuItem
-          onClick={() => {
-            handleNavigation("/voice-report");
-            handleMenuClose();
-          }}
-        >
-          Voice Report
-        </MenuItem>
-      </Menu>
-    </List>
-    {/* Footer Section */}
-    <Box sx={{ textAlign: "center", paddingTop: 2 }}>
-      <Typography variant="caption" sx={{ color: "#777" }}>
-        BharatSecure © 2025
-      </Typography>
-    </Box>
-  </Box>
-);
-
-  return (
-    <AppBar position="sticky" sx={{ backgroundColor: "#9ee8e3", boxShadow: 3 }}>
-      <Container>
         <Toolbar
           sx={{
             display: "flex",
             justifyContent: "space-between",
             alignItems: "center",
+            "@media (max-width: 450px)": {
+              padding: "0",
+            },
           }}
         >
           {/* Logo and Company Name */}
           <Box sx={{ display: "flex", alignItems: "center" }}>
-            <IconButton onClick={() => handleNavigation("/")}>
+            <IconButton onClick={() => handleNavigation("/")} sx={{ p: 0 }}>
               <img
                 src={logo}
                 alt="Logo"
@@ -195,6 +214,9 @@ const Navbar = () => {
                   color: "#003366",
                   fontFamily: "Smooch Sans, sans-serif",
                   fontSize: "3rem",
+                  "@media (max-width: 450px)": {
+                    fontSize: "2rem",
+                  },
                 }}
               >
                 BharatSecure

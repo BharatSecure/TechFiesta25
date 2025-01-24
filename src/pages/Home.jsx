@@ -26,9 +26,9 @@ const Home = () => {
     <div>
       <Sos />
       <OurFeatures />
-      <FadeInComponent>
+      {/* <FadeInComponent>
         <Analytics />
-      </FadeInComponent>
+      </FadeInComponent> */}
       <FadeInComponent>
         <Testimonials />
       </FadeInComponent>

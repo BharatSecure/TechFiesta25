@@ -11,7 +11,7 @@ const Analytics = () => {
       </h1>
 
       {/* Charts Section */}
-      <div className="flex flex-col sm:grid sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 w-full max-w-7xl p-4 sm:p-6 bg-gradient-to-r from-indigo-50 via-sky-100 to-blue-50 rounded-2xl shadow-lg">
+      <div className="flex flex-col lg:grid-cols-3 gap-6 sm:gap-8 w-full max-w-7xl p-4 sm:p-6 bg-gradient-to-r from-indigo-50 via-sky-100 to-blue-50 rounded-2xl shadow-lg">
         {/* Pie Chart */}
         <div className="p-4 sm:p-6 bg-white rounded-lg shadow-md border border-gray-200 hover:-translate-y-2 transition-transform hover:shadow-lg w-full max-w-xs sm:max-w-md lg:max-w-full mx-auto">
           <h2 className="text-lg sm:text-xl font-semibold text-gray-700 mb-4 text-center">

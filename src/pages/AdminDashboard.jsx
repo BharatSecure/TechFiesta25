@@ -235,8 +235,8 @@ setNewTasks((prevNewTasks) =>
   {/* Main content */}
   <div className="flex-grow p-8 pb-24  ">
     {/* Header */}
-    <header className="mb-6 text-center">
-      <h1 className="text-3xl font-bold text-gray-800">
+    <header className="mb-6 lg:text-center">
+      <h1 className="lg:text-3xl sm:text-2xl  font-bold text-gray-800">
         <span className="text-emerald-600">Admin Dashboard</span>
       </h1>
     </header>
@@ -251,41 +251,40 @@ setNewTasks((prevNewTasks) =>
 
 
     {/* Dashboard Stats Cards */}
-    <div className="flex flex-row gap-6 mb-6 justify-center mt-16 ml-8">
-      {/* Total Incidents Card */}
-      <div className="bg-white p-6 rounded-xl shadow-lg hover:shadow-lg transition-all transform hover:scale-105 flex items-center justify-evenly w-80 border-4 border-red-500 cursor-pointer">
-        <div>
-          <h3 className="text-xl font-semibold text-gray-700">
-            Total Incidents
-          </h3>
-          <p className="text-3xl font-bold text-gray-900">{total}</p>
-        </div>
-        <MdReportProblem className="text-red-500 mr-2 text-6xl" />
-      </div>
-
-      {/* Resolved Incidents Card */}
-      <div className="bg-white p-6 rounded-xl shadow-lg hover:shadow-lg transition-all transform hover:scale-105 flex items-center justify-evenly w-80 border-4 border-green-500 cursor-pointer">
-        <div>
-          <h3 className="text-xl font-semibold text-gray-700">
-            Resolved Incidents
-          </h3>
-          <p className="text-3xl font-bold text-gray-900">{resolved}</p>
-        </div>
-        <MdCheckCircle className="text-green-500 mr-2 text-6xl" />
-      </div>
-
-      {/* Unresolved Incidents Card */}
-      <div className="bg-white p-6 rounded-xl shadow-lg hover:shadow-lg transition-all transform hover:scale-105 flex items-center justify-evenly w-80 border-4 border-yellow-500 cursor-pointer">
-        <div>
-          <h3 className="text-xl font-semibold text-gray-700">
-            Unresolved Incidents
-          </h3>
-          <p className="text-3xl font-bold text-gray-900">{unresolved}</p>
-        </div>
-        <MdHourglassEmpty className="text-yellow-500 mr-2 text-6xl" />
-      </div>
+    <div className="flex flex-wrap gap-6 mb-6 justify-center mt-16 ml-8 sm:ml-0">
+  {/* Total Incidents Card */}
+  <div className="bg-white p-6 rounded-xl shadow-lg hover:shadow-lg transition-all transform hover:scale-105 flex items-center justify-between w-full sm:w-80 border-4 border-red-500 cursor-pointer">
+    <div>
+      <h3 className="text-xl font-semibold text-gray-700">
+        Total Incidents
+      </h3>
+      <p className="text-3xl font-bold text-gray-900">{total}</p>
     </div>
+    <MdReportProblem className="text-red-500 text-6xl" />
+  </div>
 
+  {/* Resolved Incidents Card */}
+  <div className="bg-white p-6 rounded-xl shadow-lg hover:shadow-lg transition-all transform hover:scale-105 flex items-center justify-between w-full sm:w-80 border-4 border-green-500 cursor-pointer">
+    <div>
+      <h3 className="text-xl font-semibold text-gray-700">
+        Resolved Incidents
+      </h3>
+      <p className="text-3xl font-bold text-gray-900">{resolved}</p>
+    </div>
+    <MdCheckCircle className="text-green-500 text-6xl" />
+  </div>
+
+  {/* Unresolved Incidents Card */}
+  <div className="bg-white p-6 rounded-xl shadow-lg hover:shadow-lg transition-all transform hover:scale-105 flex items-center justify-between w-full sm:w-80 border-4 border-yellow-500 cursor-pointer">
+    <div>
+      <h3 className="text-xl font-semibold text-gray-700">
+        Unresolved Incidents
+      </h3>
+      <p className="text-3xl font-bold text-gray-900">{unresolved}</p>
+    </div>
+    <MdHourglassEmpty className="text-yellow-500 text-6xl" />
+  </div>
+</div>
 
 
 {/*NEW TASKSSSS*/}

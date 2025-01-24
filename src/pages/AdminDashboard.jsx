@@ -237,7 +237,7 @@ setNewTasks((prevNewTasks) =>
     {/* Header */}
     <header className="mb-6 lg:text-center">
       <h1 className="lg:text-3xl sm:text-2xl  font-bold text-gray-800">
-        <span className="text-emerald-600">Admin Dashboard</span>
+        <span className="text-xl text-emerald-600">Admin Dashboard</span>
       </h1>
     </header>
 

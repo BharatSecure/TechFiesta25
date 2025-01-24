@@ -118,7 +118,7 @@ const UserDashboard = () => {
         <div className="p-8">
           {/* Header */}
           <header className="mb-6 lg:text-center">
-            <h1 className="lg:text-3xl sm:text-2xl md:text-2xl font-semibold text-gray-800">
+            <h1 className="text-xl lg:text-3xl sm:text-2xl md:text-2xl font-semibold text-gray-800">
               <span className="text-sky-600">Your Dashboard</span>
             </h1>
           </header>

@@ -6,7 +6,6 @@ import Team from "../components/about-components/Team.jsx";
 import Video from "../components/about-components/Video.jsx";
 import AboutUsDetails from "../components/about-components/AboutUsDetails.jsx";
 import Footer from "../components/Footer.jsx";
-import ScaleInComponent from "@/lib/ScaleInComponent.jsx";
 
 const AboutUs = () => {
   const featuresRef = useRef(null); // Create a reference for Features section
@@ -31,9 +30,7 @@ const AboutUs = () => {
 
   return (
     <div style={{ fontFamily: "ubuntu", backgroundColor: "white" }}>
-      <ScaleInComponent>
-        <Hero onLearnMore={scrollToFeatures} />
-      </ScaleInComponent>
+      <Hero onLearnMore={scrollToFeatures} />
       <AboutUsDetails />
       <Features ref={featuresRef} /> {/* Attach ref to Features */}
       <Video />

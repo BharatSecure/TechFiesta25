@@ -5,6 +5,10 @@ const FadeInComponent = ({ children }) => {
   const elementRef = useRef(null);
 
   useEffect(() => {
+    // Determine the threshold based on screen size
+    const screenWidth = window.innerWidth;
+    const thresholdValue = screenWidth < 768 ? 0.1 : 0.3; // Smaller threshold for devices below 768px
+
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
@@ -16,7 +20,7 @@ const FadeInComponent = ({ children }) => {
         });
       },
       {
-        threshold: 0.3, // Trigger when 30% of the element is visible
+        threshold: thresholdValue, // Use dynamic threshold value
       }
     );
 

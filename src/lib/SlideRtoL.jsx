@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
+//NOT WORKING FOR SMALLER SCREENS DONT USE
 
 const SlideRtoL = ({ children, direction = "right" }) => {
   const [isVisible, setIsVisible] = useState(false);
@@ -8,11 +9,14 @@ const SlideRtoL = ({ children, direction = "right" }) => {
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
-          setIsVisible(entry.isIntersecting);
+          if (entry.isIntersecting) {
+            setIsVisible(true);
+          }
         });
       },
-      { threshold: 0.1 }
+      { threshold: 0, rootMargin: "0px 0px -50px 0px" }
     );
+
     if (elementRef.current) {
       observer.observe(elementRef.current);
     }
@@ -30,14 +34,13 @@ const SlideRtoL = ({ children, direction = "right" }) => {
         .slide-in-element {
           opacity: 0;
           transform: translateX(${direction === "right" ? "500px" : "-500px"});
+          will-change: transform, opacity;
           transition: opacity 1s ease-out, transform 1s ease-out;
-          overflow: hidden;
         }
 
         .slide-in-element.is-visible {
           opacity: 1;
           transform: translateX(0);
-          overflow:hidden;
         }
         `}
       </style>

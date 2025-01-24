@@ -31,11 +31,13 @@ const SlideRtoL = ({ children, direction = "right" }) => {
           opacity: 0;
           transform: translateX(${direction === "right" ? "500px" : "-500px"});
           transition: opacity 1s ease-out, transform 1s ease-out;
+          overflow: hidden;
         }
 
         .slide-in-element.is-visible {
           opacity: 1;
           transform: translateX(0);
+          overflow:hidden;
         }
         `}
       </style>

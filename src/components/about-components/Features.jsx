@@ -67,7 +67,7 @@ const Features = forwardRef((props, ref) => {
     <div ref={ref}>
       <ThemeProvider theme={theme}>
         <CssBaseline /> {/* Apply baseline styles */}
-        <Box sx={{ py: 6, px: 2, backgroundColor: "#f9f9f9" }}>
+        <Box sx={{ py: 6, px: 2, backgroundColor: "#f9f9f9", overflow: "hidden" }}>
           <Typography
             variant="h3"
             align="center"

@@ -14,6 +14,7 @@ import Footer from "@/components/Footer";
 import { useAuth } from "@/context/AuthContext";
 
 const UserDashboard = () => {
+  const navigate = useNavigate();
   const { logout } = useAuth();
 
   const dashboardStats = {

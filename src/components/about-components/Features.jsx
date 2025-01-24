@@ -10,6 +10,7 @@ import {
 } from "@mui/material";
 import { Link, BrowserRouter as Router } from "react-router-dom";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
+import SlideRtoL from "@/lib/SlideRtoL";
 
 // Custom theme with Ubuntu font
 const theme = createTheme({
@@ -94,66 +95,68 @@ const Features = forwardRef((props, ref) => {
                   },
                 }}
               >
-                <Link to={feature.linkTo} style={{ textDecoration: "none" }}>
-                  <Card
-                    sx={{
-                      display: "flex",
-                      flexDirection: "row",
-                      boxShadow: 5,
-                      width: "100%",
-                      backgroundColor: "#ffffff",
-                      borderRadius: 3,
-                      transition: "transform 0.3s ease, box-shadow 0.3s ease",
-                      "&:hover": {
-                        transform: "scale(0.95)",
-                        boxShadow: 10,
-                      },
-                    }}
-                  >
-                    <CardMedia
-                      component="img"
-                      sx={{
-                        width: "40%",
-                        objectFit: "cover",
-                        height: "auto",
-                        borderRadius: 2,
-                      }}
-                      image={feature.imageUrl}
-                      alt={feature.title}
-                    />
-                    <CardContent
+                <SlideRtoL>
+                  <Link to={feature.linkTo} style={{ textDecoration: "none" }}>
+                    <Card
                       sx={{
                         display: "flex",
-                        flexDirection: "column",
-                        justifyContent: "center",
-                        px: 4,
-                        py: 3,
-                        backgroundColor: "#f0f0f0",
-                        borderRadius: 2,
+                        flexDirection: "row",
+                        boxShadow: 5,
+                        width: "100%",
+                        backgroundColor: "#ffffff",
+                        borderRadius: 3,
+                        transition: "transform 0.3s ease, box-shadow 0.3s ease",
+                        "&:hover": {
+                          transform: "scale(0.95)",
+                          boxShadow: 10,
+                        },
                       }}
                     >
-                      <Typography
-                        variant="h5"
+                      <CardMedia
+                        component="img"
                         sx={{
-                          fontWeight: "bold",
-                          mb: 2,
-                          color: "#0066cc", // Bright color for title
+                          width: "40%",
+                          objectFit: "cover",
+                          height: "auto",
+                          borderRadius: 2,
+                        }}
+                        image={feature.imageUrl}
+                        alt={feature.title}
+                      />
+                      <CardContent
+                        sx={{
+                          display: "flex",
+                          flexDirection: "column",
+                          justifyContent: "center",
+                          px: 4,
+                          py: 3,
+                          backgroundColor: "#f0f0f0",
+                          borderRadius: 2,
                         }}
                       >
-                        {feature.title}
-                      </Typography>
-                      <Typography variant="body1" sx={{ color: "#666" }}>
-                        {feature.description}
-                      </Typography>
-                      <button
-                        className="mt-3 w-1/2 self-center rounded-md bg-gradient-to-r from-sky-500 to-sky-700 py-2 px-6 text-white text-sm font-semibold shadow-md hover:shadow-lg hover:from-sky-700 hover:to-sky-900 transition-all"
-                        type="button"
-                      >
-                        Try Now
-                      </button>
-                    </CardContent>
-                  </Card>
-                </Link>
+                        <Typography
+                          variant="h5"
+                          sx={{
+                            fontWeight: "bold",
+                            mb: 2,
+                            color: "#0066cc", // Bright color for title
+                          }}
+                        >
+                          {feature.title}
+                        </Typography>
+                        <Typography variant="body1" sx={{ color: "#666" }}>
+                          {feature.description}
+                        </Typography>
+                        <button
+                          className="mt-3 w-1/2 self-center rounded-md bg-gradient-to-r from-sky-500 to-sky-700 py-2 px-6 text-white text-sm font-semibold shadow-md hover:shadow-lg hover:from-sky-700 hover:to-sky-900 transition-all"
+                          type="button"
+                        >
+                          Try Now
+                        </button>
+                      </CardContent>
+                    </Card>
+                  </Link>
+                </SlideRtoL>
               </Box>
             ))}
           </Stack>

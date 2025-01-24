@@ -34,7 +34,7 @@ const Sos = () => {
         {/* SOS Button */}
         <button
           onClick={handleSOSClick}
-          className="relative bg-red-600 text-white font-bold text-3xl py-6 px-16 rounded-full shadow-lg transition-all duration-300 hover:bg-red-700 focus:ring-4 focus:ring-red-500 outline-none"
+          className="relative bg-red-600 text-white font-bold text-3xl py-6 px-16 rounded-full shadow-lg transition-all duration-300 hover:bg-red-700 hover:scale-105 focus:ring-4 focus:ring-red-500 outline-none"
         >
           <span className="absolute inset-0 rounded-full bg-red-500 animate-ping opacity-50"></span>
           SOS

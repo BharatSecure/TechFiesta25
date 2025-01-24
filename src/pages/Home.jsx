@@ -3,6 +3,7 @@ import { useLocation } from "react-router-dom";
 import Sos from "../components/Sos";
 import OurFeatures from "../components/OurFeatures";
 import Analytics from "../components/Analytics";
+// import AnalyticsSection from "../components/AnalyticsSection";
 import Footer from "../components/Footer";
 import FAQSection from "@/components/FAQ";
 import Testimonials from "@/components/Testimonials";
@@ -26,9 +27,9 @@ const Home = () => {
     <div>
       <Sos />
       <OurFeatures />
-      {/* <FadeInComponent>
+      <FadeInComponent>
         <Analytics />
-      </FadeInComponent> */}
+      </FadeInComponent>
       <FadeInComponent>
         <Testimonials />
       </FadeInComponent>

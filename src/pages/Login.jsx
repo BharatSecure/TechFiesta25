@@ -13,6 +13,7 @@ import {
 import Footer from "../components/Footer";
 import { useAuth } from "@/context/AuthContext";
 import { useNavigate, Link } from "react-router-dom"; // Import useNavigate
+import ScaleInComponent from "@/lib/ScaleInComponent";
 
 const Login = () => {
   const [formData, setFormData] = useState({
@@ -61,132 +62,134 @@ const Login = () => {
 
   return (
     <>
-      <Container sx={{ py: 8, backgroundColor: "#7bffeb40" }}>
-        <Box
-          sx={{
-            maxWidth: 500,
-            mx: "auto",
-            textAlign: "center",
-            padding: 4,
-            borderRadius: 2,
-            boxShadow: "0 4px 10px rgba(0, 0, 0, 0.1)",
-            backgroundColor: "#fffff2fc",
-          }}
-        >
-          <Typography
-            variant="h4"
+      <ScaleInComponent>
+        <Container sx={{ py: 8, backgroundColor: "#7bffeb40" }}>
+          <Box
             sx={{
-              fontWeight: "bold",
-              color: "#003366",
-              mb: 4,
-              fontFamily: "'Smooch Sans', sans-serif",
-              letterSpacing: 1,
+              maxWidth: 500,
+              mx: "auto",
+              textAlign: "center",
+              padding: 4,
+              borderRadius: 2,
+              boxShadow: "0 4px 10px rgba(0, 0, 0, 0.1)",
+              backgroundColor: "#fffff2fc",
             }}
           >
-            Log In to Your Account
-          </Typography>
-          <Divider
-            sx={{ mb: 4, borderColor: "#003366", width: "50px", mx: "auto" }}
-          />
-          <Grid container spacing={3}>
-            <Grid item xs={12}>
-              <TextField
-                label="Email"
-                name="email"
-                type="email"
-                variant="outlined"
-                fullWidth
-                value={formData.email}
-                onChange={handleChange}
-                required
-                error={!!errors.email}
-                helperText={errors.email}
-                sx={{
-                  "& .MuiOutlinedInput-root": {
-                    borderRadius: 2,
-                  },
-                }}
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <TextField
-                label="Password"
-                name="password"
-                type="password"
-                variant="outlined"
-                fullWidth
-                value={formData.password}
-                onChange={handleChange}
-                required
-                error={!!errors.password}
-                helperText={errors.password}
-                sx={{
-                  "& .MuiOutlinedInput-root": {
-                    borderRadius: 2,
-                  },
-                }}
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    checked={formData.rememberMe}
-                    onChange={handleCheckboxChange}
-                    color="primary"
-                  />
-                }
-                label="Remember Me"
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <Button
-                variant="contained"
-                fullWidth
-                sx={{
-                  backgroundColor: "#003366",
-                  color: "#fff",
-                  padding: "12px 20px",
-                  borderRadius: "4px",
-                  "&:hover": {
-                    backgroundColor: "#00509e",
-                  },
-                  boxShadow: "0 4px 10px rgba(0, 0, 0, 0.2)",
-                }}
-                onClick={handleLogin}
-              >
-                Log In
-              </Button>
-              {errors.general && (
+            <Typography
+              variant="h4"
+              sx={{
+                fontWeight: "bold",
+                color: "#003366",
+                mb: 4,
+                fontFamily: "'Smooch Sans', sans-serif",
+                letterSpacing: 1,
+              }}
+            >
+              Log In to Your Account
+            </Typography>
+            <Divider
+              sx={{ mb: 4, borderColor: "#003366", width: "50px", mx: "auto" }}
+            />
+            <Grid container spacing={3}>
+              <Grid item xs={12}>
+                <TextField
+                  label="Email"
+                  name="email"
+                  type="email"
+                  variant="outlined"
+                  fullWidth
+                  value={formData.email}
+                  onChange={handleChange}
+                  required
+                  error={!!errors.email}
+                  helperText={errors.email}
+                  sx={{
+                    "& .MuiOutlinedInput-root": {
+                      borderRadius: 2,
+                    },
+                  }}
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <TextField
+                  label="Password"
+                  name="password"
+                  type="password"
+                  variant="outlined"
+                  fullWidth
+                  value={formData.password}
+                  onChange={handleChange}
+                  required
+                  error={!!errors.password}
+                  helperText={errors.password}
+                  sx={{
+                    "& .MuiOutlinedInput-root": {
+                      borderRadius: 2,
+                    },
+                  }}
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      checked={formData.rememberMe}
+                      onChange={handleCheckboxChange}
+                      color="primary"
+                    />
+                  }
+                  label="Remember Me"
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <Button
+                  variant="contained"
+                  fullWidth
+                  sx={{
+                    backgroundColor: "#003366",
+                    color: "#fff",
+                    padding: "12px 20px",
+                    borderRadius: "4px",
+                    "&:hover": {
+                      backgroundColor: "#00509e",
+                    },
+                    boxShadow: "0 4px 10px rgba(0, 0, 0, 0.2)",
+                  }}
+                  onClick={handleLogin}
+                >
+                  Log In
+                </Button>
+                {errors.general && (
+                  <Typography
+                    color="error"
+                    sx={{
+                      mt: 2,
+                      fontFamily: "'Ubuntu', sans-serif",
+                      fontSize: "0.9rem",
+                    }}
+                  >
+                    {errors.general}
+                  </Typography>
+                )}
                 <Typography
-                  color="error"
+                  variant="body2"
                   sx={{
                     mt: 2,
-                    fontFamily: "'Ubuntu', sans-serif",
-                    fontSize: "0.9rem",
+                    color: "#003366",
+                    fontFamily: "'Ubuntu', 'Smooch Sans', sans-serif",
+                    fontSize: "1.2rem",
                   }}
                 >
-                  {errors.general}
+                  Don't have an account?{" "}
+                  <Link to={"/signup"} style={{ color: "#00509e" }}>
+                    Sign Up
+                  </Link>
                 </Typography>
-              )}
-              <Typography
-                variant="body2"
-                sx={{
-                  mt: 2,
-                  color: "#003366",
-                  fontFamily: "'Ubuntu', 'Smooch Sans', sans-serif",
-                  fontSize: "1.2rem",
-                }}
-              >
-                Don't have an account?{" "}
-                <Link to={"/signup"} style={{ color: "#00509e" }}>
-                  Sign Up
-                </Link>
-              </Typography>
+              </Grid>
             </Grid>
-          </Grid>
-        </Box>
-      </Container>
+          </Box>
+        </Container>
+      </ScaleInComponent>
       <Footer />
     </>
   );

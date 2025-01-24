@@ -15,8 +15,7 @@ import { useAuth } from "@/context/AuthContext";
 
 const UserDashboard = () => {
   const { logout } = useAuth();
-  const navigate = useNavigate();
-  
+
   const dashboardStats = {
     totalIncidents: 15,
     resolvedIncidents: 10,

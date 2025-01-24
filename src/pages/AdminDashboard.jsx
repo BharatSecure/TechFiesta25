@@ -5,65 +5,122 @@ import Footer from "@/components/Footer";
 import { useAuth } from "@/context/AuthContext";
 
 
+
 const AdminDashboard = () => {
 
  const [total, setTotal] = useState();
   const [resolved, setResolved] = useState(0);
   const [unresolved, setUnResolved] = useState(0);
 
+const [newTasks,setNewTasks]=useState([])
+
 const [filter ,setFilter]=useState('All')
 
 const [filternew , setFilterNew]=useState([])
 
-  const [incidents, setIncidents] = useState([
-    {
-      id: 3319,
-      user: "John Doe",
-      title: "Broken Streetlight",
-      description: "A streetlight is broken near the park.",
-      severity: "Medium",
-      location: "Latitude: 19.185664, Longitude: 72.8367104",
-      status: "Resolved",
-    },
-    {
-      id: 1269,
-      user: "Jane Smith",
-      title: "Pothole on Road",
-      description: "A big pothole on the main road.",
-      severity: "High",
-      location: "Latitude: 19.185664, Longitude: 72.8367104",
-      status: "Under Process",
-    },
-    {
-      id: 1012,
-      user: "Michael Johnson",
-      title: "Flooding in Basement",
-      description: "Water leakage in the building basement.",
-      severity: "Low",
-      location: "Latitude: 19.185664, Longitude: 72.8367104",
-      status: "Under Process",
-    },
-    {
-      id: 4321,
-      user: "Alice Cooper",
-      title: "Leaking Water Pipe",
-      description: "A water pipe is leaking in the neighborhood.",
-      severity: "Low",
-      location: "Latitude: 19.0825223, Longitude: 72.7411012",
-      status: "Under Process",
-    },
-    {
-      id: 5478,
-      user: "Bob Taylor",
-      title: "Collapsed Tree",
-      description: "A tree has fallen on the sidewalk.",
-      severity: "Medium",
-      location: "Latitude: 19.2057984, Longitude: 72.8397031",
-      status: "Under Process",
-    },
-    
-  
-  ]);
+const [incidents, setIncidents] = useState([
+  {
+    id: 3319,
+    user: "John Doe",
+    title: "Broken Streetlight",
+    description: "A streetlight is broken near the park.",
+    severity: "Medium",
+    location: "Latitude: 19.185664, Longitude: 72.8367104",
+    status: "Resolved",
+    accept: true,
+  },
+  {
+    id: 1269,
+    user: "Jane Smith",
+    title: "Pothole on Road",
+    description: "A big pothole on the main road.",
+    severity: "High",
+    location: "Latitude: 19.185664, Longitude: 72.8367104",
+    status: "Under Process",
+    accept: true,
+  },
+  {
+    id: 1012,
+    user: "Michael Johnson",
+    title: "Flooding in Basement",
+    description: "Water leakage in the building basement.",
+    severity: "Low",
+    location: "Latitude: 19.185664, Longitude: 72.8367104",
+    status: "Under Process",
+    accept: true,
+  },
+  {
+    id: 4321,
+    user: "Alice Cooper",
+    title: "Leaking Water Pipe",
+    description: "A water pipe is leaking in the neighborhood.",
+    severity: "Low",
+    location: "Latitude: 19.0825223, Longitude: 72.7411012",
+    status: "Under Process",
+    accept: false,
+  },
+  {
+    id: 5478,
+    user: "Bob Taylor",
+    title: "Collapsed Tree",
+    description: "A tree has fallen on the sidewalk.",
+    severity: "Medium",
+    location: "Latitude: 19.2057984, Longitude: 72.8397031",
+    status: "Under Process",
+    accept: true,
+  },
+  {
+    id: 6789,
+    user: "Emily Clark",
+    title: "Graffiti on Wall",
+    description: "Graffiti spotted on the wall of the local park.",
+    severity: "Low",
+    location: "Latitude: 19.217123, Longitude: 72.845982",
+    status: "Under Process",
+    accept: true,
+  },
+  {
+    id: 7890,
+    user: "Nathan Lee",
+    title: "Overflowing Garbage Bin",
+    description: "Garbage bin near the market is overflowing.",
+    severity: "High",
+    location: "Latitude: 19.197654, Longitude: 72.824567",
+    status: "Under Process",
+    accept: true,
+  },
+  {
+    id: 8901,
+    user: "Sophia Brown",
+    title: "Damaged Road Sign",
+    description: "A road sign near the traffic signal is damaged.",
+    severity: "Medium",
+    location: "Latitude: 19.209876, Longitude: 72.821234",
+    status: "Under Process",
+    accept: false,
+  },
+  {
+    id: 9012,
+    user: "Liam Wilson",
+    title: "Blocked Drain",
+    description: "Drain is blocked near the residential area.",
+    severity: "High",
+    location: "Latitude: 19.195678, Longitude: 72.834567",
+    status: "Under Process",
+    accept: true,
+  },
+  {
+    id: 1023,
+    user: "Olivia Martinez",
+    title: "Noise Complaint",
+    description: "Loud music from the nearby house late at night.",
+    severity: "Low",
+    location: "Latitude: 19.208765, Longitude: 72.828904",
+    status: "Under Process",
+    accept: true,
+  },
+]);
+
 
   const getSeverityColor = (severity) => {
     if (severity === "Low") return "text-blue-700 border-blue-600 bg-blue-200";
@@ -127,13 +184,42 @@ useEffect(() => {
   
   const filteredIncidents = incidents.filter((incidentfilt) => {
     if (filter === "All") {
-      return incidentfilt; 
+      return incidentfilt&&incidentfilt.accept==true; 
     }
-    return incidentfilt.severity === filter; 
+    return incidentfilt.severity === filter&&incidentfilt.accept==true; 
   });
 
   setFilterNew(filteredIncidents)
 }, [filter, incidents]);
+
+useEffect(() => {
+  const newIncidentList= incidents.filter((incidentnew)=>{
+
+    return incidentnew.accept===false
+  
+  })
+
+  setNewTasks(newIncidentList)
+ 
+}, [])
+
+
+const handleNewTask=(id)=>{
+setIncidents((prevNew)=>
+prevNew.map((incident)=>
+  incident.id===id?{...incident,accept:true}:incident
+
+))
+
+
+setNewTasks((prevNewTasks) =>
+  prevNewTasks.filter((incident) => incident.id !== id)
+);
+
+}
+
+
+
 
 
 
@@ -199,6 +285,59 @@ useEffect(() => {
         <MdHourglassEmpty className="text-yellow-500 mr-2 text-6xl" />
       </div>
     </div>
+
+
+
+{/*NEW TASKSSSS*/}
+
+
+
+{newTasks.length===0?
+<h2 className="text-2xl  my-11">No New Reports Available</h2>:
+<div>
+<h1 className="text-4xl font-semibold mt-10">New Incidents:</h1>
+<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-12 from-green-100 to-green-200 mb-14 ">
+      {newTasks.map((incident) => (
+        <div
+          key={incident.id}
+          className={`p-6 rounded-lg shadow-lg border-2 border-black ${getSeverityColor(
+            incident.severity
+          )}`}
+        >
+          <div className="flex justify-between items-center mb-4">
+            <span
+              className={`px-3 py-1 rounded border font-bold text-lg ${getSeverityColor(
+                incident.severity
+              )}`}
+            >
+              {incident.severity}
+            </span>
+          </div>
+          <div className="flex justify-between items-center mb-2">
+            <h3 className="text-lg font-semibold text-gray-800">{incident.title}</h3>
+            <p className="text-gray-800 font-bold text-xl">ID: {incident.id}</p>
+          </div>
+          <p className="text-gray-600 text-sm mb-2">{incident.description}</p>
+          <p className="text-gray-600 text-sm mb-2">Reported By: {incident.user}</p>
+          <p className="text-gray-600 text-sm mb-4">{incident.location}</p>
+          <button className="bg-purple-400 hover:bg-purple-600 px-5 py-2 rounded-lg  text-black "
+          onClick={()=>{handleNewTask(incident.id)}}
+          
+          
+          >Accept Task</button>
+          <button className="bg-gray-800 hover:bg-gray-950 text-white px-4 py-2 rounded-lg mt-4 relative bottom-0 right-0 w-full">View Details</button>
+        </div>
+      ))}
+    </div>
+    </div>
+  }
+
+
+
+
+<h1 className="text-4xl font-semibold mb-5">Accepted Incidents</h1>
+
+
 
     <form className="mb-6 flex flex-row items-center justify-start gap-4 space-y-2">
   <label

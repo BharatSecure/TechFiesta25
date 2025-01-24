@@ -22,8 +22,8 @@ export default function SimpleBarChart() {
         width={500}
         height={300}
         series={[
-          { data: pData, label: 'Medium', id: 'pvId' },
-          { data: uData, label: 'High', id: 'uvId' },
+          { data: pData, label: 'Reported', id: 'pvId' },
+          { data: uData, label: 'Solved', id: 'uvId' },
         ]}
         xAxis={[{ data: xLabels, scaleType: 'band' }]}
       />

@@ -1,21 +1,21 @@
 const Testimonials = () => {
   const testimonials = [
     {
-      name: "John Doe",
+      name: "Arjun",
       role: "Civil Engineer",
       testimonial:
         "The incident reporting system made it incredibly easy to report accidents and health emergencies. The response time was fast, and the authorities acted immediately!",
       image: "https://randomuser.me/api/portraits/men/1.jpg", // Placeholder image
     },
     {
-      name: "Sarah Lee",
+      name: "Priya",
       role: "Teacher",
       testimonial:
         "I love how easy it was to report a road hazard using the system. It’s user-friendly, and I felt that my report was handled with urgency and care.",
       image: "https://randomuser.me/api/portraits/women/2.jpg", // Placeholder image
     },
     {
-      name: "David Smith",
+      name: "Aryan",
       role: "Firefighter",
       testimonial:
         "As a first responder, I appreciate how quickly incidents are reported and tracked. This platform has definitely improved communication with the community.",

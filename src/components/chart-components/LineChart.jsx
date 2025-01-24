@@ -52,21 +52,24 @@ function CustomAnimatedLine(props) {
 
 export default function LineWithPrediction() {
   return (
-    <LineChart
-    className="shadow-md border-2 border-slate-700 rounded-lg"
-      series={[
-        {
-          type: 'line',
-          data: [1, 2, 3, 4, 1, 2, 3, 4, 5],
-          valueFormatter: (v, i) => `${v}${i.dataIndex > 5 ? ' (estimated)' : ''}`,
-        },
-      ]}
-      xAxis={[{ data: [0, 1, 2, 3, 4, 5, 6, 7, 8] }]}
-      height={200}
-      width={400}
-      slots={{ line: CustomAnimatedLine }}
-      slotProps={{ line: { limit: 5 } }}
-      sx={{ '& .line-after path': { strokeDasharray: '10 5' } }}
-    />
+    <div className="p-4 flex justify-center">
+      <h2 className="text-center text-xl font-semibold mb-4">Weekly Incident Response Times</h2>
+      <LineChart
+        className="shadow-md border-2 border-slate-700 rounded-lg"
+        series={[
+          {
+            type: 'line',
+            data: [5, 4.5, 6, 5, 4.2, 5.1, 4.8, 4.7, 5.0],  // Sample data for actual response times (in hours)
+            valueFormatter: (v, i) => `${v} hrs${i.dataIndex > 6 ? ' (estimated)' : ''}`,
+          },
+        ]}
+        xAxis={[{ data: [0, 1, 2, 3, 4, 5, 6, 7, 8] }]} // X axis with days of the week
+        height={200}
+        width={600}  // Increased width for the chart
+        slots={{ line: CustomAnimatedLine }}
+        slotProps={{ line: { limit: 6 } }} // Limit before prediction begins
+        sx={{ '& .line-after path': { strokeDasharray: '10 5' } }} // Dash pattern for predicted part
+      />
+    </div>
   );
 }

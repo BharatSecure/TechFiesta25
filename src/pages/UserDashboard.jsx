@@ -30,28 +30,51 @@ const UserDashboard = () => {
   const incidents = [
     {
       id: 3319,
+      user: "John Doe",
       title: "Broken Streetlight",
       description: "A streetlight is broken near the park.",
       severity: "Medium",
-      Location: "Latitude: 19.185664, Longitude: 72.8367104",
+      location: "Latitude: 19.185664, Longitude: 72.8367104",
       status: "Resolved",
     },
     {
       id: 1269,
+      user: "Jane Smith",
       title: "Pothole on Road",
       description: "A big pothole on the main road.",
-      Location: "Latitude: 19.185664, Longitude: 72.8367104",
       severity: "High",
+      location: "Latitude: 19.185664, Longitude: 72.8367104",
       status: "Under Process",
     },
     {
       id: 1012,
+      user: "Michael Johnson",
       title: "Flooding in Basement",
       description: "Water leakage in the building basement.",
-      Location: "Latitude: 19.185664, Longitude: 72.8367104",
       severity: "Low",
+      location: "Latitude: 19.185664, Longitude: 72.8367104",
       status: "Under Process",
     },
+    {
+      id: 4321,
+      user: "Alice Cooper",
+      title: "Leaking Water Pipe",
+      description: "A water pipe is leaking in the neighborhood.",
+      severity: "Low",
+      location: "Latitude: 19.0825223, Longitude: 72.7411012",
+      status: "Resolved",
+    },
+    {
+      id: 5478,
+      user: "Bob Taylor",
+      title: "Collapsed Tree",
+      description: "A tree has fallen on the sidewalk.",
+      severity: "Medium",
+      location: "Latitude: 19.2057984, Longitude: 72.8397031",
+      status: "Under Process",
+    },
+    
+    
     // Add more incidents as needed
   ];
 
@@ -96,7 +119,7 @@ const UserDashboard = () => {
 
   return (
     <>
-      <div className="h-screen bg-gradient-to-r from-green-100 to-green-200">
+      <div className="h-full bg-gradient-to-r from-green-100 to-green-200">
         <div className="p-8">
           {/* Header */}
           <header className="mb-6 text-center">

@@ -26,8 +26,8 @@ const Testimonials = () => {
   return (
     <div className="bg-gradient-to-r from-gray-100 to-gray-200 py-12">
       <div className="text-center mb-12">
-        <h2 className="text-4xl font-bold text-sky-600">What Our Users Say</h2>
-        <p className="text-xl text-gray-700 mt-4">
+        <h2 className="text-3xl font-bold text-sky-600">What Our Users Say</h2>
+        <p className="text-lg text-gray-700 mt-4 lg:text-xl">
           Real experiences from people who have used our system to report
           incidents and receive help.
         </p>

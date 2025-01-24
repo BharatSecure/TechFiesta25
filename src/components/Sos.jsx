@@ -25,7 +25,9 @@ const Sos = () => {
     <div className="bg-gradient-to-r from-gray-900 via-black to-gray-900 py-12 rounded-2xl mx-6 my-6 min-h-[60vh] lg:min-h-[70vh] flex items-center justify-center">
       <div className="flex flex-col items-center gap-8">
         {/* Title */}
-        <h1 className="lg:text-6xl font-extrabold text-red-600 tracking-wide mb-6 sm:text-3xl animate-pulse">
+        <h1
+          className="text-3xl text-red-600 font-extrabold tracking-wide animate-pulse mb-6 lg:text-6xl"
+        >
           Emergency SOS
         </h1>
 

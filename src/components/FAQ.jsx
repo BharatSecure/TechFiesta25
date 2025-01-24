@@ -37,7 +37,7 @@ const FAQSection = () => {
 
   return (
     <div className="faq-section py-12 bg-gradient-to-r from-indigo-100 via-sky-200 to-blue-300">
-      <h2 className="text-sky-600 font-extrabold text-5xl lg:text-6xl tracking-wide mt-7 text-center mb-8">
+      <h2 className="text-sky-600 font-extrabold text-4xl lg:text-6xl tracking-wide mt-7 text-center mb-8">
         Frequently Asked Questions
       </h2>
       <div className="max-w-4xl mx-auto px-4">
@@ -47,7 +47,7 @@ const FAQSection = () => {
               onClick={() => toggleOpen(index)}
               className="w-full text-left px-8 py-4 bg-white border border-gray-300 rounded-xl shadow-lg hover:bg-sky-50 transition-all duration-300 focus:outline-none"
             >
-              <span className="text-xl font-medium text-gray-800">
+              <span className="text-base font-medium text-gray-800 lg:text-lg">
                 {item.question}
               </span>
             </button>

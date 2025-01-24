@@ -8,7 +8,7 @@ const OurFeatures = () => {
         style={{ backgroundColor: "#edf2f8" }}
       >
         {/* Title */}
-        <h1 className="text-sky-600 font-extrabold text-5xl lg:text-6xl tracking-wide mt-7">
+        <h1 className="text-sky-600 font-extrabold text-4xl lg:text-6xl tracking-wide mt-7">
           Our Features
         </h1>
         {/* Grid Section */}

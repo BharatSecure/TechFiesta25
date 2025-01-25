@@ -221,6 +221,7 @@ const Blogs = () => {
           </Box>
         )}
 
+        <Divider sx={{ my: 4 }} />
         <Box ref={formRef} sx={{ mt: 6 }}>
           <Typography
             variant="h5"

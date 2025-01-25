@@ -34,7 +34,8 @@ const teamMembers = [
     id: 3,
     name: "Serene Dmello",
     role: "Frontend Developer",
-    imageUrl: "https://media.licdn.com/dms/image/v2/D4E03AQEGB1vC5LwMkg/profile-displayphoto-shrink_400_400/B4EZQq45.WGYAg-/0/1735886348752?e=1743033600&v=beta&t=yI4YH5I9djbfBb0lNURIzm2B7B79A_2mQZ2YkhU4sfo",
+    imageUrl:
+      "https://media.licdn.com/dms/image/v2/D4E03AQEGB1vC5LwMkg/profile-displayphoto-shrink_400_400/B4EZQq45.WGYAg-/0/1735886348752?e=1743033600&v=beta&t=yI4YH5I9djbfBb0lNURIzm2B7B79A_2mQZ2YkhU4sfo",
     github: "https://github.com/ubet123",
     linkedin: "https://linkedin.com/in/serene-dmello-572605344",
   },
@@ -84,7 +85,12 @@ const MeetTheTeam = () => {
             >
               <CardMedia
                 component="img"
-                sx={{ width: "100%", height: 150, objectFit: "cover" }}
+                sx={{
+                  width: "100%",
+                  height: "auto",
+                  aspectRatio: "1 / 1", // Maintain a square aspect ratio
+                  objectFit: "cover", // Ensure the image fills the space properly
+                }}
                 image={member.imageUrl}
                 alt={member.name}
               />

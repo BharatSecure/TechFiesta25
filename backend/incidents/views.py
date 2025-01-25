@@ -1,6 +1,8 @@
 from rest_framework.views import APIView
+from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from .models import Incident, Subscription
+from geopy.distance import great_circle
+from incidents.models import DisasterReliefStations, FireStations, PoliceStations
 from .serializers import IncidentSerializer
 from django.core.mail import send_mail
 from django.http import JsonResponse
@@ -12,45 +14,74 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from twilio.rest import Client
 
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+from .models import Incident
+from .serializers import IncidentSerializer
+import json
+from rest_framework.response import Response
+from rest_framework.decorators import api_view
+from geopy.distance import great_circle
+from .models import Incident, FireStations, PoliceStations
+from .serializers import IncidentSerializer
+
+@api_view(['POST'])
+def report_incident(request):
+    serializer = IncidentSerializer(data=request.data)
+
+    if serializer.is_valid():
+        # Save the incident
+        incident = serializer.save()
+
+        # Ensure the location field is properly a dictionary (if it's a string)
+        if isinstance(incident.location, str):
+            try:
+                incident.location = json.loads(incident.location)  # Convert string to JSON object
+            except json.JSONDecodeError:
+                return Response({"error": "Invalid location data"}, status=400)
+
+        # Access latitude and longitude from the location field
+        user_lat = incident.location.get('latitude')
+        user_lon = incident.location.get('longitude')
+
+        if not user_lat or not user_lon:
+            return Response({"error": "Location data is missing latitude or longitude"}, status=400)
+
+        # Map incident type to station model
+        station_map = {
+            'Fire': FireStations,
+            'Theft': PoliceStations,
+            'Accident': PoliceStations,
+            'Other': None
+        }
+        
+        station_model = station_map.get(incident.incidentType)
+
+        if station_model:
+            # Fetch all stations and find the nearest one
+            stations = station_model.objects.all()
+            nearest_station = min(stations, key=lambda station: great_circle((user_lat, user_lon), (station.latitude, station.longitude)).km)
+
+            # Send SMS and email to the nearest station
+            number =  '+91'+ str(nearest_station.number)
+            message = f"New {incident.incidentType} reported at ({user_lat}, {user_lon})"
+            send_sms(f"New {incident.incidentType} reported! \nDetails: {incident.description}", number)
+            send_email_example("New Incident Alert", f"Details: {serializer.data['description']}", nearest_station.email)
+
+        return Response({"message": "Incident reported successfully!"}, status=201)
+
+    return Response(serializer.errors, status=400)
+
 def post(self, request):
     serializer = IncidentSerializer(data=request.data)
     if serializer.is_valid():
         serializer.save()
-        send_notification(
-            "New Incident Reported!",
-            f"Incident: {serializer.data['title']}"
-            )
+        # send_notification(
+        #     "New Incident Reported!",
+        #     f"Incident: {serializer.data['title']}"
+        #     )
         return Response(serializer.data, status=201)
     return Response(serializer.errors, status=400)
-
-@csrf_exempt
-def save_subscription(request):
-    if request.method == "POST":
-        try:
-            subscription_data = json.loads(request.body)
-            # Use the 'endpoint' field as a unique identifier
-            endpoint = subscription_data.get("endpoint")
-
-            if not endpoint:
-                return JsonResponse({"error": "Invalid subscription data"}, status=400)
-
-            # Check if the subscription already exists
-            existing_subscription = Subscription.objects.filter(endpoint=endpoint).first()
-
-            if not existing_subscription:
-                # Save the subscription if it doesn't exist
-                Subscription.objects.create(
-                    endpoint=subscription_data["endpoint"],
-                    keys=json.dumps(subscription_data["keys"]),
-                )
-                return JsonResponse({"success": "Subscription saved"}, status=201)
-
-            return JsonResponse({"message": "Subscription already exists"}, status=200)
-
-        except Exception as e:
-            return JsonResponse({"error": str(e)}, status=500)
-    else:
-        return JsonResponse({"error": "Invalid request method"}, status=405)
 
 
 def send_sms(message, number):
@@ -104,3 +135,4 @@ def great_circle_distance(lat1, lon1, lat2, lon2):
     R = 6371.0
     distance = R * c
     return distance
+

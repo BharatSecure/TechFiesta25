@@ -1,34 +1,58 @@
 from django.db import models
 from django.conf import settings
+
 class Incident(models.Model):
-    title = models.CharField(max_length=255)
+    INCIDENT_TYPES = [
+        ('Fire', 'Fire'),
+        ('Theft', 'Theft'),
+        ('Accident', 'Accident'),
+        ('Other', 'Other'),
+    ]
+    
+    SEVERITY_CHOICES = [
+        ('low', 'Low'),
+        ('medium', 'Medium'),
+        ('high', 'High'),
+    ]
+
+    incidentType = models.CharField(
+        max_length=100, 
+        choices=INCIDENT_TYPES, 
+        default='Other'
+    )
+    location = models.JSONField()
     description = models.TextField()
+    severity = models.CharField(choices=SEVERITY_CHOICES, default='low', max_length=20)
+    file = models.FileField(upload_to='incident_files/', blank=True, null=True)
     reported_at = models.DateTimeField(auto_now_add=True)
-    reports = models.FileField()
+
     def __str__(self):
-        return self.title
+        return self.incidentType
+
 
 class PoliceStations(models.Model):
-    location = models.CharField(max_length=100)
-    id = models.IntegerField(primary_key=True)
-    number = models.CharField(max_length=10)
+    latitude = models.FloatField()
+    longitude = models.FloatField()
+    number = models.IntegerField()
     email = models.CharField(max_length=200)
 
     def __str__(self):
-        return f"Police Station: {self.location}"
+        return f"Police Station: {self.id}"
 
 class FireStations(models.Model):
-    location = models.CharField(max_length=100)
-    id = models.IntegerField(primary_key=True)
-    number = models.CharField(max_length=10)
+    latitude = models.FloatField()
+    longitude = models.FloatField()
+    number = models.IntegerField()
     email = models.CharField(max_length=200)
+
     def __str__(self):
-        return f"Fire Station: {self.location}"
+        return f"Fire Station: {self.id}"
 
 class DisasterReliefStations(models.Model):
-    location = models.CharField(max_length=100)
-    id = models.IntegerField(primary_key=True)
-    number = models.CharField(max_length=10)
+    latitude = models.FloatField()
+    longitude = models.FloatField()
+    number = models.IntegerField()
     email = models.CharField(max_length=200)
+
     def __str__(self):
-        return f"Disaster Relief Station: {self.location}"
+        return f"Disaster Relief Station: {self.id}"

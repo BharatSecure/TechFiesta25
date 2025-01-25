@@ -326,14 +326,14 @@ const HeatMap = () => {
             informed and cautious. Stay safe by avoiding red zones or reporting
             any new incidents directly from the map.
           </p>
-          <div className="max-w-5xl mx-auto p-6 bg-white shadow-lg rounded-xl border border-gray-300">
+          <div className="max-w-4xl h-auto mx-auto p-6 bg-white shadow-lg rounded-xl border border-gray-300">
             <h2 className="text-2xl font-semibold text-gray-700 mb-6">
               Geographic Heatmap
             </h2>
             <div className="relative h-[500px] overflow-hidden rounded-lg">
               <MapContainer
-                center={[18.5204, 76.8567]}
-                zoom={7}
+                center={[22.1309, 78.6677]} //18.5204, 76.8567
+                zoom={5} //7
                 className="h-full w-full"
               >
                 <TileLayer

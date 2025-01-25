@@ -33,7 +33,7 @@ export default function OnSeriesItemClick() {
   return (
     <>
       {/* Title updated here */}
-      <Typography variant="h6" sx={{ textAlign: "center", marginBottom: 2 }}>
+      <Typography variant="h6" sx={{ textAlign: "center", marginBottom: 2, fontWeight: "bold" }}>
         Incident Status Overview
       </Typography>
 

@@ -33,7 +33,7 @@ class Incident(models.Model):
 class PoliceStations(models.Model):
     latitude = models.FloatField()
     longitude = models.FloatField()
-    number = models.CharField(max_length=10)
+    number = models.IntegerField()
     email = models.CharField(max_length=200)
 
     def __str__(self):
@@ -42,7 +42,7 @@ class PoliceStations(models.Model):
 class FireStations(models.Model):
     latitude = models.FloatField()
     longitude = models.FloatField()
-    number = models.CharField(max_length=10)
+    number = models.IntegerField()
     email = models.CharField(max_length=200)
 
     def __str__(self):
@@ -51,7 +51,7 @@ class FireStations(models.Model):
 class DisasterReliefStations(models.Model):
     latitude = models.FloatField()
     longitude = models.FloatField()
-    number = models.CharField(max_length=10)
+    number = models.IntegerField()
     email = models.CharField(max_length=200)
 
     def __str__(self):

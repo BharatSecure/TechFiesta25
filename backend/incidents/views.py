@@ -57,15 +57,16 @@ def report_incident(request):
         
         station_model = station_map.get(incident.incidentType)
 
-        # if station_model:
-        #     # Fetch all stations and find the nearest one
-        #     stations = station_model.objects.all()
-        #     nearest_station = min(stations, key=lambda station: great_circle((user_lat, user_lon), (station.latitude, station.longitude)).km)
+        if station_model:
+            # Fetch all stations and find the nearest one
+            stations = station_model.objects.all()
+            nearest_station = min(stations, key=lambda station: great_circle((user_lat, user_lon), (station.latitude, station.longitude)).km)
 
-        #     # Send SMS and email to the nearest station
-        #     message = f"New {incident.incidentType} reported at ({user_lat}, {user_lon})"
-        #     send_sms(f"New {incident.incidentType} reported!", nearest_station.number)
-        #     send_email_example("New Incident Alert", f"Details: {serializer.data['description']}", nearest_station.email)
+            # Send SMS and email to the nearest station
+            number =  '+91'+ str(nearest_station.number)
+            message = f"New {incident.incidentType} reported at ({user_lat}, {user_lon})"
+            send_sms(f"New {incident.incidentType} reported! \nDetails: {incident.description}", number)
+            send_email_example("New Incident Alert", f"Details: {serializer.data['description']}", nearest_station.email)
 
         return Response({"message": "Incident reported successfully!"}, status=201)
 

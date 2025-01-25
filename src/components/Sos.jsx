@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useEffect } from "react";
 
 const Sos = () => {
   const [showConfirmation, setShowConfirmation] = useState(false);
@@ -21,13 +22,35 @@ const Sos = () => {
     setShowAlert(false); // Close the alert modal
   };
 
+  //asking for permission to access geolqocation
+  useEffect(() => {
+    // Check if the browser supports geolocation
+    if ("geolocation" in navigator) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const { latitude, longitude } = position.coords;
+          console.log("User's Location:", { latitude, longitude });
+          // You can send the latitude and longitude to the backend or use it in the frontend
+        },
+        (error) => {
+          console.error("Error accessing geolocation:", error.message);
+        },
+        {
+          enableHighAccuracy: true,
+          timeout: 10000, // Timeout in milliseconds
+          maximumAge: 0, // Don't use a cached position
+        }
+      );
+    } else {
+      console.error("Geolocation is not supported by this browser.");
+    }
+  }, []);
+
   return (
     <div className="bg-gradient-to-r from-gray-900 via-black to-gray-900 py-12 rounded-2xl mx-6 my-6 min-h-[60vh] lg:min-h-[70vh] flex items-center justify-center">
       <div className="flex flex-col items-center gap-8">
         {/* Title */}
-        <h1
-          className="text-3xl text-red-600 font-extrabold tracking-wide animate-pulse mb-6 lg:text-6xl"
-        >
+        <h1 className="text-3xl text-red-600 font-extrabold tracking-wide animate-pulse mb-6 lg:text-6xl">
           Emergency SOS
         </h1>
 

@@ -1,29 +1,21 @@
-from rest_framework.views import APIView
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from geopy.distance import great_circle
 from incidents.models import DisasterReliefStations, FireStations, PoliceStations
 from .serializers import IncidentSerializer
 from django.core.mail import send_mail
-from django.http import JsonResponse
-from django.views.decorators.csrf import csrf_exempt
 import json
 import requests
-import math
-from rest_framework.decorators import api_view
-from rest_framework.response import Response
+import asyncio
+from rest_framework import status
+from asgiref.sync import sync_to_async
+from utils.call_Operator import EmergencyHelplineBot
 from twilio.rest import Client
-
-from rest_framework.decorators import api_view
-from rest_framework.response import Response
-from .models import Incident
-from .serializers import IncidentSerializer
 import json
-from rest_framework.response import Response
-from rest_framework.decorators import api_view
 from geopy.distance import great_circle
 from .models import Incident, FireStations, PoliceStations
 from .serializers import IncidentSerializer
+from rest_framework.views import APIView
 
 @api_view(['POST'])
 def report_incident(request):
@@ -69,20 +61,7 @@ def report_incident(request):
             send_email_example("New Incident Alert", f"Details: {serializer.data['description']}", nearest_station.email)
 
         return Response({"message": "Incident reported successfully!"}, status=201)
-
     return Response(serializer.errors, status=400)
-
-def post(self, request):
-    serializer = IncidentSerializer(data=request.data)
-    if serializer.is_valid():
-        serializer.save()
-        # send_notification(
-        #     "New Incident Reported!",
-        #     f"Incident: {serializer.data['title']}"
-        #     )
-        return Response(serializer.data, status=201)
-    return Response(serializer.errors, status=400)
-
 
 def send_sms(message, number):
     account_sid = 'ACa342288beff5795775a39a8ba798b51b'
@@ -119,20 +98,31 @@ def get_coordinates(location, api_key):
         return coords[1], coords[0]  # Return latitude, longitude
     else:
         raise ValueError(f"Could not find coordinates for location: {location}")
-
-# Function to calculate route distance using Geoapify Route API
-def great_circle_distance(lat1, lon1, lat2, lon2):
-    # Convert degrees to radians
-    lat1, lon1, lat2, lon2 = map(math.radians, [lat1, lon1, lat2, lon2])
     
-    # Haversine formula
-    dlat = lat2 - lat1
-    dlon = lon2 - lon1
-    a = math.sin(dlat / 2)**2 + math.cos(lat1) * math.cos(lat2) * math.sin(dlon / 2)**2
-    c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
-    
-    # Earth radius in kilometers
-    R = 6371.0
-    distance = R * c
-    return distance
+# class EmergencyHelplineAPIView(APIView):
+#     """
+#     API View for the Emergency Helpline Bot.
+#     """
 
+#     def __init__(self, **kwargs):
+#         super().__init__(**kwargs)
+#         self.bot = EmergencyHelplineBot()
+
+#     async def post(self, request):
+#         try:
+#             user_input = request.data.get("user_input", "")
+#             if not user_input:
+#                 return Response({"error": "No user input provided."}, status=status.HTTP_400_BAD_REQUEST)
+
+#             # Directly await handle_conversation if it's an async method
+#             response_data = await self.bot.handle_conversation(user_input)
+
+#             return Response({
+#                 "response": response_data["response"],
+#                 "chat_history": [
+#                     {"type": "human" if isinstance(msg, dict) and msg.get('is_human', False) else "bot", "content": msg}
+#                     for msg in response_data["chat_history"]
+#                 ]
+#             }, status=status.HTTP_200_OK)
+#         except Exception as e:
+#             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

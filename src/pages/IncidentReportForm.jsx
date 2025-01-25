@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import Footer from "../components/Footer";
+import axios from 'axios';
 
 const IncidentReportForm = () => {
   const [formData, setFormData] = useState({
@@ -10,7 +11,7 @@ const IncidentReportForm = () => {
       longitude: "",
     },
     description: "",
-    severity: "Low", // Default severity
+    severity: "low", // Default severity
   });
 
   const [file, setFile] = useState(null);
@@ -54,38 +55,69 @@ const IncidentReportForm = () => {
     );
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-
+  
+    // Use custom incident type if selected
     const incidentType =
       formData.incidentType === "Other"
         ? formData.customIncidentType
         : formData.incidentType;
-
+  
+    // Map severity levels to numeric values
     const severityMap = {
-      Low: 0.2,
-      Medium: 0.6,
-      High: 0.8,
+      "Low": "low",
+      "Medium": "medium",
+      "High": "high"
     };
-
+  
+    // Prepare data with mapped severity and file handling
     const submittedData = {
-      ...formData,
-      incidentType,
-      severity: severityMap[formData.severity],
-      file: file ? file.name : "No file uploaded",
+      incidentType: formData.incidentType === "Other" ? formData.customIncidentType : formData.incidentType,
+      location: formData.location,
+      description: formData.description,
+      severity: severityMap[formData.severity] || "low", // Ensure a default value in case it's undefined
+      file: file ? file.name : null,
     };
 
-    console.log("Reported Incident:", submittedData);
-    alert("Incident reported successfully!");
-
-    setFormData({
-      incidentType: "",
-      customIncidentType: "",
-      location: "",
-      description: "",
-      severity: "Low",
-    });
-    setFile(null);
+    const formDataToSend = new FormData();
+    formDataToSend.append("incidentType", submittedData.incidentType);
+    formDataToSend.append("location", submittedData.location);
+    formDataToSend.append("description", submittedData.description);
+    formDataToSend.append("severity", submittedData.severity); // Ensure mapped value is sent
+    
+    if (file) {
+      formDataToSend.append("file", file);
+    }
+  
+    try {
+      const response = await axios.post(
+        "http://127.0.0.1:8000/api/report-incident/",
+        formDataToSend,
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      
+      console.log("Server response:", response.data);
+      console.log("Reported Incident:", submittedData);
+      alert("Incident reported successfully!");
+  
+      // Reset form after successful submission
+      setFormData({
+        incidentType: "",
+        customIncidentType: "",
+        location: "",
+        description: "",
+        severity: "Low",
+      });
+      setFile(null);
+    } catch (error) {
+      console.error("Error reporting incident:", error.response?.data || error.message);
+      alert("Failed to report incident");
+    }
   };
 
   return (
@@ -204,9 +236,9 @@ const IncidentReportForm = () => {
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500"
               required
             >
-              <option value="Low">Low</option>
-              <option value="Medium">Medium</option>
-              <option value="High">High</option>
+              <option value="low">Low</option>
+              <option value="medium">Medium</option>
+              <option value="high">High</option>
             </select>
           </div>
 

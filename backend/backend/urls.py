@@ -22,6 +22,9 @@ from rest_framework.routers import DefaultRouter
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('report-incident/', views.post, name='report_incident'),
+    path('api/report-incident/', views.report_incident, name='report_incident'),
+    path('api/', include('incidents.urls')), 
     path('api/send_email', views.send_email_example, name='send_email')
 ]
+
+'''path('report-incident/', views.post, name='report_incident'),'''

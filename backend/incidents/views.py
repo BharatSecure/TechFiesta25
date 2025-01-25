@@ -1,6 +1,8 @@
 from rest_framework.views import APIView
+from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from .models import Incident, Subscription
+
+from incidents.models import DisasterReliefStations, FireStations, PoliceStations
 from .serializers import IncidentSerializer
 from django.core.mail import send_mail
 from django.http import JsonResponse
@@ -11,6 +13,43 @@ import math
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from twilio.rest import Client
+
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+from .models import Incident
+from .serializers import IncidentSerializer
+
+@api_view(['POST'])
+def report_incident(request):
+    serializer = IncidentSerializer(data=request.data)
+    if serializer.is_valid():
+        serializer.save()
+        
+        # Get incident type and user's location
+        incident_type = serializer.validated_data['incident_type']
+        user_lat = serializer.validated_data['latitude']
+        user_lon = serializer.validated_data['longitude']
+
+        # Find nearest station based on incident type (logic as discussed earlier)
+        station_model = {
+            'fire': FireStations,
+            'accident': PoliceStations,
+            'thief': PoliceStations,
+            'medical': DisasterReliefStations
+        }.get(incident_type, None)
+
+        if station_model:
+            stations = station_model.objects.all()
+            nearest_station = min(stations, key=lambda station: 
+                                  great_circle_distance(user_lat, user_lon, station.latitude, station.longitude))
+
+            # Send SMS and email
+            message = f"New {incident_type} reported at ({user_lat}, {user_lon})", api_view
+            send_sms(f"New {incident_type} reported!", nearest_station.number)
+            send_email_example("New Incident Alert", f"Details: {serializer.data['description']}", nearest_station.email)
+
+        return Response({"message": "Incident reported successfully!"}, status=201)
+    return Response(serializer.errors, status=400)
 
 def post(self, request):
     serializer = IncidentSerializer(data=request.data)
@@ -104,3 +143,32 @@ def great_circle_distance(lat1, lon1, lat2, lon2):
     R = 6371.0
     distance = R * c
     return distance
+
+def handle_incident(request):
+    data = request.data
+    user_lat = float(data.get('latitude'))
+    user_lon = float(data.get('longitude'))
+    incident_type = data.get('incident_type')
+
+    # Determine the right model based on incident type
+    station_model = {
+        'fire': FireStations,
+        'accident': PoliceStations,
+        'thief': PoliceStations,
+        'medical': DisasterReliefStations
+    }.get(incident_type, None)
+
+    if not station_model:
+        return Response({'error': 'Invalid incident type'}, status=400)
+
+    # Fetch all relevant stations and find the nearest one
+    stations = station_model.objects.all()
+    nearest_station = min(stations, key=lambda station: 
+                          great_circle_distance(user_lat, user_lon, station.latitude, station.longitude))
+
+    # Send notifications
+    message = f"New {incident_type} reported at ({user_lat}, {user_lon})"
+    send_sms(message, nearest_station.number)
+    send_email_example(f"New {incident_type} Incident", message, nearest_station.email)
+
+    return Response({'message': 'Incident reported and notifications sent successfully'})

@@ -34,9 +34,13 @@ class Incidents(models.Model):
         choices=INCIDENT_TYPES, 
         default='Other'
     )
-    location = models.CharField(max_length=255, default="None")
+    location = models.JSONField()
     description = models.TextField()
+<<<<<<< HEAD
     severity = models.CharField(max_length=10, choices=SEVERITY_CHOICES, default='low')
+=======
+    severity = models.CharField(choices=SEVERITY_CHOICES, default='low', max_length=20)
+>>>>>>> 31c630ed1cc941c1fc5a7e8352f09c3fefb91ba4
     file = models.FileField(upload_to='incident_files/', blank=True, null=True)
     reported_at = models.DateTimeField(auto_now_add=True)
 
@@ -47,7 +51,7 @@ class Incidents(models.Model):
 class PoliceStations(models.Model):
     latitude = models.FloatField()
     longitude = models.FloatField()
-    number = models.CharField(max_length=10)
+    number = models.IntegerField()
     email = models.CharField(max_length=200)
 
     def __str__(self):
@@ -56,7 +60,7 @@ class PoliceStations(models.Model):
 class FireStations(models.Model):
     latitude = models.FloatField()
     longitude = models.FloatField()
-    number = models.CharField(max_length=10)
+    number = models.IntegerField()
     email = models.CharField(max_length=200)
 
     def __str__(self):
@@ -65,7 +69,7 @@ class FireStations(models.Model):
 class DisasterReliefStations(models.Model):
     latitude = models.FloatField()
     longitude = models.FloatField()
-    number = models.CharField(max_length=10)
+    number = models.IntegerField()
     email = models.CharField(max_length=200)
 
     def __str__(self):

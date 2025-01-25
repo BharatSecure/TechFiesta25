@@ -1,5 +1,0 @@
-pywebpush
-webpush
-django
-djangorestframework
-django-webpush

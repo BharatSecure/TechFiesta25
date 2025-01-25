@@ -1,20 +1,29 @@
-from rest_framework.views import APIView
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-
+from geopy.distance import great_circle
 from incidents.models import DisasterReliefStations, FireStations, PoliceStations
 from .serializers import IncidentSerializer, UserSerializer
 from django.core.mail import send_mail
-from django.http import JsonResponse
-from django.views.decorators.csrf import csrf_exempt
 import json
 import requests
+<<<<<<< HEAD
 import math
 from rest_framework.response import Response
 from twilio.rest import Client
 
 from .models import Incidents, User
+=======
+import asyncio
+from rest_framework import status
+from asgiref.sync import sync_to_async
+from utils.call_Operator import EmergencyHelplineBot
+from twilio.rest import Client
+import json
+from geopy.distance import great_circle
+from .models import Incident, FireStations, PoliceStations
+>>>>>>> 31c630ed1cc941c1fc5a7e8352f09c3fefb91ba4
 from .serializers import IncidentSerializer
+from rest_framework.views import APIView
 
 from django.contrib.auth import authenticate
 
@@ -93,75 +102,48 @@ class LoginView(APIView):
 @api_view(['POST'])
 def report_incident(request):
     serializer = IncidentSerializer(data=request.data)
-    if serializer.is_valid():
-        serializer.save()
-        
-        # Get incident type and user's location
-        incident_type = serializer.validated_data['incident_type']
-        user_lat = serializer.validated_data['latitude']
-        user_lon = serializer.validated_data['longitude']
 
-        # Find nearest station based on incident type (logic as discussed earlier)
-        station_model = {
-            'fire': FireStations,
-            'accident': PoliceStations,
-            'thief': PoliceStations,
-            'medical': DisasterReliefStations
-        }.get(incident_type, None)
+    if serializer.is_valid():
+        # Save the incident
+        incident = serializer.save()
+
+        # Ensure the location field is properly a dictionary (if it's a string)
+        if isinstance(incident.location, str):
+            try:
+                incident.location = json.loads(incident.location)  # Convert string to JSON object
+            except json.JSONDecodeError:
+                return Response({"error": "Invalid location data"}, status=400)
+
+        # Access latitude and longitude from the location field
+        user_lat = incident.location.get('latitude')
+        user_lon = incident.location.get('longitude')
+
+        if not user_lat or not user_lon:
+            return Response({"error": "Location data is missing latitude or longitude"}, status=400)
+
+        # Map incident type to station model
+        station_map = {
+            'Fire': FireStations,
+            'Theft': PoliceStations,
+            'Accident': PoliceStations,
+            'Other': None
+        }
+        
+        station_model = station_map.get(incident.incidentType)
 
         if station_model:
+            # Fetch all stations and find the nearest one
             stations = station_model.objects.all()
-            nearest_station = min(stations, key=lambda station: 
-                                  great_circle_distance(user_lat, user_lon, station.latitude, station.longitude))
+            nearest_station = min(stations, key=lambda station: great_circle((user_lat, user_lon), (station.latitude, station.longitude)).km)
 
-            # Send SMS and email
-            message = f"New {incident_type} reported at ({user_lat}, {user_lon})", api_view
-            send_sms(f"New {incident_type} reported!", nearest_station.number)
+            # Send SMS and email to the nearest station
+            number =  '+91'+ str(nearest_station.number)
+            message = f"New {incident.incidentType} reported at ({user_lat}, {user_lon})"
+            send_sms(f"New {incident.incidentType} reported! \nDetails: {incident.description}", number)
             send_email_example("New Incident Alert", f"Details: {serializer.data['description']}", nearest_station.email)
 
         return Response({"message": "Incident reported successfully!"}, status=201)
     return Response(serializer.errors, status=400)
-
-def post(self, request):
-    serializer = IncidentSerializer(data=request.data)
-    if serializer.is_valid():
-        serializer.save()
-        send_notification(
-            "New Incident Reported!",
-            f"Incident: {serializer.data['title']}"
-            )
-        return Response(serializer.data, status=201)
-    return Response(serializer.errors, status=400)
-
-@csrf_exempt
-def save_subscription(request):
-    if request.method == "POST":
-        try:
-            subscription_data = json.loads(request.body)
-            # Use the 'endpoint' field as a unique identifier
-            endpoint = subscription_data.get("endpoint")
-
-            if not endpoint:
-                return JsonResponse({"error": "Invalid subscription data"}, status=400)
-
-            # Check if the subscription already exists
-            existing_subscription = Subscription.objects.filter(endpoint=endpoint).first()
-
-            if not existing_subscription:
-                # Save the subscription if it doesn't exist
-                Subscription.objects.create(
-                    endpoint=subscription_data["endpoint"],
-                    keys=json.dumps(subscription_data["keys"]),
-                )
-                return JsonResponse({"success": "Subscription saved"}, status=201)
-
-            return JsonResponse({"message": "Subscription already exists"}, status=200)
-
-        except Exception as e:
-            return JsonResponse({"error": str(e)}, status=500)
-    else:
-        return JsonResponse({"error": "Invalid request method"}, status=405)
-
 
 def send_sms(message, number):
     account_sid = 'ACa342288beff5795775a39a8ba798b51b'
@@ -198,48 +180,31 @@ def get_coordinates(location, api_key):
         return coords[1], coords[0]  # Return latitude, longitude
     else:
         raise ValueError(f"Could not find coordinates for location: {location}")
-
-# Function to calculate route distance using Geoapify Route API
-def great_circle_distance(lat1, lon1, lat2, lon2):
-    # Convert degrees to radians
-    lat1, lon1, lat2, lon2 = map(math.radians, [lat1, lon1, lat2, lon2])
     
-    # Haversine formula
-    dlat = lat2 - lat1
-    dlon = lon2 - lon1
-    a = math.sin(dlat / 2)**2 + math.cos(lat1) * math.cos(lat2) * math.sin(dlon / 2)**2
-    c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
-    
-    # Earth radius in kilometers
-    R = 6371.0
-    distance = R * c
-    return distance
+# class EmergencyHelplineAPIView(APIView):
+#     """
+#     API View for the Emergency Helpline Bot.
+#     """
 
-def handle_incident(request):
-    data = request.data
-    user_lat = float(data.get('latitude'))
-    user_lon = float(data.get('longitude'))
-    incident_type = data.get('incident_type')
+#     def __init__(self, **kwargs):
+#         super().__init__(**kwargs)
+#         self.bot = EmergencyHelplineBot()
 
-    # Determine the right model based on incident type
-    station_model = {
-        'fire': FireStations,
-        'accident': PoliceStations,
-        'thief': PoliceStations,
-        'medical': DisasterReliefStations
-    }.get(incident_type, None)
+#     async def post(self, request):
+#         try:
+#             user_input = request.data.get("user_input", "")
+#             if not user_input:
+#                 return Response({"error": "No user input provided."}, status=status.HTTP_400_BAD_REQUEST)
 
-    if not station_model:
-        return Response({'error': 'Invalid incident type'}, status=400)
+#             # Directly await handle_conversation if it's an async method
+#             response_data = await self.bot.handle_conversation(user_input)
 
-    # Fetch all relevant stations and find the nearest one
-    stations = station_model.objects.all()
-    nearest_station = min(stations, key=lambda station: 
-                          great_circle_distance(user_lat, user_lon, station.latitude, station.longitude))
-
-    # Send notifications
-    message = f"New {incident_type} reported at ({user_lat}, {user_lon})"
-    send_sms(message, nearest_station.number)
-    send_email_example(f"New {incident_type} Incident", message, nearest_station.email)
-
-    return Response({'message': 'Incident reported and notifications sent successfully'})
+#             return Response({
+#                 "response": response_data["response"],
+#                 "chat_history": [
+#                     {"type": "human" if isinstance(msg, dict) and msg.get('is_human', False) else "bot", "content": msg}
+#                     for msg in response_data["chat_history"]
+#                 ]
+#             }, status=status.HTTP_200_OK)
+#         except Exception as e:
+#             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

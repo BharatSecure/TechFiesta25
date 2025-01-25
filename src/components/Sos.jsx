@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useEffect } from "react";
 
 const Sos = () => {
   const [showConfirmation, setShowConfirmation] = useState(false);
@@ -11,6 +12,35 @@ const Sos = () => {
   const confirmSOS = () => {
     setShowAlert(true); // Show the SOS alert modal
     setShowConfirmation(false); // Close the confirmation modal
+
+    // Geolocation request must happen as a direct result of a user action
+    if ("geolocation" in navigator) {
+      const watchId = navigator.geolocation.watchPosition(
+        (position) => {
+          const { latitude, longitude } = position.coords;
+          console.log("Tracking User's Location:", { latitude, longitude });
+
+          // Send location to backend
+          fetch("http://127.0.0.1:8000/api/update-location/", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ latitude, longitude }),
+          });
+        },
+        (error) => {
+          console.error("Error watching position:", error.message);
+        },
+        { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+      );
+
+      // Stop tracking after 1 minute
+      setTimeout(() => {
+        navigator.geolocation.clearWatch(watchId);
+        console.log("Stopped tracking location after 1 minute.");
+      }, 60000);
+    } else {
+      console.error("Geolocation is not supported by this browser.");
+    }
   };
 
   const cancelSOS = () => {
@@ -21,13 +51,35 @@ const Sos = () => {
     setShowAlert(false); // Close the alert modal
   };
 
+  //asking for permission to access geolqocation
+  useEffect(() => {
+    // Check if the browser supports geolocation
+    if ("geolocation" in navigator) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const { latitude, longitude } = position.coords;
+          console.log("User's Location:", { latitude, longitude });
+          // You can send the latitude and longitude to the backend or use it in the frontend
+        },
+        (error) => {
+          console.error("Error accessing geolocation:", error.message);
+        },
+        {
+          enableHighAccuracy: true,
+          timeout: 10000, // Timeout in milliseconds
+          maximumAge: 0, // Don't use a cached position
+        }
+      );
+    } else {
+      console.error("Geolocation is not supported by this browser.");
+    }
+  }, []);
+
   return (
     <div className="bg-gradient-to-r from-gray-900 via-black to-gray-900 py-12 rounded-2xl mx-6 my-6 min-h-[60vh] lg:min-h-[70vh] flex items-center justify-center">
       <div className="flex flex-col items-center gap-8">
         {/* Title */}
-        <h1
-          className="text-3xl text-red-600 font-extrabold tracking-wide animate-pulse mb-6 lg:text-6xl"
-        >
+        <h1 className="text-3xl text-red-600 font-extrabold tracking-wide animate-pulse mb-6 lg:text-6xl">
           Emergency SOS
         </h1>
 

@@ -164,3 +164,5 @@ EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'mayankhmehta80@gmail.com'
 EMAIL_HOST_PASSWORD = 'djezbcquynkqypdd'
+
+ASGI_APPLICATION = 'backend.asgi.application'

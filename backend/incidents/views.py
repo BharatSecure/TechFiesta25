@@ -6,32 +6,24 @@ from .serializers import IncidentSerializer, UserSerializer
 from django.core.mail import send_mail
 import json
 import requests
-<<<<<<< HEAD
-import math
-from rest_framework.response import Response
-from twilio.rest import Client
-
-from .models import Incidents, User
-=======
 import asyncio
 from rest_framework import status
-from asgiref.sync import sync_to_async
+from django.shortcuts import get_object_or_404
+from django.contrib.auth.hashers import check_password
 from utils.call_Operator import EmergencyHelplineBot
 from twilio.rest import Client
 import json
 from geopy.distance import great_circle
-from .models import Incident, FireStations, PoliceStations
->>>>>>> 31c630ed1cc941c1fc5a7e8352f09c3fefb91ba4
+from .models import Incidents, FireStations, PoliceStations, User
 from .serializers import IncidentSerializer
 from rest_framework.views import APIView
-
 from django.contrib.auth import authenticate
-
 from rest_framework import status
 from rest_framework.exceptions import ValidationError
-from django.contrib.auth.models import User
 from django.contrib.auth.hashers import make_password
 from django.db import IntegrityError
+from rest_framework_simplejwt.tokens import RefreshToken
+from django.contrib.auth import authenticate
 
 class SignUpView(APIView):
     def post(self, request):
@@ -56,8 +48,7 @@ class SignUpView(APIView):
             user = User.objects.create(
                 first_name=data["firstName"],
                 last_name=data["lastName"],
-                email=data["email"],
-                username=data["email"],  # Use email as username
+                email=data["email"],  # Use email as username
                 password=make_password(data["password"])  # Hash the password
             )
 
@@ -74,9 +65,6 @@ class SignUpView(APIView):
         except IntegrityError:
             return Response({"error": "An error occurred while creating the user."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-from rest_framework_simplejwt.tokens import RefreshToken
-from django.contrib.auth import authenticate
-
 class LoginView(APIView):
     def post(self, request):
         email = request.data.get('email')
@@ -86,18 +74,20 @@ class LoginView(APIView):
         if not email or not password:
             return Response({"error": "Email and password are required."}, status=status.HTTP_400_BAD_REQUEST)
 
-        # Authenticate user
-        user = authenticate(username=email, password=password)
-        if user is not None:
-            # Generate tokens
-            refresh = RefreshToken.for_user(user)
-            return Response({
-                "message": "Login successful",
-                "access": str(refresh.access_token),
-                "refresh": str(refresh),
-            }, status=status.HTTP_200_OK)
-        else:
+        # Check if user exists
+        user = get_object_or_404(User, email=email)
+
+        # Verify password
+        if not check_password(password, user.password):
             return Response({"error": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED)
+
+        # Generate tokens
+        refresh = RefreshToken.for_user(user)
+        return Response({
+            "message": "Login successful",
+            "access": str(refresh.access_token),
+            "refresh": str(refresh),
+        }, status=status.HTTP_200_OK)
         
 @api_view(['POST'])
 def report_incident(request):

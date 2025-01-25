@@ -1,5 +1,4 @@
 from django.db import models
-from django.conf import settings
 
 class User(models.Model):
     first_name = models.CharField(max_length=50)
@@ -34,13 +33,9 @@ class Incidents(models.Model):
         choices=INCIDENT_TYPES, 
         default='Other'
     )
-    location = models.JSONField()
+    location = models.JSONField()   
     description = models.TextField()
-<<<<<<< HEAD
-    severity = models.CharField(max_length=10, choices=SEVERITY_CHOICES, default='low')
-=======
     severity = models.CharField(choices=SEVERITY_CHOICES, default='low', max_length=20)
->>>>>>> 31c630ed1cc941c1fc5a7e8352f09c3fefb91ba4
     file = models.FileField(upload_to='incident_files/', blank=True, null=True)
     reported_at = models.DateTimeField(auto_now_add=True)
 

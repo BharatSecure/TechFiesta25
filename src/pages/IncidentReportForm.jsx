@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import Footer from "../components/Footer";
-// import axios from "axios";
+import axios from "axios";
 
 const IncidentReportForm = () => {
   const [formData, setFormData] = useState({

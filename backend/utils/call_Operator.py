@@ -125,5 +125,14 @@ if __name__ == "__main__":
         responses = await bot.handle_conversation("I'm at 123 Main Street")
         print("Bot:", responses['response'])
 
+        responses = await bot.handle_conversation("I'm stuck here in the tub")
+        print("Bot:", responses['response'])
+        
+        responses = await bot.handle_conversation("I'm at 123 Main Street")
+        print("Bot:", responses['response'])
+
+        responses = await bot.handle_conversation("I'm at 123 Main Street")
+        print("Bot:", responses['response'])
+
     import asyncio
     asyncio.run(run_conversation())

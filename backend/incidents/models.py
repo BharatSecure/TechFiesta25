@@ -20,9 +20,9 @@ class Incident(models.Model):
         choices=INCIDENT_TYPES, 
         default='Other'
     )
-    location = models.CharField(max_length=255, default="None")
+    location = models.JSONField()
     description = models.TextField()
-    severity = models.FloatField(choices=SEVERITY_CHOICES, default='Low')
+    severity = models.CharField(choices=SEVERITY_CHOICES, default='low', max_length=20)
     file = models.FileField(upload_to='incident_files/', blank=True, null=True)
     reported_at = models.DateTimeField(auto_now_add=True)
 

@@ -1,7 +1,21 @@
 from django.db import models
 from django.conf import settings
 
-class Incident(models.Model):
+class User(models.Model):
+    first_name = models.CharField(max_length=50)
+    last_name = models.CharField(max_length=50)
+    email = models.EmailField(unique=True)
+    phone_number = models.CharField(max_length=10, unique=True)
+    address = models.TextField()
+    aadhar_number = models.CharField(max_length=12, unique=True)
+    emergency_contact1 = models.CharField(max_length=10)
+    emergency_contact2 = models.CharField(max_length=10)
+    password = models.CharField(max_length=128)  # Use hashed passwords in production
+
+    def __str__(self):
+        return self.email
+
+class Incidents(models.Model):
     INCIDENT_TYPES = [
         ('Fire', 'Fire'),
         ('Theft', 'Theft'),
@@ -22,7 +36,7 @@ class Incident(models.Model):
     )
     location = models.CharField(max_length=255, default="None")
     description = models.TextField()
-    severity = models.FloatField(choices=SEVERITY_CHOICES, default='Low')
+    severity = models.CharField(max_length=10, choices=SEVERITY_CHOICES, default='low')
     file = models.FileField(upload_to='incident_files/', blank=True, null=True)
     reported_at = models.DateTimeField(auto_now_add=True)
 

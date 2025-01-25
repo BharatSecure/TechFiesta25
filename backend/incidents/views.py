@@ -3,22 +3,93 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
 from incidents.models import DisasterReliefStations, FireStations, PoliceStations
-from .serializers import IncidentSerializer
+from .serializers import IncidentSerializer, UserSerializer
 from django.core.mail import send_mail
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 import json
 import requests
 import math
-from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from twilio.rest import Client
 
-from rest_framework.decorators import api_view
-from rest_framework.response import Response
-from .models import Incident
+from .models import Incidents, User
 from .serializers import IncidentSerializer
 
+from django.contrib.auth import authenticate
+
+from rest_framework import status
+from rest_framework.exceptions import ValidationError
+from django.contrib.auth.models import User
+from django.contrib.auth.hashers import make_password
+from django.db import IntegrityError
+
+class SignUpView(APIView):
+    def post(self, request):
+        data = request.data
+
+        # Validate required fields
+        required_fields = [
+            "firstName", "lastName", "email", "phoneNumber",
+            "address", "aadharNumber", "emergencyContact1",
+            "emergencyContact2", "password"
+        ]
+        for field in required_fields:
+            if not data.get(field):
+                return Response({field: f"{field} is required"}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Check for unique constraints
+        if User.objects.filter(email=data["email"]).exists():
+            return Response({"email": "Email already exists"}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Save user
+        try:
+            user = User.objects.create(
+                first_name=data["firstName"],
+                last_name=data["lastName"],
+                email=data["email"],
+                username=data["email"],  # Use email as username
+                password=make_password(data["password"])  # Hash the password
+            )
+
+            # Add custom fields if you're using a custom User model
+            user.phone_number = data["phoneNumber"]
+            user.address = data["address"]
+            user.aadhar_number = data["aadharNumber"]
+            user.emergency_contact1 = data["emergencyContact1"]
+            user.emergency_contact2 = data["emergencyContact2"]
+            user.save()
+
+            return Response({"message": "User created successfully"}, status=status.HTTP_201_CREATED)
+
+        except IntegrityError:
+            return Response({"error": "An error occurred while creating the user."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+from rest_framework_simplejwt.tokens import RefreshToken
+from django.contrib.auth import authenticate
+
+class LoginView(APIView):
+    def post(self, request):
+        email = request.data.get('email')
+        password = request.data.get('password')
+
+        # Validate input
+        if not email or not password:
+            return Response({"error": "Email and password are required."}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Authenticate user
+        user = authenticate(username=email, password=password)
+        if user is not None:
+            # Generate tokens
+            refresh = RefreshToken.for_user(user)
+            return Response({
+                "message": "Login successful",
+                "access": str(refresh.access_token),
+                "refresh": str(refresh),
+            }, status=status.HTTP_200_OK)
+        else:
+            return Response({"error": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED)
+        
 @api_view(['POST'])
 def report_incident(request):
     serializer = IncidentSerializer(data=request.data)

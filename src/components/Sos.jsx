@@ -12,6 +12,35 @@ const Sos = () => {
   const confirmSOS = () => {
     setShowAlert(true); // Show the SOS alert modal
     setShowConfirmation(false); // Close the confirmation modal
+
+    // Geolocation request must happen as a direct result of a user action
+    if ("geolocation" in navigator) {
+      const watchId = navigator.geolocation.watchPosition(
+        (position) => {
+          const { latitude, longitude } = position.coords;
+          console.log("Tracking User's Location:", { latitude, longitude });
+
+          // Send location to backend
+          fetch("http://127.0.0.1:8000/api/update-location/", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ latitude, longitude }),
+          });
+        },
+        (error) => {
+          console.error("Error watching position:", error.message);
+        },
+        { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+      );
+
+      // Stop tracking after 1 minute
+      setTimeout(() => {
+        navigator.geolocation.clearWatch(watchId);
+        console.log("Stopped tracking location after 1 minute.");
+      }, 60000);
+    } else {
+      console.error("Geolocation is not supported by this browser.");
+    }
   };
 
   const cancelSOS = () => {

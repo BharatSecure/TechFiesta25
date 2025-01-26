@@ -37,6 +37,12 @@ class Incidents(models.Model):
     description = models.TextField()
     severity = models.CharField(choices=SEVERITY_CHOICES, default='low', max_length=20)
     file = models.FileField(upload_to='incident_files/', blank=True, null=True)
+
+     # Fetch the default user dynamically
+    def get_default_user():
+        return User.objects.get(first_name='Anonymous').id
+    
+    reported_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='incidents', default=get_default_user)
     reported_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):

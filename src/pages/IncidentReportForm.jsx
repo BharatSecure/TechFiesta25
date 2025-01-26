@@ -3,6 +3,7 @@ import Footer from "../components/Footer";
 import axios from "axios";
 
 const IncidentReportForm = () => {
+
   const [formData, setFormData] = useState({
     incidentType: "",
     customIncidentType: "",

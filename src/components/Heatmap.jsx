@@ -34,6 +34,41 @@ const HeatMapLayer = ({ data }) => {
   return null;
 };
 
+// Legend component for the heatmap
+const Legend = () => {
+  return (
+    <div style={legendStyle}>
+      <div style={legendItemStyle}>
+        <span
+          style={{
+            ...colorBoxStyle,
+            backgroundColor: "rgba(255, 255, 0, 1.0)", // Yellow
+          }}
+        ></span>
+        Low
+      </div>
+      <div style={legendItemStyle}>
+        <span
+          style={{
+            ...colorBoxStyle,
+            backgroundColor: "rgba(255, 165, 0, 1.0)", // Orange
+          }}
+        ></span>
+        Medium
+      </div>
+      <div style={legendItemStyle}>
+        <span
+          style={{
+            ...colorBoxStyle,
+            backgroundColor: "rgba(255, 0, 0, 1.0)", // Red
+          }}
+        ></span>
+        High
+      </div>
+    </div>
+  );
+};
+
 const HeatMap = () => {
   // Sample data: [latitude, longitude, intensity]
   const heatmapData = [
@@ -341,6 +376,7 @@ const HeatMap = () => {
                   attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                 />
                 <HeatMapLayer data={heatmapData} />
+                <Legend /> {/* Add the Legend to the map */}
               </MapContainer>
             </div>
           </div>
@@ -350,6 +386,32 @@ const HeatMap = () => {
       <Footer />
     </>
   );
+};
+
+// Styles for the legend
+const legendStyle = {
+  position: "absolute",
+  bottom: "20px",
+  left: "20px",
+  backgroundColor: "#fff",
+  padding: "10px",
+  borderRadius: "5px",
+  boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.1)",
+  zIndex: 999,
+  fontSize: "14px",
+};
+
+const legendItemStyle = {
+  display: "flex",
+  alignItems: "center",
+  marginBottom: "5px",
+};
+
+const colorBoxStyle = {
+  width: "20px",
+  height: "20px",
+  marginRight: "10px",
+  borderRadius: "2px",
 };
 
 export default HeatMap;

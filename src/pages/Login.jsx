@@ -68,7 +68,7 @@ const Login = () => {
         console.error(error.response?.data || error.message);
         setErrors({
           ...errors,
-          general: error.response?.data?.error || "Something went wrong!",
+          general: error.response?.data?.error || "Something went wrong! Please try again later.",
         });
       }
     }

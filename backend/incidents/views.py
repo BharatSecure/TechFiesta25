@@ -91,25 +91,30 @@ class LoginView(APIView):
         
 @api_view(['POST'])
 def report_incident(request):
+
+    if request.user.is_authenticated:
+        user = request.user
+    else:
+        user, _ = User.objects.get_or_create(first_name='Anonymous')  # Ensure anonymous user exists
+
     serializer = IncidentSerializer(data=request.data)
 
     if serializer.is_valid():
-        # Save the incident
-        incident = serializer.save()
+        # Save the incident with the logged-in user
+        incident = serializer.save(reported_by=user)
 
-        # Ensure the location field is properly a dictionary (if it's a string)
+        # Parse and validate location data
         if isinstance(incident.location, str):
             try:
                 incident.location = json.loads(incident.location)  # Convert string to JSON object
             except json.JSONDecodeError:
                 return Response({"error": "Invalid location data"}, status=400)
 
-        # Access latitude and longitude from the location field
         user_lat = incident.location.get('latitude')
         user_lon = incident.location.get('longitude')
 
-        if not user_lat or not user_lon:
-            return Response({"error": "Location data is missing latitude or longitude"}, status=400)
+        if not user_lat or not user_lon or not isinstance(user_lat, (int, float)) or not isinstance(user_lon, (int, float)):
+            return Response({"error": "Location data must include valid latitude and longitude"}, status=400)
 
         # Map incident type to station model
         station_map = {
@@ -118,22 +123,33 @@ def report_incident(request):
             'Accident': PoliceStations,
             'Other': None
         }
-        
+
         station_model = station_map.get(incident.incidentType)
 
         if station_model:
-            # Fetch all stations and find the nearest one
-            stations = station_model.objects.all()
-            nearest_station = min(stations, key=lambda station: great_circle((user_lat, user_lon), (station.latitude, station.longitude)).km)
+            try:
+                # Fetch all stations and find the nearest one
+                stations = station_model.objects.all()
+                nearest_station = min(
+                    stations,
+                    key=lambda station: great_circle(
+                        (user_lat, user_lon),
+                        (station.latitude, station.longitude)
+                    ).km
+                )
 
-            # Send SMS and email to the nearest station
-            number =  '+91'+ str(nearest_station.number)
-            message = f"New {incident.incidentType} reported at ({user_lat}, {user_lon})"
-            send_sms(f"New {incident.incidentType} reported! \nDetails: {incident.description}", number)
-            send_email_example("New Incident Alert", f"Details: {serializer.data['description']}", nearest_station.email)
+                # Send SMS and email notifications
+                number = '+91' + str(nearest_station.number)
+                message = f"New {incident.incidentType} reported at ({user_lat}, {user_lon})"
+                send_sms(f"New {incident.incidentType} reported! \nDetails: {incident.description}", number)
+                send_email_example("New Incident Alert", f"Details: {serializer.data['description']}", nearest_station.email)
+            except Exception as e:
+                return Response({"error": f"An error occurred while notifying the station: {str(e)}"}, status=500)
 
         return Response({"message": "Incident reported successfully!"}, status=201)
+
     return Response(serializer.errors, status=400)
+
 
 def send_sms(message, number):
     account_sid = 'ACa342288beff5795775a39a8ba798b51b'

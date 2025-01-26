@@ -1,12 +1,10 @@
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes, authentication_classes
 from rest_framework.response import Response
 from geopy.distance import great_circle
 from incidents.models import DisasterReliefStations, FireStations, PoliceStations
 from .serializers import IncidentSerializer, UserSerializer
 from django.core.mail import send_mail
-import json
 import requests
-import asyncio
 from rest_framework import status
 from django.shortcuts import get_object_or_404
 from django.contrib.auth.hashers import check_password
@@ -17,13 +15,13 @@ from geopy.distance import great_circle
 from .models import Incidents, FireStations, PoliceStations, User
 from .serializers import IncidentSerializer
 from rest_framework.views import APIView
-from django.contrib.auth import authenticate
 from rest_framework import status
-from rest_framework.exceptions import ValidationError
 from django.contrib.auth.hashers import make_password
 from django.db import IntegrityError
 from rest_framework_simplejwt.tokens import RefreshToken
-from django.contrib.auth import authenticate
+from rest_framework_simplejwt.authentication import JWTAuthentication
+from rest_framework.permissions import IsAuthenticated
+
 
 class SignUpView(APIView):
     def post(self, request):
@@ -214,3 +212,21 @@ def get_coordinates(location, api_key):
 #             }, status=status.HTTP_200_OK)
 #         except Exception as e:
 #             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+@authentication_classes([JWTAuthentication])
+def all_user_incidents(request):
+    try:
+        # Get the authenticated user from the request
+        user = request.user
+        # Filter incidents reported by the authenticated user
+        incidents = Incidents.objects.filter(reported_by=user).values()  # Use .values() to return data as a dictionary
+        return Response({"incidents": list(incidents)}, status=200)  # Return as a JSON response
+    except Exception as e:
+        return Response({"error": f"There was an error while finding the reports. {e}"}, status=400)
+    
+@api_view(['GET'])
+def all_ongoing_incidents(request):
+    incidents = Incidents.objects.filter(status="Submitted")
+    return Response(incidents, status=201)

@@ -6,4 +6,6 @@ urlpatterns = [
     path('send_email/', views.send_email_example, name='send_email'),
     path('signup/', views.SignUpView.as_view(), name='signup'),
     path('api/login/', views.LoginView.as_view(), name='login'),
+    path("get_user_incidents/", views.all_user_incidents, name="all_user_incidents"),
+    path("all_incidents/", views.all_ongoing_incidents, name='all_ongoing_incidents')
 ]

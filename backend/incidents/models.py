@@ -33,6 +33,12 @@ class Incidents(models.Model):
         choices=INCIDENT_TYPES, 
         default='Other'
     )
+
+    STATUS_CHOICES = [
+        ("submitted", "Submitted"),
+        ("processing", "Processing"),
+        ("completed", "Completed")
+    ]
     location = models.JSONField()   
     description = models.TextField()
     severity = models.CharField(choices=SEVERITY_CHOICES, default='low', max_length=20)
@@ -44,9 +50,12 @@ class Incidents(models.Model):
     
     reported_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='incidents', default=get_default_user)
     reported_at = models.DateTimeField(auto_now_add=True)
+    status = models.CharField(default='Submitted', choices=STATUS_CHOICES)
+    remarks = models.CharField(default='None', max_length=300)
+    true_or_false = models.BooleanField(default=False)
 
     def __str__(self):
-        return self.incidentType
+        return f"{self.incidentType}: {self.id}"
 
 
 class PoliceStations(models.Model):

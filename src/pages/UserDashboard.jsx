@@ -4,7 +4,7 @@ import { MdCheckCircle } from "react-icons/md";
 import { MdHourglassEmpty } from "react-icons/md";
 import { MdChat } from "react-icons/md";
 import { Navigate, useNavigate } from "react-router-dom";
-
+import axios from "axios";
 import {
   Popover,
   PopoverContent,
@@ -21,7 +21,8 @@ const UserDashboard = () => {
   const [resolved, setResolved] = useState(0);
   const [unresolved, setUnResolved] = useState(0);
   const token =
-    localStorage.getItem("token") || sessionStorage.getItem("token");
+    localStorage.getItem("accessToken") ||
+    sessionStorage.getItem("accessToken");
 
   const incidents = [
     {
@@ -114,10 +115,17 @@ const UserDashboard = () => {
   useEffect(() => {
     const fetchIncidents = async () => {
       try {
-        const response = await fetch(
+        if (!token) {
+          console.error("Token is missing");
+          return;
+        }
+
+        console.log("Full Token:", token);
+        console.log("Token Length:", token?.length);
+
+        const response = await axios.get(
           "http://127.0.0.1:8000/api/all_user_incidents/",
           {
-            method: "GET",
             headers: {
               Authorization: `Bearer ${token}`, // Replace with your actual token logic
               "Content-Type": "application/json",
@@ -125,18 +133,28 @@ const UserDashboard = () => {
           }
         );
 
-        if (response.ok) {
-          const data = await response.json();
-          setTotal(data.length);
-          setResolved(data.filter((inci) => inci.status === "Resolved").length);
-          setUnResolved(
-            data.filter((inci) => inci.status !== "Resolved").length
-          );
-        } else {
-          console.error("Error fetching incidents:", response.statusText);
-        }
+        // Log response details
+        console.log("Response Status:", response.status);
+        console.log("Response Data:", response.data);
+
+        // Process and set the data
+        const data = response.data;
+        setTotal(data.length);
+        setResolved(data.filter((inci) => inci.status === "Resolved").length);
+        setUnResolved(data.filter((inci) => inci.status !== "Resolved").length);
       } catch (error) {
-        console.error("Error fetching incidents:", error);
+        // Handle errors
+        if (error.response) {
+          // Server responded with a status outside the 2xx range
+          console.error("Error Response Status:", error.response.status);
+          console.error("Error Response Data:", error.response.data);
+        } else if (error.request) {
+          // Request was made, but no response received
+          console.error("No Response Received:", error.request);
+        } else {
+          // Error in setting up the request
+          console.error("Error:", error.message);
+        }
       }
     };
 

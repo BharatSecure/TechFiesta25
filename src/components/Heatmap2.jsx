@@ -3,7 +3,9 @@ import { MapContainer, TileLayer, useMap } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 import "leaflet.heat";
-/* HEATMAP USING LOCAL STORAGE */
+
+/*NOT IN USE */
+
 // Heatmap layer component
 const HeatMapLayer = ({ data }) => {
   const map = useMap();
@@ -18,9 +20,9 @@ const HeatMapLayer = ({ data }) => {
         0.6: "rgba(255, 165, 0, 1.0)", // Orange (Medium-high severity)
         1.0: "rgba(255, 0, 0, 1.0)", // Red (High severity)
       },
-      max: 2.0, // Increase this value to allow higher intensity levels
-      minOpacity: 0.4, // Make lower intensity points more visible
-      maxOpacity: 1, // Fully opaque for high-intensity points
+      max: 2.0,
+      minOpacity: 0.4,
+      maxOpacity: 1,
       scaleRadius: true,
     }).addTo(map);
 
@@ -36,25 +38,38 @@ const HeatMapLayer = ({ data }) => {
 const HeatMap = () => {
   const [heatmapData, setHeatmapData] = useState([]);
 
-  useEffect(() => {
-    // Retrieve incidents from localStorage
-    const incidents = JSON.parse(localStorage.getItem("incidents")) || [];
+  //DONT USE THIS CODE
 
-    // Map the incidents to the format [latitude, longitude, intensity]
-    const mappedData = incidents.map((incident) => {
-      const { latitude, longitude } = incident.location;
-      const intensity = incident.severity; // Use the numeric severity for intensity
-      return [latitude, longitude, intensity];
-    });
+  // useEffect(() => {
+  //   // Fetch incidents from the Django backend
+  //   const fetchIncidents = async () => {
+  //     try {
+  //       const response = await fetch("http://127.0.0.1:8000/api/incidents/");
+  //       const incidents = await response.json();
 
-    setHeatmapData(mappedData);
-  }, []);
+  //       // Map the incidents to the format [latitude, longitude, intensity]
+  //       const mappedData = incidents.map((incident) => {
+  //         return [
+  //           incident.location_latitude,
+  //           incident.location_longitude,
+  //           incident.severity,
+  //         ];
+  //       });
+
+  //       setHeatmapData(mappedData);
+  //     } catch (error) {
+  //       console.error("Error fetching incidents:", error);
+  //     }
+  //   };
+
+  //   fetchIncidents();
+  // }, []);
 
   return (
     <MapContainer
-      center={[18.5204, 76.8567]} // Default center coordinates (can be adjusted)
+      center={[22.1309, 78.6677]} // Default center coordinates (adjust as needed)
       zoom={7}
-      style={{ height: "100vh", width: "100%" }}
+      className="h-full w-full"
     >
       <TileLayer
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"

@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { FaCommentDots } from "react-icons/fa";
 import Footer from "@/components/Footer";
 import { useAuth } from "@/context/AuthContext"; // Import the AuthContext
+import { Link } from "react-router-dom";
 
 const RecentIncidents = () => {
   const { isLoggedIn } = useAuth(); // Get the login status from the AuthContext
@@ -129,9 +130,11 @@ const RecentIncidents = () => {
                         }
                       />
                     ) : (
-                      <p className="text-gray-500 mt-2 text-sm lg:text-base">
-                        Please log in to add a comment.
-                      </p>
+                      <Link to="/login">
+                        <p className="text-blue-500 hover:text-blue-700 mt-2 text-sm lg:text-base">
+                          Please log in to add a comment.
+                        </p>
+                      </Link>
                     )}
                   </div>
                 )}

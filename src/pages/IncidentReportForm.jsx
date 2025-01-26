@@ -11,6 +11,7 @@ const IncidentReportForm = () => {
     },
     description: "",
     severity: "Low", // Default severity
+    reportAnonymously: false, // Initial checkbox value
   });
 
   const [file, setFile] = useState(null);
@@ -24,6 +25,12 @@ const IncidentReportForm = () => {
 
   const handleFileChange = (e) => {
     setFile(e.target.files[0]);
+  };
+
+  // Handle checkbox change
+  const handleCheckboxChange = (e) => {
+    const { name, checked } = e.target;
+    setFormData({ ...formData, [name]: checked });
   };
 
   const getLocation = () => {
@@ -82,9 +89,10 @@ const IncidentReportForm = () => {
     setFormData({
       incidentType: "",
       customIncidentType: "",
-      location: "",
+      location: { latitude: "", longitude: "" }, 
       description: "",
       severity: "Low",
+      reportAnonymously: false,
     });
     setFile(null);
   };
@@ -227,6 +235,20 @@ const IncidentReportForm = () => {
                 <option value="Medium">Medium</option>
                 <option value="High">High</option>
               </select>
+            </div>
+
+            {/* Report Anonymously */}
+            <div className="mb-6">
+              <label className="inline-flex items-center">
+                <input
+                  type="checkbox"
+                  name="reportAnonymously"
+                  checked={formData.reportAnonymously || false}
+                  onChange={handleCheckboxChange}
+                  className="form-checkbox h-5 w-5 text-sky-600"
+                />
+                <span className="ml-2 text-gray-600">Report Anonymously</span>
+              </label>
             </div>
 
             {/* File Upload */}

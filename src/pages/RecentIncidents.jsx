@@ -164,13 +164,6 @@ const AddCommentForm = ({ onAddComment }) => {
       <div className="flex flex-col sm:flex-row gap-2">
         <input
           type="text"
-          placeholder="Your Name"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
-          className="flex-1 border rounded-md p-2"
-        />
-        <input
-          type="text"
           placeholder="Add a comment..."
           value={commentText}
           onChange={(e) => setCommentText(e.target.value)}

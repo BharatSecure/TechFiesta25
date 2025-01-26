@@ -20,8 +20,10 @@ from django.contrib.auth.hashers import make_password
 from django.db import IntegrityError
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.authentication import JWTAuthentication
-from rest_framework.permissions import IsAuthenticated
-
+from rest_framework.authentication import SessionAuthentication, BasicAuthentication
+from rest_framework.permissions import IsAuthenticated, AllowAny
+import logging
+logger = logging.getLogger(__name__)
 
 class SignUpView(APIView):
     def post(self, request):
@@ -213,7 +215,7 @@ def get_coordinates(location, api_key):
 #         except Exception as e:
 #             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-@api_view(['POST'])
+@api_view(['GET'])
 @permission_classes([IsAuthenticated])
 @authentication_classes([JWTAuthentication])
 def all_user_incidents(request):

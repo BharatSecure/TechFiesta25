@@ -50,7 +50,7 @@ class Incidents(models.Model):
     
     reported_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='incidents', default=get_default_user)
     reported_at = models.DateTimeField(auto_now_add=True)
-    status = models.CharField(default='Submitted', choices=STATUS_CHOICES)
+    status = models.CharField(default='Submitted', choices=STATUS_CHOICES, max_length=50)
     remarks = models.CharField(default='None', max_length=300)
     true_or_false = models.BooleanField(default=False)
 

@@ -3,7 +3,6 @@ import Footer from "../components/Footer";
 import axios from "axios";
 
 const IncidentReportForm = () => {
-
   const [formData, setFormData] = useState({
     incidentType: "",
     customIncidentType: "",
@@ -166,11 +165,17 @@ const IncidentReportForm = () => {
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500"
                 required
               >
+                {/* harassment, abuse, domestic violence, trafficking, and child labor. */}
                 <option value="">Select an incident type</option>
-                <option value="Fire">Fire</option>
+                <option value="Accident">Harassment</option>
+                <option value="Accident">Abuse</option>
+                <option value="Accident">Domestic violence</option>
+                <option value="Accident">Trafficking</option>
+                <option value="Accident">Child labor</option>
+                <option value="Medical Emergency">Medical Emergency</option>
                 <option value="Accident">Accident</option>
                 <option value="Theft">Theft</option>
-                <option value="Medical Emergency">Medical Emergency</option>
+                <option value="Fire">Fire</option>
                 <option value="Other">Other</option>
               </select>
             </div>

@@ -11,7 +11,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import Footer from "@/components/Footer";
-import { isLoggedIn, useAuth } from "@/context/AuthContext";
+import { useAuth } from "@/context/AuthContext";
 
 const UserDashboard = () => {
   const navigate = useNavigate();
@@ -114,13 +114,16 @@ const UserDashboard = () => {
   useEffect(() => {
     const fetchIncidents = async () => {
       try {
-        const response = await fetch("/api/all_user_incidents/", {
-          method: "GET",
-          headers: {
-            Authorization: `Bearer ${token}`, // Replace with your actual token logic
-            "Content-Type": "application/json",
-          },
-        });
+        const response = await fetch(
+          "http://127.0.0.1:8000/api/all_user_incidents/",
+          {
+            method: "GET",
+            headers: {
+              Authorization: `Bearer ${token}`, // Replace with your actual token logic
+              "Content-Type": "application/json",
+            },
+          }
+        );
 
         if (response.ok) {
           const data = await response.json();

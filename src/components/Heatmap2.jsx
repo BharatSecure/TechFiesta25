@@ -1,29 +1,67 @@
 import React, { useState, useEffect } from "react";
-import { MapContainer, TileLayer, useMap } from "react-leaflet";
+import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 import "leaflet.heat";
 
-/*NOT IN USE */
+// Custom marker icon for police stations
+const policeStationIcon = new L.Icon({
+  iconUrl: "https://cdn-icons-png.flaticon.com/512/535/535239.png",
+  iconSize: [30, 30],
+  iconAnchor: [15, 30],
+});
+
+// Component to handle marker visibility based on zoom level
+const PoliceStations = ({ policeStations }) => {
+  const [isVisible, setIsVisible] = useState(false);
+  const map = useMap();
+
+  useEffect(() => {
+    const handleZoom = () => {
+      const zoomLevel = map.getZoom();
+      setIsVisible(zoomLevel > 12); // Markers visible only when zoom is > 12
+    };
+
+    map.on("zoomend", handleZoom);
+    handleZoom(); // Initialize visibility on component mount
+
+    return () => {
+      map.off("zoomend", handleZoom);
+    };
+  }, [map]);
+
+  return (
+    <>
+      {isVisible &&
+        policeStations.map((station, index) => (
+          <Marker
+            key={index}
+            position={[station.lat, station.lng]}
+            icon={policeStationIcon}
+          >
+            <Popup>{station.name}</Popup>
+          </Marker>
+        ))}
+    </>
+  );
+};
 
 // Heatmap layer component
 const HeatMapLayer = ({ data }) => {
   const map = useMap();
 
-  React.useEffect(() => {
+  useEffect(() => {
     const heat = L.heatLayer(data, {
       radius: 25,
       blur: 20,
       maxZoom: 15,
       gradient: {
-        0.3: "rgba(255, 255, 0, 1.0)", // Yellow (Medium severity)
-        0.6: "rgba(255, 165, 0, 1.0)", // Orange (Medium-high severity)
+        0.3: "rgba(255, 255, 0, 1.0)", // Yellow (Low severity)
+        0.6: "rgba(255, 165, 0, 1.0)", // Orange (Medium severity)
         1.0: "rgba(255, 0, 0, 1.0)", // Red (High severity)
       },
-      max: 2.0,
+      max: 1.0,
       minOpacity: 0.4,
-      maxOpacity: 1,
-      scaleRadius: true,
     }).addTo(map);
 
     return () => {
@@ -34,48 +72,57 @@ const HeatMapLayer = ({ data }) => {
   return null;
 };
 
-// Heatmap component
+// Main Heatmap component
 const HeatMap = () => {
   const [heatmapData, setHeatmapData] = useState([]);
+  const [policeStations, setPoliceStations] = useState([]);
 
-  //DONT USE THIS CODE
+  useEffect(() => {
+    // Static data for heatmap (latitude, longitude, intensity)
+    const staticData = [
+      [22.5726, 88.3639, 0.9], // High severity (Kolkata)
+      [28.7041, 77.1025, 0.7], // Medium severity (Delhi)
+      [19.076, 72.8777, 0.5], // Low-medium severity (Mumbai)
+      [13.0827, 80.2707, 0.8], // High-medium severity (Chennai)
+      [22.7196, 75.8577, 0.4], // Low severity (Indore)
+      [18.4576, 73.8507, 0.4], // Pune
+      [18.4572, 73.8502, 0.4], // Pune
+      [18.4574, 73.8508, 0.4], // Pune
+    ];
 
-  // useEffect(() => {
-  //   // Fetch incidents from the Django backend
-  //   const fetchIncidents = async () => {
-  //     try {
-  //       const response = await fetch("http://127.0.0.1:8000/api/incidents/");
-  //       const incidents = await response.json();
+    setHeatmapData(staticData);
 
-  //       // Map the incidents to the format [latitude, longitude, intensity]
-  //       const mappedData = incidents.map((incident) => {
-  //         return [
-  //           incident.location_latitude,
-  //           incident.location_longitude,
-  //           incident.severity,
-  //         ];
-  //       });
+    // Fetch police stations from Overpass API (within 5km radius of given coordinates)
+    const overpassUrl =
+      "https://overpass-api.de/api/interpreter?data=[out:json];node[%22amenity%22=%22police%22](around:10000,18.454519508181345,73.85066193419283);out;";
 
-  //       setHeatmapData(mappedData);
-  //     } catch (error) {
-  //       console.error("Error fetching incidents:", error);
-  //     }
-  //   };
-
-  //   fetchIncidents();
-  // }, []);
+    fetch(overpassUrl)
+      .then((response) => response.json())
+      .then((data) => {
+        const stations = data.elements.map((element) => ({
+          lat: element.lat,
+          lng: element.lon,
+          name: element.tags.name || "Unnamed Police Station",
+        }));
+        setPoliceStations(stations);
+      })
+      .catch((error) =>
+        console.error("Error fetching police stations:", error)
+      );
+  }, []);
 
   return (
     <MapContainer
-      center={[22.1309, 78.6677]} // Default center coordinates (adjust as needed)
-      zoom={7}
-      className="h-full w-full"
+      center={[18.457857567, 73.8508979]} // Default center coordinates
+      zoom={15} // Default zoom level
+      style={{ height: "100vh", width: "100%" }}
     >
       <TileLayer
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
       />
       <HeatMapLayer data={heatmapData} />
+      <PoliceStations policeStations={policeStations} />
     </MapContainer>
   );
 };

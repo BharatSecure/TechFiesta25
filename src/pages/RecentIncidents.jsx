@@ -1,55 +1,30 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import axios from "axios";
 import { FaCommentDots } from "react-icons/fa";
 import Footer from "@/components/Footer";
-import { useAuth } from "@/context/AuthContext"; // Import the AuthContext
+import { useAuth } from "@/context/AuthContext";
 import { Link } from "react-router-dom";
 
 const RecentIncidents = () => {
-  const { isLoggedIn } = useAuth(); // Get the login status from the AuthContext
-
-  // Mock data for incidents
-  const [incidents, setIncidents] = useState([
-    {
-      id: 1,
-      title: "Road Accident near Central Park",
-      description: "A minor collision involving two vehicles.",
-      time: "2025-01-24 15:30",
-      comments: [
-        { username: "Arjun", text: "Hope everyone is safe." },
-        { username: "Nita", text: "Saw this, traffic was crazy!" },
-      ],
-    },
-    {
-      id: 2,
-      title: "Power Outage in Maple Street",
-      description: "Residents report power outage for over 3 hours.",
-      time: "2025-01-24 14:10",
-      comments: [
-        {
-          username: "Rahul",
-          text: "Any updates on when power will be restored?",
-        },
-      ],
-    },
-    {
-      id: 3,
-      title: "Theft Incident at Local Store",
-      description: "Heard a loud noise and saw someone running away.",
-      time: "2025-01-24 11:50",
-      comments: [
-        {
-          username: "Jacell",
-          text: "Did you call the police?",
-        },
-        {
-          username: "Serene",
-          text: "I know the thief, will inform the police.",
-        },
-      ],
-    },
-  ]);
-
+  const { isLoggedIn } = useAuth();
+  const [incidents, setIncidents] = useState([]);
   const [openCommentSection, setOpenCommentSection] = useState({});
+
+  // Fetch incidents from the backend
+  useEffect(() => {
+    const fetchIncidents = async () => {
+      try {
+        const response = await axios.get(
+          "http://127.0.0.1:8000/api/unresolved_incidents/"
+        );
+        setIncidents(response.data); // Update incidents state
+      } catch (error) {
+        console.error("Error fetching incidents:", error);
+      }
+    };
+
+    fetchIncidents();
+  }, []);
 
   const toggleComments = (id) => {
     setOpenCommentSection((prev) => ({
@@ -73,7 +48,7 @@ const RecentIncidents = () => {
               <h2 className="text-xl font-semibold mb-2">{incident.title}</h2>
               <p className="text-gray-600 mb-1">{incident.description}</p>
               <p className="text-sm text-gray-500">
-                Reported at: {incident.time}
+                Reported at: {new Date(incident.time).toLocaleString()}
               </p>
 
               <button
@@ -113,16 +88,14 @@ const RecentIncidents = () => {
                     </ul>
                     {isLoggedIn ? (
                       <AddCommentForm
-                        onAddComment={(username, commentText) =>
-                          setIncidents((prevIncidents) =>
-                            prevIncidents.map((inc) =>
+                        incidentId={incident.id}
+                        onAddComment={(comment) =>
+                          setIncidents((prev) =>
+                            prev.map((inc) =>
                               inc.id === incident.id
                                 ? {
                                     ...inc,
-                                    comments: [
-                                      ...inc.comments,
-                                      { username, text: commentText },
-                                    ],
+                                    comments: [...inc.comments, comment],
                                   }
                                 : inc
                             )
@@ -149,16 +122,26 @@ const RecentIncidents = () => {
 };
 
 // Component for adding a comment
-const AddCommentForm = ({ onAddComment }) => {
-  const [username, setUsername] = useState("");
+const AddCommentForm = ({ incidentId, onAddComment }) => {
   const [commentText, setCommentText] = useState("");
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (username.trim() && commentText.trim()) {
-      onAddComment(username, commentText);
-      setUsername("");
-      setCommentText(""); // Clear the input fields
+    if (commentText.trim()) {
+      try {
+        const response = await axios.post(
+          `http://127.0.0.1:8000/api/comments/`,
+          {
+            incident: incidentId,
+            username: "Anonymous", // Replace with logged-in user's name
+            text: commentText,
+          }
+        );
+        onAddComment(response.data);
+        setCommentText("");
+      } catch (error) {
+        console.error("Error adding comment:", error);
+      }
     }
   };
 

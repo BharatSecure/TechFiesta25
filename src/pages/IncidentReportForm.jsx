@@ -81,40 +81,47 @@ const IncidentReportForm = () => {
     // Serialize location properly before sending
     let locationToSend;
     if (Array.isArray(formData.location)) {
-      // Serialize the location array to a JSON string
-      locationToSend = JSON.stringify(formData.location);
+      locationToSend = JSON.stringify(formData.location); // Serialize the location array
     } else if (typeof formData.location === "object") {
-      // Serialize location object to JSON string
-      locationToSend = JSON.stringify(formData.location);
+      locationToSend = JSON.stringify(formData.location); // Serialize location object
     } else {
-      // If location is already a string, send it as is
-      locationToSend = formData.location;
+      locationToSend = formData.location; // If already a string
     }
 
     // Prepare data with mapped severity and file handling
     const submittedData = {
       incidentType: incidentType,
-      location: locationToSend, // Send serialized location
+      location: locationToSend, // Serialized location
       description: formData.description,
-      severity: severityMap[formData.severity] || "low", // Ensure a default value in case it's undefined
+      severity: severityMap[formData.severity] || "low", // Default to 'low' if undefined
       file: file ? file.name : null,
     };
 
     const formDataToSend = new FormData();
     formDataToSend.append("incidentType", submittedData.incidentType);
-    formDataToSend.append("location", submittedData.location); // Ensure location is serialized
+    formDataToSend.append("location", submittedData.location);
     formDataToSend.append("description", submittedData.description);
-    formDataToSend.append("severity", submittedData.severity); // Ensure mapped value is sent
+    formDataToSend.append("severity", submittedData.severity);
 
     if (file) {
       formDataToSend.append("file", file);
     }
 
     try {
+      const token = localStorage.getItem("accessToken"); // Retrieve token from storage or context
+      if (!token) {
+        alert("Authorization token is missing. Please log in.");
+        return;
+      }
+
       const response = await axios.post(
         "http://127.0.0.1:8000/api/report-incident/",
-        formDataToSend // Use FormData directly
-        // Do not set Content-Type manually as FormData sets it automatically
+        formDataToSend,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`, // Include token in the Authorization header
+          },
+        }
       );
 
       console.log("Server response:", response.data);

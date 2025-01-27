@@ -29,29 +29,32 @@ class Incidents(models.Model):
         ('high', 'High'),
     ]
 
-    incidentType = models.CharField(
-        max_length=100, 
-        choices=INCIDENT_TYPES, 
-        default='Other'
-    )
-
     STATUS_CHOICES = [
         ("submitted", "Submitted"),
         ("processing", "Processing"),
         ("completed", "Completed")
     ]
+
+    incidentType = models.CharField(
+        max_length=100, 
+        choices=INCIDENT_TYPES, 
+        default='Other'
+    )
     location = models.JSONField()   
     description = models.TextField()
     severity = models.CharField(choices=SEVERITY_CHOICES, default='low', max_length=20)
     file = models.FileField(upload_to='incident_files/', blank=True, null=True)
-
-     # Fetch the default user dynamically
-    def get_default_user():
-        return User.objects.get(first_name='Anonymous').id
     
-    reported_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='incidents', default=get_default_user)
+    # Changed this to allow null and removed the default function
+    reported_by = models.ForeignKey(
+        User, 
+        on_delete=models.CASCADE, 
+        related_name='incidents',
+        null=True,
+        blank=True
+    )
     reported_at = models.DateTimeField(auto_now_add=True)
-    status = models.CharField(default='Submitted', choices=STATUS_CHOICES, max_length=50)
+    status = models.CharField(default='submitted', choices=STATUS_CHOICES, max_length=50)
     remarks = models.CharField(default='None', max_length=300)
     true_or_false = models.BooleanField(default=False)
 
@@ -75,7 +78,7 @@ class Comment(models.Model):
     useful = models.BooleanField(default=False)
 
     def __str__(self):
-        return f"Comment by {self.commented_by} on {self.commented_on.title}"  # Adjust 'title' if Incident has a different descriptive field
+        return f"Comment by {self.commented_by} on Incident {self.commented_on.id}"
 
 class PoliceStations(models.Model):
     latitude = models.FloatField()

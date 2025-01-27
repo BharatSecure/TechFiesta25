@@ -9,16 +9,44 @@ const FeedbackForm = () => {
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState("");
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+
     if (!name || !email || !message) {
       setError("Please fill in all required fields.");
       return;
     }
-    setSubmitted(true);
-    setError("");
-    // Add logic to send feedback to the backend
-    // e.g., call an API to save the feedback
+
+    try {
+      const response = await fetch("http://127.0.0.1:8000/submit-feedback/", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name,
+          email,
+          feedback_type: feedbackType,
+          message,
+        }),
+      });
+
+      if (response.ok) {
+        setSubmitted(true);
+        setError("");
+        setName("");
+        setEmail("");
+        setFeedbackType("General");
+        setMessage("");
+      } else {
+        const data = await response.json();
+        setError(
+          data.message || "Failed to submit feedback. Please try again."
+        );
+      }
+    } catch (error) {
+      setError("An error occurred. Please try again later.");
+    }
   };
 
   return (

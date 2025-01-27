@@ -16,6 +16,7 @@ const IncidentReportForm = () => {
 
   const [file, setFile] = useState(null);
   const [loadingLocation, setLoadingLocation] = useState(false);
+  const [modalOpen, setModalOpen] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -24,6 +25,12 @@ const IncidentReportForm = () => {
 
   const handleFileChange = (e) => {
     setFile(e.target.files[0]);
+  };
+
+  // Handle checkbox change
+  const handleCheckboxChange = (e) => {
+    const { name, checked } = e.target;
+    setFormData({ ...formData, [name]: checked });
   };
 
   const getLocation = () => {
@@ -74,40 +81,47 @@ const IncidentReportForm = () => {
     // Serialize location properly before sending
     let locationToSend;
     if (Array.isArray(formData.location)) {
-      // Serialize the location array to a JSON string
-      locationToSend = JSON.stringify(formData.location);
+      locationToSend = JSON.stringify(formData.location); // Serialize the location array
     } else if (typeof formData.location === "object") {
-      // Serialize location object to JSON string
-      locationToSend = JSON.stringify(formData.location);
+      locationToSend = JSON.stringify(formData.location); // Serialize location object
     } else {
-      // If location is already a string, send it as is
-      locationToSend = formData.location;
+      locationToSend = formData.location; // If already a string
     }
 
     // Prepare data with mapped severity and file handling
     const submittedData = {
       incidentType: incidentType,
-      location: locationToSend, // Send serialized location
+      location: locationToSend, // Serialized location
       description: formData.description,
-      severity: severityMap[formData.severity] || "low", // Ensure a default value in case it's undefined
+      severity: severityMap[formData.severity] || "low", // Default to 'low' if undefined
       file: file ? file.name : null,
     };
 
     const formDataToSend = new FormData();
     formDataToSend.append("incidentType", submittedData.incidentType);
-    formDataToSend.append("location", submittedData.location); // Ensure location is serialized
+    formDataToSend.append("location", submittedData.location);
     formDataToSend.append("description", submittedData.description);
-    formDataToSend.append("severity", submittedData.severity); // Ensure mapped value is sent
+    formDataToSend.append("severity", submittedData.severity);
 
     if (file) {
       formDataToSend.append("file", file);
     }
 
     try {
+      const token = localStorage.getItem("accessToken"); // Retrieve token from storage or context
+      if (!token) {
+        alert("Authorization token is missing. Please log in.");
+        return;
+      }
+
       const response = await axios.post(
         "http://127.0.0.1:8000/api/report-incident/",
-        formDataToSend // Use FormData directly
-        // Do not set Content-Type manually as FormData sets it automatically
+        formDataToSend,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`, // Include token in the Authorization header
+          },
+        }
       );
 
       console.log("Server response:", response.data);
@@ -165,17 +179,11 @@ const IncidentReportForm = () => {
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500"
                 required
               >
-                {/* harassment, abuse, domestic violence, trafficking, and child labor. */}
                 <option value="">Select an incident type</option>
-                <option value="Accident">Harassment</option>
-                <option value="Accident">Abuse</option>
-                <option value="Accident">Domestic violence</option>
-                <option value="Accident">Trafficking</option>
-                <option value="Accident">Child labor</option>
-                <option value="Medical Emergency">Medical Emergency</option>
+                <option value="Fire">Fire</option>
                 <option value="Accident">Accident</option>
                 <option value="Theft">Theft</option>
-                <option value="Fire">Fire</option>
+                <option value="Medical Emergency">Medical Emergency</option>
                 <option value="Other">Other</option>
               </select>
             </div>
@@ -272,10 +280,24 @@ const IncidentReportForm = () => {
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500"
                 required
               >
-                <option value="low">Low</option>
-                <option value="medium">Medium</option>
-                <option value="high">High</option>
+                <option value="Low">Low</option>
+                <option value="Medium">Medium</option>
+                <option value="High">High</option>
               </select>
+            </div>
+
+            {/* Report Anonymously */}
+            <div className="mb-6">
+              <label className="inline-flex items-center">
+                <input
+                  type="checkbox"
+                  name="reportAnonymously"
+                  checked={formData.reportAnonymously || false}
+                  onChange={handleCheckboxChange}
+                  className="form-checkbox h-5 w-5 text-sky-600"
+                />
+                <span className="ml-2 text-gray-600">Report Anonymously</span>
+              </label>
             </div>
 
             {/* File Upload */}
@@ -303,6 +325,23 @@ const IncidentReportForm = () => {
               Submit
             </button>
           </form>
+          {/* Modal */}
+          {modalOpen && (
+            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+              <div className="bg-white p-6 rounded-lg shadow-lg">
+                <h2 className="text-xl font-semibold mb-4">
+                  Incident Reported!
+                </h2>
+                <p>Your incident has been reported successfully.</p>
+                <button
+                  onClick={() => setModalOpen(false)}
+                  className="mt-4 px-4 py-2 bg-blue-500 text-white rounded-lg"
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       </div>
       <Footer />

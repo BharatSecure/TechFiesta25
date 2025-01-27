@@ -18,10 +18,8 @@ from rest_framework.views import APIView
 from rest_framework import status
 from django.contrib.auth.hashers import make_password
 from django.db import IntegrityError
-from rest_framework_simplejwt.tokens import RefreshToken
-from rest_framework_simplejwt.authentication import JWTAuthentication
-from rest_framework.authentication import SessionAuthentication, BasicAuthentication
-from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework_simplejwt.tokens import RefreshToken, AccessToken
+from rest_framework.exceptions import AuthenticationFailed
 import logging
 logger = logging.getLogger(__name__)
 
@@ -92,10 +90,23 @@ class LoginView(APIView):
         
 @api_view(['POST'])
 def report_incident(request):
-
-    if request.user.is_authenticated:
-        user = request.user
-    else:
+    # Extract the Authorization header
+    auth_header = request.META.get('HTTP_AUTHORIZATION', None)
+    
+    if not auth_header or not auth_header.startswith('Bearer '):
+        return Response({"error": "Authorization header missing or malformed"}, status=400)
+    
+    # Extract the token from the header
+    token_str = auth_header.split(' ')[1] 
+    
+    try:
+        token = AccessToken(token_str) 
+        user = User.objects.get(id=token['user_id'])  
+    except (Exception, AuthenticationFailed) as e:
+        return Response({"error": f"Invalid or expired token: {str(e)}"}, status=401)
+    
+    # In case of no token or invalid token, fallback to anonymous user
+    if not user:
         user, _ = User.objects.get_or_create(first_name='Anonymous')  # Ensure anonymous user exists
 
     serializer = IncidentSerializer(data=request.data)
@@ -217,26 +228,30 @@ def get_coordinates(location, api_key):
 #             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 @api_view(['GET'])
-@authentication_classes([JWTAuthentication])
-@permission_classes([IsAuthenticated])
 def all_user_incidents(request):
     try:
-        # Get the authenticated user from the request
-        user = request.user
-        # Filter incidents reported by the authenticated user
-        incidents = Incidents.objects.filter(reported_by=user).values()  # Use .values() to return data as a dictionary
-        return Response({"incidents": list(incidents)}, status=200)  # Return as a JSON response
+        # Extract the Authorization header
+        auth_header = request.META.get('HTTP_AUTHORIZATION', None)
+        if not auth_header or not auth_header.startswith('Bearer '):
+            return Response({"error": "Authorization header missing or malformed"}, status=400)
+
+        # Extract the token from the header
+        token_str = auth_header.split(' ')[1]  # 'Bearer <token>'
+        token = AccessToken(token_str)
+
+        # Validate and retrieve the user
+        user = User.objects.get(id=token['user_id'])
+
+        # Fetch incidents for the user
+        incidents = Incidents.objects.filter(reported_by=user).values()
+        return Response({"incidents": list(incidents)}, status=200)
+    except User.DoesNotExist:
+        return Response({"error": "User not found"}, status=404)
     except Exception as e:
-        return Response({"error": f"There was an error while finding the reports. {e}"}, status=400)
+        return Response({"error": f"There was an error while finding the reports: {e}"}, status=400)
     
 @api_view(['GET'])
 def all_ongoing_incidents(request):
     incidents = Incidents.objects.filter(status="Submitted")
     return Response(incidents, status=201)
 
-from rest_framework_simplejwt.tokens import AccessToken
-@api_view(['POST'])
-@authentication_classes([JWTAuthentication])
-@permission_classes([IsAuthenticated])
-def checking_token(request):
-    print(request.user)

@@ -14,9 +14,11 @@ import HeatMap3 from "./components/Heatmap3";
 import VoiceToText from "./components/VoiceToText";
 import SignUp from "./pages/SignUp";
 import Login from "./pages/Login";
-import Blogs from "./pages/Blog";
+// import Blogs from "./pages/Blog";
 import ScrollToTop from "./lib/ScrollToTop";
 import { AuthProvider } from "./context/AuthContext";
+import RecentIncidents from "./pages/RecentIncidents";
+import FeedbackForm from "./pages/FeedbackForm";
 
 if ("serviceWorker" in navigator) {
   navigator.serviceWorker.register("./sw.js")
@@ -46,7 +48,8 @@ const App = () => {
               <Route path="/voice-report" element={<VoiceToText />} />
               <Route path="/signUp" element={<SignUp />} />
               <Route path="/login" element={<Login />} />
-              <Route path="/blogs" element={<Blogs />} />
+              <Route path="/blogs" element={<RecentIncidents />} />
+              <Route path="/feedback" element={<FeedbackForm />} />
             </Routes>
           </BrowserRouter>
         </IncidentsProvider>

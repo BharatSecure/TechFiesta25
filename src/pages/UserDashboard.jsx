@@ -115,8 +115,6 @@ const UserDashboard = () => {
   useEffect(() => {
     const fetchIncidents = async () => {
       try {
-        console.log("Full Token:", token);
-        console.log("Token Length:", token?.length);
         const response = await fetch(
           "http://127.0.0.1:8000/api/all_user_incidents/",
           {
@@ -127,18 +125,27 @@ const UserDashboard = () => {
             },
           }
         );
-        console.log("Response Status:", response.status);
-        const data = await response.json();
-        console.log("Response Data:", data);
+
         if (response.ok) {
           const data = await response.json();
-          setTotal(data.length);
-          setResolved(data.filter((inci) => inci.status === "Resolved").length);
-          setUnResolved(
-            data.filter((inci) => inci.status !== "Resolved").length
-          );
+
+          console.log("Incidents Response Data:", data);
+
+          if (Array.isArray(data.incidents)) {
+            setTotal(data.incidents.length);
+            setResolved(
+              data.incidents.filter((inci) => inci.status === "Resolved").length
+            );
+            setUnResolved(
+              data.incidents.filter((inci) => inci.status !== "Resolved").length
+            );
+          } else {
+            console.error("Unexpected data format:", data);
+          }
         } else {
-          console.error("Error fetching incidents:", response.statusText);
+          console.error(
+            `Error fetching incidents: ${response.statusText} (Status: ${response.status})`
+          );
         }
       } catch (error) {
         console.error("Error fetching incidents:", error);

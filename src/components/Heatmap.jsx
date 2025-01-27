@@ -5,12 +5,13 @@ import L from "leaflet";
 import "leaflet.heat";
 import Footer from "./Footer";
 import ScaleInComponent from "@/lib/ScaleInComponent";
+import { useEffect } from "react";
 
 /*STATIC HEATMAP*/
-const HeatMapLayer = ({ data }) => {
+const HeatMapLayer = ({ data, incidents }) => {
   const map = useMap();
 
-  React.useEffect(() => {
+  useEffect(() => {
     const heat = L.heatLayer(data, {
       radius: 25,
       blur: 20,
@@ -20,16 +21,55 @@ const HeatMapLayer = ({ data }) => {
         0.6: "rgba(255, 165, 0, 1.0)", // Orange (Medium-high severity)
         1.0: "rgba(255, 0, 0, 1.0)", // Red (High severity)
       },
-      max: 2.0, // Increase this value to allow higher intensity levels
-      minOpacity: 0.4, // Make lower intensity points more visible
-      maxOpacity: 1, // Fully opaque for high-intensity points
+      max: 2.0,
+      minOpacity: 0.4,
+      maxOpacity: 1,
       scaleRadius: true,
     }).addTo(map);
+
+    // Handling click event to display incident details
+    heat.on("click", (event) => {
+      const { lat, lng } = event.latlng; // Get clicked latitude and longitude
+      const clickedIncident = incidents.find(
+        (incident) =>
+          incident.location_latitude === lat &&
+          incident.location_longitude === lng
+      );
+
+      if (clickedIncident) {
+        L.popup()
+          .setLatLng([lat, lng])
+          .setContent(
+            `<b>Incident:</b> ${clickedIncident.title} <br />
+            <b>Status:</b> ${clickedIncident.status} <br />
+            <b>Severity:</b> ${clickedIncident.severity} <br />
+            <b>Description:</b> ${clickedIncident.description}`
+          )
+          .openOn(map);
+      }
+    });
+
+    // Optional: Handling mouse hover event to display a tooltip
+    heat.on("mouseover", (event) => {
+      const { lat, lng } = event.latlng;
+      const hoveredIncident = incidents.find(
+        (incident) =>
+          incident.location_latitude === lat &&
+          incident.location_longitude === lng
+      );
+
+      if (hoveredIncident) {
+        L.tooltip()
+          .setLatLng([lat, lng])
+          .setContent(`<b>Severity:</b> ${hoveredIncident.severity}`)
+          .addTo(map);
+      }
+    });
 
     return () => {
       map.removeLayer(heat);
     };
-  }, [map, data]);
+  }, [map, data, incidents]);
 
   return null;
 };
@@ -367,6 +407,8 @@ const HeatMap = () => {
             </h2>
             <div className="relative h-[500px] overflow-hidden rounded-lg">
               <MapContainer
+                role="region"
+                aria-label="Heatmap of incidents"
                 center={[22.1309, 78.6677]} //18.5204, 76.8567
                 zoom={5} //7
                 className="h-full w-full"

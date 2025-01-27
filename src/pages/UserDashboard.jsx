@@ -20,59 +20,10 @@ const UserDashboard = () => {
   const [total, setTotal] = useState();
   const [resolved, setResolved] = useState(0);
   const [unresolved, setUnResolved] = useState(0);
+  const [incidents, setIncidents] = useState([]);
   const token =
     localStorage.getItem("accessToken") ||
     sessionStorage.getItem("accessToken");
-
-  const incidents = [
-    {
-      id: 3319,
-      user: "John Doe",
-      title: "Broken Streetlight",
-      description: "A streetlight is broken near the park.",
-      severity: "Medium",
-      location: "Latitude: 19.185664, Longitude: 72.8367104",
-      status: "Resolved",
-    },
-    {
-      id: 1269,
-      user: "Jane Smith",
-      title: "Pothole on Road",
-      description: "A big pothole on the main road.",
-      severity: "High",
-      location: "Latitude: 19.185664, Longitude: 72.8367104",
-      status: "Under Process",
-    },
-    {
-      id: 1012,
-      user: "Michael Johnson",
-      title: "Flooding in Basement",
-      description: "Water leakage in the building basement.",
-      severity: "Low",
-      location: "Latitude: 19.185664, Longitude: 72.8367104",
-      status: "Under Process",
-    },
-    {
-      id: 4321,
-      user: "Alice Cooper",
-      title: "Leaking Water Pipe",
-      description: "A water pipe is leaking in the neighborhood.",
-      severity: "Low",
-      location: "Latitude: 19.0825223, Longitude: 72.7411012",
-      status: "Resolved",
-    },
-    {
-      id: 5478,
-      user: "Bob Taylor",
-      title: "Collapsed Tree",
-      description: "A tree has fallen on the sidewalk.",
-      severity: "Medium",
-      location: "Latitude: 19.2057984, Longitude: 72.8397031",
-      status: "Under Process",
-    },
-
-    // Add more incidents as needed
-  ];
 
   const getSeverityColor = (severity) => {
     if (severity === "Low")
@@ -128,10 +79,10 @@ const UserDashboard = () => {
 
         if (response.ok) {
           const data = await response.json();
-
           console.log("Incidents Response Data:", data);
 
           if (Array.isArray(data.incidents)) {
+            setIncidents(data.incidents); // Set incidents state here
             setTotal(data.incidents.length);
             setResolved(
               data.incidents.filter((inci) => inci.status === "Resolved").length
@@ -153,7 +104,7 @@ const UserDashboard = () => {
     };
 
     fetchIncidents();
-  }, []); // Add dependencies if needed
+  }, []); // Empty dependency array ensures this runs only once
 
   return (
     <>

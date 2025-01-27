@@ -25,7 +25,7 @@ const Footer = () => {
         </div>
 
         <div className="mb-6 lg:mb-0">
-          <ul className="flex gap-6 text-sm font-medium">
+          <ul className="flex flex-wrap gap-6 text-sm font-medium">
             <li>
               <Link to="/" className="hover:text-sky-500">
                 Home
@@ -44,6 +44,11 @@ const Footer = () => {
             <li>
               <Link to="/about#features" className="hover:text-sky-500">
                 Features
+              </Link>
+            </li>
+            <li>
+              <Link to="/feedback" className="hover:text-sky-500">
+                Feedback
               </Link>
             </li>
             <li>

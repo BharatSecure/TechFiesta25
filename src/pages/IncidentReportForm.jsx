@@ -16,6 +16,7 @@ const IncidentReportForm = () => {
 
   const [file, setFile] = useState(null);
   const [loadingLocation, setLoadingLocation] = useState(false);
+  const [modalOpen, setModalOpen] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -24,6 +25,12 @@ const IncidentReportForm = () => {
 
   const handleFileChange = (e) => {
     setFile(e.target.files[0]);
+  };
+
+  // Handle checkbox change
+  const handleCheckboxChange = (e) => {
+    const { name, checked } = e.target;
+    setFormData({ ...formData, [name]: checked });
   };
 
   const getLocation = () => {
@@ -165,17 +172,11 @@ const IncidentReportForm = () => {
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500"
                 required
               >
-                {/* harassment, abuse, domestic violence, trafficking, and child labor. */}
                 <option value="">Select an incident type</option>
-                <option value="Accident">Harassment</option>
-                <option value="Accident">Abuse</option>
-                <option value="Accident">Domestic violence</option>
-                <option value="Accident">Trafficking</option>
-                <option value="Accident">Child labor</option>
-                <option value="Medical Emergency">Medical Emergency</option>
+                <option value="Fire">Fire</option>
                 <option value="Accident">Accident</option>
                 <option value="Theft">Theft</option>
-                <option value="Fire">Fire</option>
+                <option value="Medical Emergency">Medical Emergency</option>
                 <option value="Other">Other</option>
               </select>
             </div>
@@ -272,10 +273,24 @@ const IncidentReportForm = () => {
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500"
                 required
               >
-                <option value="low">Low</option>
-                <option value="medium">Medium</option>
-                <option value="high">High</option>
+                <option value="Low">Low</option>
+                <option value="Medium">Medium</option>
+                <option value="High">High</option>
               </select>
+            </div>
+
+            {/* Report Anonymously */}
+            <div className="mb-6">
+              <label className="inline-flex items-center">
+                <input
+                  type="checkbox"
+                  name="reportAnonymously"
+                  checked={formData.reportAnonymously || false}
+                  onChange={handleCheckboxChange}
+                  className="form-checkbox h-5 w-5 text-sky-600"
+                />
+                <span className="ml-2 text-gray-600">Report Anonymously</span>
+              </label>
             </div>
 
             {/* File Upload */}
@@ -303,6 +318,23 @@ const IncidentReportForm = () => {
               Submit
             </button>
           </form>
+          {/* Modal */}
+          {modalOpen && (
+            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+              <div className="bg-white p-6 rounded-lg shadow-lg">
+                <h2 className="text-xl font-semibold mb-4">
+                  Incident Reported!
+                </h2>
+                <p>Your incident has been reported successfully.</p>
+                <button
+                  onClick={() => setModalOpen(false)}
+                  className="mt-4 px-4 py-2 bg-blue-500 text-white rounded-lg"
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       </div>
       <Footer />

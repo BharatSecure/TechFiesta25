@@ -4,7 +4,7 @@ import { MdCheckCircle } from "react-icons/md";
 import { MdHourglassEmpty } from "react-icons/md";
 import { MdChat } from "react-icons/md";
 import { Navigate, useNavigate } from "react-router-dom";
-
+import axios from "axios";
 import {
   Popover,
   PopoverContent,
@@ -21,7 +21,8 @@ const UserDashboard = () => {
   const [resolved, setResolved] = useState(0);
   const [unresolved, setUnResolved] = useState(0);
   const token =
-    localStorage.getItem("token") || sessionStorage.getItem("token");
+    localStorage.getItem("accessToken") ||
+    sessionStorage.getItem("accessToken");
 
   const incidents = [
     {
@@ -114,6 +115,8 @@ const UserDashboard = () => {
   useEffect(() => {
     const fetchIncidents = async () => {
       try {
+        console.log("Full Token:", token);
+        console.log("Token Length:", token?.length);
         const response = await fetch(
           "http://127.0.0.1:8000/api/all_user_incidents/",
           {
@@ -124,7 +127,9 @@ const UserDashboard = () => {
             },
           }
         );
-
+        console.log("Response Status:", response.status);
+        const data = await response.json();
+        console.log("Response Data:", data);
         if (response.ok) {
           const data = await response.json();
           setTotal(data.length);

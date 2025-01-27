@@ -55,12 +55,13 @@ const Login = () => {
           email: formData.email,
           password: formData.password,
         });
-  
+
         // Handle success
         const { access, refresh } = response.data;
         localStorage.setItem("accessToken", access);
         localStorage.setItem("refreshToken", refresh);
         console.log("Login successful:", response.data.message);
+        console.log(`Access Token: ${access}`);
         navigate("/my-reports"); // Redirect to the dashboard
       } catch (error) {
         // Handle errors
@@ -72,7 +73,6 @@ const Login = () => {
       }
     }
   };
-  
 
   return (
     <>

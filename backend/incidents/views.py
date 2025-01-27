@@ -82,6 +82,7 @@ class LoginView(APIView):
             return Response({"error": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED)
 
         # Generate tokens
+        print(user.id)
         refresh = RefreshToken.for_user(user)
         return Response({
             "message": "Login successful",
@@ -216,8 +217,8 @@ def get_coordinates(location, api_key):
 #             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 @api_view(['GET'])
-@permission_classes([IsAuthenticated])
 @authentication_classes([JWTAuthentication])
+@permission_classes([IsAuthenticated])
 def all_user_incidents(request):
     try:
         # Get the authenticated user from the request
@@ -232,3 +233,10 @@ def all_user_incidents(request):
 def all_ongoing_incidents(request):
     incidents = Incidents.objects.filter(status="Submitted")
     return Response(incidents, status=201)
+
+from rest_framework_simplejwt.tokens import AccessToken
+@api_view(['POST'])
+@authentication_classes([JWTAuthentication])
+@permission_classes([IsAuthenticated])
+def checking_token(request):
+    print(request.user)

@@ -88,13 +88,15 @@ const HeatMap = () => {
       [18.4576, 73.8507, 0.4], // Pune
       [18.4572, 73.8502, 0.4], // Pune
       [18.4574, 73.8508, 0.4], // Pune
+      [18.43322731646412, 73.851721830796, 0.9],
+      [19.1971246, 72.8328881, 0.9],
     ];
 
     setHeatmapData(staticData);
 
-    // Fetch police stations from Overpass API (within 5km radius of given coordinates)
+    // Fetch police stations from Overpass API (within 10km radius of given coordinates)
     const overpassUrl =
-      "https://overpass-api.de/api/interpreter?data=[out:json];node[%22amenity%22=%22police%22](around:10000,18.454519508181345,73.85066193419283);out;";
+      "https://overpass-api.de/api/interpreter?data=[out:json];node[%22amenity%22=%22police%22](around:10000,18.4576,73.8507);out;";
 
     fetch(overpassUrl)
       .then((response) => response.json())

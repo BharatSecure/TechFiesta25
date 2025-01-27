@@ -1,17 +1,22 @@
-import React, { useState, useEffect  } from "react";
+import React, { useState } from "react";
+import Footer from "../components/Footer";
 
 const IncidentReportForm = () => {
-
   const [formData, setFormData] = useState({
     incidentType: "",
     customIncidentType: "",
-    location: "",
+    location: {
+      latitude: "",
+      longitude: "",
+    },
     description: "",
-    severity: "Low",
+    severity: "Low", // Default severity
+    reportAnonymously: false, // Initial checkbox value
   });
 
   const [file, setFile] = useState(null);
   const [loadingLocation, setLoadingLocation] = useState(false);
+  const [modalOpen, setModalOpen] = useState(false);
 
   useEffect(() => {
     const subscribeToNotifications = async () => {
@@ -20,7 +25,8 @@ const IncidentReportForm = () => {
           const registration = await navigator.serviceWorker.ready;
           const subscription = await registration.pushManager.subscribe({
             userVisibleOnly: true,
-            applicationServerKey: "BE38RCKNK0Ig5qBWT0SpZ4ya9OV05THWXOnGhselt3IWPWgN__M3lNHULW1PjXV2SuZz96dWuNNFFaB1jiGsPyc", // Replace with your VAPID key
+            applicationServerKey:
+              "BE38RCKNK0Ig5qBWT0SpZ4ya9OV05THWXOnGhselt3IWPWgN__M3lNHULW1PjXV2SuZz96dWuNNFFaB1jiGsPyc", // Replace with your VAPID key
           });
 
           // Send subscription to backend
@@ -51,6 +57,12 @@ const IncidentReportForm = () => {
     setFile(e.target.files[0]);
   };
 
+  // Handle checkbox change
+  const handleCheckboxChange = (e) => {
+    const { name, checked } = e.target;
+    setFormData({ ...formData, [name]: checked });
+  };
+
   const getLocation = () => {
     if (!navigator.geolocation) {
       alert("Geolocation is not supported by your browser.");
@@ -61,10 +73,15 @@ const IncidentReportForm = () => {
     navigator.geolocation.getCurrentPosition(
       (position) => {
         const { latitude, longitude } = position.coords;
-        setFormData({
-          ...formData,
-          location: `Latitude: ${latitude}, Longitude: ${longitude}`,
-        });
+
+        setFormData((prevData) => ({
+          ...prevData,
+          location: {
+            latitude: latitude,
+            longitude: longitude,
+          },
+        }));
+
         setLoadingLocation(false);
       },
       (error) => {
@@ -83,9 +100,16 @@ const IncidentReportForm = () => {
         ? formData.customIncidentType
         : formData.incidentType;
 
+    const severityMap = {
+      Low: 0.2,
+      Medium: 0.6,
+      High: 0.8,
+    };
+
     const submittedData = {
       ...formData,
       incidentType,
+      severity: severityMap[formData.severity],
       file: file ? file.name : "No file uploaded",
     };
 
@@ -94,14 +118,17 @@ const IncidentReportForm = () => {
 
     try {
       // Send incident data to the backend
-      const response = await fetch("http://localhost:8000/api/report-incident/", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(submittedData),
-      });
-  
+      const response = await fetch(
+        "http://localhost:8000/api/report-incident/",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(submittedData),
+        }
+      );
+
       if (response.ok) {
         alert("Incident reported successfully!");
       } else {
@@ -111,220 +138,220 @@ const IncidentReportForm = () => {
       console.error("Error reporting incident:", error);
       alert("An error occurred. Please try again.");
     }
-  
+
     // Reset form
     setFormData({
       incidentType: "",
       customIncidentType: "",
-      location: "",
+      location: { latitude: "", longitude: "" },
       description: "",
       severity: "Low",
+      reportAnonymously: false,
     });
     setFile(null);
   };
 
   return (
-    <div
-      style={{
-        maxWidth: "600px",
-        margin: "50px auto",
-        padding: "20px",
-        backgroundColor: "#f9f9f9",
-        boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
-        borderRadius: "8px",
-        fontFamily: "'Arial', sans-serif",
-      }}
-    >
-      <h2
-        style={{
-          textAlign: "center",
-          marginBottom: "20px",
-          color: "#333",
-        }}
-      >
-        Report an Incident
-      </h2>
-      <form onSubmit={handleSubmit}>
-        <div style={{ marginBottom: "15px" }}>
-          <label
-            htmlFor="incidentType"
-            style={{ display: "block", marginBottom: "5px", color: "#555" }}
-          >
-            Incident Type:
-          </label>
-          <select
-            id="incidentType"
-            name="incidentType"
-            value={formData.incidentType}
-            onChange={handleChange}
-            style={{
-              width: "100%",
-              padding: "10px",
-              border: "1px solid #ccc",
-              borderRadius: "5px",
-            }}
-            required
-          >
-            <option value="">Select an incident type</option>
-            <option value="Fire">Fire</option>
-            <option value="Accident">Accident</option>
-            <option value="Theft">Theft</option>
-            <option value="Medical Emergency">Medical Emergency</option>
-            <option value="Other">Other</option>
-          </select>
+    <>
+      <div className="min-h-screen bg-gradient-to-b from-gray-100 via-gray-200 to-gray-300 flex flex-col items-center py-10 px-4">
+        {/* Heading and Description */}
+        <div className="text-center mb-8">
+          <h1 className="text-4xl font-bold text-sky-600 mb-2">
+            Report an Incident
+          </h1>
+          <p className="text-gray-700 text-lg">
+            Fill out the form below to report an incident. Your information will
+            help authorities take swift action.
+          </p>
         </div>
-        {formData.incidentType === "Other" && (
-          <div style={{ marginBottom: "15px" }}>
-            <label
-              htmlFor="customIncidentType"
-              style={{ display: "block", marginBottom: "5px", color: "#555" }}
+
+        {/* Form */}
+        <div className="w-full max-w-lg bg-red-300 p-8 shadow-lg rounded-lg">
+          <form onSubmit={handleSubmit}>
+            {/* Incident Type */}
+            <div className="mb-6">
+              <label
+                htmlFor="incidentType"
+                className="block text-gray-600 font-medium mb-2"
+              >
+                Incident Type
+              </label>
+              <select
+                id="incidentType"
+                name="incidentType"
+                value={formData.incidentType}
+                onChange={handleChange}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500"
+                required
+              >
+                <option value="">Select an incident type</option>
+                <option value="Fire">Fire</option>
+                <option value="Accident">Accident</option>
+                <option value="Theft">Theft</option>
+                <option value="Medical Emergency">Medical Emergency</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+
+            {/* Custom Incident Type */}
+            {formData.incidentType === "Other" && (
+              <div className="mb-6">
+                <label
+                  htmlFor="customIncidentType"
+                  className="block text-gray-600 font-medium mb-2"
+                >
+                  Specify Incident Type
+                </label>
+                <input
+                  type="text"
+                  id="customIncidentType"
+                  name="customIncidentType"
+                  value={formData.customIncidentType}
+                  onChange={handleChange}
+                  placeholder="Enter the incident type"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500"
+                  required
+                />
+              </div>
+            )}
+
+            {/* Location */}
+            <div className="mb-6">
+              <label
+                htmlFor="location"
+                className="block text-gray-600 font-medium mb-2"
+              >
+                Location/Address
+              </label>
+              <input
+                type="text"
+                id="location"
+                name="location"
+                value={
+                  typeof formData.location === "string"
+                    ? formData.location
+                    : formData.location.latitude && formData.location.longitude
+                    ? `Latitude: ${formData.location.latitude}, Longitude: ${formData.location.longitude}`
+                    : ""
+                }
+                onChange={handleChange}
+                placeholder="Enter or fetch location"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500"
+              />
+              <button
+                type="button"
+                onClick={getLocation}
+                className="mt-2 px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 focus:outline-none"
+                disabled={loadingLocation}
+              >
+                {loadingLocation
+                  ? "Fetching Location..."
+                  : "Get Current Location"}
+              </button>
+            </div>
+
+            {/* Description */}
+            <div className="mb-6">
+              <label
+                htmlFor="description"
+                className="block text-gray-600 font-medium mb-2"
+              >
+                Description
+              </label>
+              <textarea
+                id="description"
+                name="description"
+                value={formData.description}
+                onChange={handleChange}
+                placeholder="Describe the incident"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500"
+                required
+              />
+            </div>
+
+            {/* Severity */}
+            <div className="mb-6">
+              <label
+                htmlFor="severity"
+                className="block text-gray-600 font-medium mb-2"
+              >
+                Severity Level
+              </label>
+              <select
+                id="severity"
+                name="severity"
+                value={formData.severity}
+                onChange={handleChange}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500"
+                required
+              >
+                <option value="Low">Low</option>
+                <option value="Medium">Medium</option>
+                <option value="High">High</option>
+              </select>
+            </div>
+
+            {/* Report Anonymously */}
+            <div className="mb-6">
+              <label className="inline-flex items-center">
+                <input
+                  type="checkbox"
+                  name="reportAnonymously"
+                  checked={formData.reportAnonymously || false}
+                  onChange={handleCheckboxChange}
+                  className="form-checkbox h-5 w-5 text-sky-600"
+                />
+                <span className="ml-2 text-gray-600">Report Anonymously</span>
+              </label>
+            </div>
+
+            {/* File Upload */}
+            <div className="mb-6">
+              <label
+                htmlFor="file"
+                className="block text-gray-600 font-medium mb-2"
+              >
+                Attach Document/Evidence (Optional)
+              </label>
+              <input
+                type="file"
+                id="file"
+                name="file"
+                onChange={handleFileChange}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500"
+              />
+            </div>
+
+            {/* Submit Button */}
+            <button
+              type="submit"
+              className="w-full px-4 py-2 bg-sky-600 text-white font-bold rounded-lg hover:bg-sky-700 focus:outline-none focus:ring-2 focus:ring-sky-500"
             >
-              Specify Incident Type:
-            </label>
-            <input
-              type="text"
-              id="customIncidentType"
-              name="customIncidentType"
-              value={formData.customIncidentType}
-              onChange={handleChange}
-              placeholder="Enter the incident type"
-              style={{
-                width: "100%",
-                padding: "10px",
-                border: "1px solid #ccc",
-                borderRadius: "5px",
-              }}
-              required
-            />
-          </div>
-        )}
-        <div style={{ marginBottom: "15px" }}>
-          <label
-            htmlFor="location"
-            style={{ display: "block", marginBottom: "5px", color: "#555" }}
-          >
-            Location/Address:
-          </label>
-          <input
-            type="text"
-            id="location"
-            name="location"
-            value={formData.location}
-            onChange={handleChange}
-            placeholder="Enter or fetch location"
-            style={{
-              width: "100%",
-              padding: "10px",
-              border: "1px solid #ccc",
-              borderRadius: "5px",
-            }}
-            required
-          />
-          <button
-            type="button"
-            onClick={getLocation}
-            style={{
-              marginTop: "10px",
-              padding: "10px 20px",
-              backgroundColor: "#28A745",
-              color: "#fff",
-              border: "none",
-              borderRadius: "5px",
-              cursor: "pointer",
-            }}
-            disabled={loadingLocation}
-          >
-            {loadingLocation ? "Fetching Location..." : "Get Current Location"}
-          </button>
+              Submit
+            </button>
+          </form>
+          {/* Modal */}
+          {modalOpen && (
+            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+              <div className="bg-white p-6 rounded-lg shadow-lg">
+                <h2 className="text-xl font-semibold mb-4">
+                  Incident Reported!
+                </h2>
+                <p>Your incident has been reported successfully.</p>
+                <button
+                  onClick={() => setModalOpen(false)}
+                  className="mt-4 px-4 py-2 bg-blue-500 text-white rounded-lg"
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          )}
         </div>
-        <div style={{ marginBottom: "15px" }}>
-          <label
-            htmlFor="description"
-            style={{ display: "block", marginBottom: "5px", color: "#555" }}
-          >
-            Description:
-          </label>
-          <textarea
-            id="description"
-            name="description"
-            value={formData.description}
-            onChange={handleChange}
-            placeholder="Describe the incident"
-            style={{
-              width: "100%",
-              padding: "10px",
-              border: "1px solid #ccc",
-              borderRadius: "5px",
-              minHeight: "80px",
-            }}
-            required
-          />
-        </div>
-        <div style={{ marginBottom: "15px" }}>
-          <label
-            htmlFor="severity"
-            style={{ display: "block", marginBottom: "5px", color: "#555" }}
-          >
-            Severity Level:
-          </label>
-          <select
-            id="severity"
-            name="severity"
-            value={formData.severity}
-            onChange={handleChange}
-            style={{
-              width: "100%",
-              padding: "10px",
-              border: "1px solid #ccc",
-              borderRadius: "5px",
-            }}
-            required
-          >
-            <option value="Low">Low</option>
-            <option value="Moderate">Moderate</option>
-            <option value="High">High</option>
-          </select>
-        </div>
-
-        <div style={{ marginBottom: "15px" }}>
-          <label
-            htmlFor="file"
-            style={{ display: "block", marginBottom: "5px", color: "#555" }}
-          >
-            Attach Document/Evidence (Optional):
-          </label>
-          <input
-            type="file"
-            id="file"
-            name="file"
-            onChange={handleFileChange}
-            style={{
-              width: "100%",
-              padding: "10px",
-              border: "1px solid #ccc",
-              borderRadius: "5px",
-            }}
-          />
-        </div>
-
-        <button
-          type="submit"
-          style={{
-            padding: "10px 20px",
-            backgroundColor: "#007BFF",
-            color: "#fff",
-            border: "none",
-            borderRadius: "5px",
-            cursor: "pointer",
-            width: "100%",
-          }}
-        >
-          Submit
-        </button>
-      </form>
-    </div>
+      </div>
+      <Footer />
+    </>
   );
 };
 
 export default IncidentReportForm;
-

@@ -1,6 +1,50 @@
 import React, { useState } from "react";
 import Footer from "../components/Footer";
 import axios from "axios";
+import { Modal, Box, Button, Typography } from "@mui/material";
+
+const SimpleModal = ({ open, handleClose, message }) => {
+  return (
+    <Modal
+      open={open}
+      onClose={handleClose}
+      aria-labelledby="simple-modal-title"
+      aria-describedby="simple-modal-description"
+    >
+      <Box
+        sx={{
+          position: "absolute",
+          top: "50%",
+          left: "50%",
+          transform: "translate(-50%, -50%)",
+          width: 400,
+          bgcolor: "background.paper",
+          borderRadius: 2,
+          boxShadow: 24,
+          p: 4,
+        }}
+      >
+        <Typography variant="h6" component="h2" id="simple-modal-title">
+          Notification
+        </Typography>
+        <Typography
+          variant="body2"
+          id="simple-modal-description"
+          sx={{ mt: 2 }}
+        >
+          {message}
+        </Typography>
+        <Button
+          onClick={handleClose}
+          variant="contained"
+          sx={{ mt: 3, display: "block", marginLeft: "auto" }}
+        >
+          Close
+        </Button>
+      </Box>
+    </Modal>
+  );
+};
 
 const IncidentReportForm = () => {
   const [formData, setFormData] = useState({
@@ -18,6 +62,7 @@ const IncidentReportForm = () => {
   const [file, setFile] = useState(null);
   const [loadingLocation, setLoadingLocation] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
+  const [offlineModalOpen, setOfflineModalOpen] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -63,6 +108,114 @@ const IncidentReportForm = () => {
     );
   };
 
+  // Utility to save form data in IndexedDB
+  // const saveOffline = (data) => {
+  //   if (!("indexedDB" in window)) {
+  //     console.warn("IndexedDB is not supported in your browser.");
+  //     return;
+  //   }
+
+  //   const request = indexedDB.open("IncidentReportsDB", 1);
+
+  //   request.onupgradeneeded = (event) => {
+  //     const db = event.target.result;
+  //     if (!db.objectStoreNames.contains("pendingReports")) {
+  //       db.createObjectStore("pendingReports", {
+  //         keyPath: "id",
+  //         autoIncrement: true,
+  //       });
+  //     }
+  //   };
+
+  //   request.onsuccess = (event) => {
+  //     const db = event.target.result;
+  //     const transaction = db.transaction("pendingReports", "readwrite");
+  //     const store = transaction.objectStore("pendingReports");
+  //     store.add(data);
+  //     console.log("Saved offline:", data);
+  //   };
+
+  //   request.onerror = (event) => {
+  //     console.error("IndexedDB error:", event.target.error);
+  //   };
+  // };
+
+  // // Listen for network changes
+  // window.addEventListener("online", async () => {
+  //   console.log("Back online, attempting to submit offline data...");
+  //   await submitPendingReports();
+  // });
+
+  // const submitPendingReports = () => {
+  //   return new Promise((resolve, reject) => {
+  //     if (!("indexedDB" in window)) {
+  //       console.warn("IndexedDB is not supported in your browser.");
+  //       resolve();
+  //       return;
+  //     }
+
+  //     const request = indexedDB.open("IncidentReportsDB", 1);
+
+  //     request.onsuccess = (event) => {
+  //       const db = event.target.result;
+  //       const transaction = db.transaction("pendingReports", "readwrite");
+  //       const store = transaction.objectStore("pendingReports");
+
+  //       const getAll = store.getAll();
+  //       getAll.onsuccess = async () => {
+  //         const pendingReports = getAll.result;
+
+  //         for (const report of pendingReports) {
+  //           try {
+  //             // Resubmit each report
+  //             const formDataToSend = new FormData();
+  //             for (const [key, value] of Object.entries(report)) {
+  //               formDataToSend.append(key, value);
+  //             }
+
+  //             const token = localStorage.getItem("accessToken");
+  //             if (!token) {
+  //               console.error("Authorization token is missing.");
+  //               reject();
+  //               return;
+  //             }
+
+  //             await axios.post(
+  //               "http://127.0.0.1:8000/api/report-incident/",
+  //               formDataToSend,
+  //               {
+  //                 headers: {
+  //                   Authorization: `Bearer ${token}`,
+  //                 },
+  //               }
+  //             );
+
+  //             console.log("Successfully submitted offline report:", report);
+  //             // Remove successfully submitted report from IndexedDB
+  //             store.delete(report.id);
+  //           } catch (error) {
+  //             console.error(
+  //               "Failed to resubmit offline report:",
+  //               error.response?.data || error.message
+  //             );
+  //           }
+  //         }
+  //         resolve();
+  //       };
+
+  //       getAll.onerror = (event) => {
+  //         console.error("Failed to retrieve offline data:", event.target.error);
+  //         reject();
+  //       };
+  //     };
+
+  //     request.onerror = (event) => {
+  //       console.error("IndexedDB error:", event.target.error);
+  //       reject();
+  //     };
+  //   });
+  // };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -99,6 +252,13 @@ const IncidentReportForm = () => {
       file: file ? file.name : null,
     };
     // console.log("Submitted Data:", submittedData);
+
+    // If offline, save form data locally
+    // if (!navigator.onLine) {
+    //   saveOffline(submittedData);
+    //   setOfflineModalOpen(true); // Show the modal when offline
+    //   return;
+    // }
 
     const formDataToSend = new FormData();
     formDataToSend.append("incidentType", submittedData.incidentType);
@@ -141,6 +301,8 @@ const IncidentReportForm = () => {
         severity: "Low",
       });
       setFile(null);
+      // Try submitting any pending offline data
+      // await submitPendingReports();
     } catch (error) {
       console.error(
         "Error reporting incident:",
@@ -150,10 +312,19 @@ const IncidentReportForm = () => {
     }
   };
 
+  const handleModalClose = () => {
+    setOfflineModalOpen(false); // Close the modal
+  };
+
   return (
     <>
       <div className="min-h-screen bg-gradient-to-b from-gray-100 via-gray-200 to-gray-300 flex flex-col items-center py-10 px-4">
         {/* Heading and Description */}
+        <SimpleModal
+          open={offlineModalOpen}
+          handleClose={handleModalClose}
+          message="You are offline. Your report has been saved and will be submitted automatically when you are back online."
+        />
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold text-sky-600 mb-2">
             Report an Incident

@@ -1,4 +1,5 @@
 from django.db import models
+from django.conf import settings
 
 class User(models.Model):
     first_name = models.CharField(max_length=50)
@@ -56,7 +57,25 @@ class Incidents(models.Model):
 
     def __str__(self):
         return f"{self.incidentType}: {self.id}"
+    
+class Comment(models.Model):
+    comment = models.TextField()
+    file = models.FileField(upload_to='comments_files/', blank=True, null=True)
+    commented_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='comments'
+    )
+    commented_at = models.DateTimeField(auto_now_add=True)
+    commented_on = models.ForeignKey(
+        Incidents,
+        on_delete=models.CASCADE,
+        related_name='comments'
+    )
+    useful = models.BooleanField(default=False)
 
+    def __str__(self):
+        return f"Comment by {self.commented_by} on {self.commented_on.title}"  # Adjust 'title' if Incident has a different descriptive field
 
 class PoliceStations(models.Model):
     latitude = models.FloatField()

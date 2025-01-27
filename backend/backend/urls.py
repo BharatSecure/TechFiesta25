@@ -26,7 +26,8 @@ urlpatterns = [
     path('api/', include('incidents.urls')),
     path('api/signup/', views.SignUpView.as_view(), name='signup'),
     path('api/login/', views.LoginView.as_view(), name='login'),
-    path('api/send_email', views.send_email_example, name='send_email')
+    path('api/send_email', views.send_email_example, name='send_email'),
+    path('api/latest-incidents/', views.latest_incidents, name='latest-incidents'),
 ]
 
 '''path('report-incident/', views.post, name='report_incident'),'''

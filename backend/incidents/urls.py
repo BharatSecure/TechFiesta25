@@ -8,4 +8,5 @@ urlpatterns = [
     path('api/login/', views.LoginView.as_view(), name='login'),
     path("all_user_incidents/", views.all_user_incidents, name="all_user_incidents"),
     path("all_incidents/", views.all_ongoing_incidents, name='all_ongoing_incidents'),
+    path('api/latest-incidents/', views.latest_incidents, name='latest-incidents'),
 ]

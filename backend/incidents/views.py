@@ -22,6 +22,14 @@ from rest_framework_simplejwt.tokens import RefreshToken, AccessToken
 from rest_framework.exceptions import AuthenticationFailed
 import logging
 logger = logging.getLogger(__name__)
+from .models import Incidents  # Replace with your actual model
+from .serializers import IncidentSerializer  # Create a serializer for your model
+
+@api_view(['GET'])
+def latest_incidents(request):
+    incidents = Incidents.objects.order_by('-reported_at')[:10]  # Adjust the number of incidents as needed
+    serializer = IncidentSerializer(incidents, many=True)
+    return Response(serializer.data)
 
 class SignUpView(APIView):
     def post(self, request):

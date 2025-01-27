@@ -12,6 +12,7 @@ const IncidentReportForm = () => {
     },
     description: "",
     severity: "low", // Default severity
+    reportAnonymously: false, // Initial checkbox value
   });
 
   const [file, setFile] = useState(null);
@@ -94,14 +95,17 @@ const IncidentReportForm = () => {
       location: locationToSend, // Serialized location
       description: formData.description,
       severity: severityMap[formData.severity] || "low", // Default to 'low' if undefined
+      reportAnonymously: formData.reportAnonymously,
       file: file ? file.name : null,
     };
+    // console.log("Submitted Data:", submittedData);
 
     const formDataToSend = new FormData();
     formDataToSend.append("incidentType", submittedData.incidentType);
     formDataToSend.append("location", submittedData.location);
     formDataToSend.append("description", submittedData.description);
     formDataToSend.append("severity", submittedData.severity);
+    formDataToSend.append("reportAnonymously", submittedData.reportAnonymously);
 
     if (file) {
       formDataToSend.append("file", file);

@@ -126,6 +126,7 @@ class NGO(models.Model):
         return f"NGO Station: {self.id}"
 
 class Admin(models.Model):
+    id = models.AutoField(primary_key=True)
     email = models.CharField(max_length=225, null=False)
     password = models.CharField(max_length=128)
     # Add foreign key relationships to stations

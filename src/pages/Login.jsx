@@ -57,7 +57,9 @@ const Login = () => {
         });
 
         // Handle success
-        const { access, refresh } = response.data;
+        const {
+          tokens: { access, refresh },
+        } = response.data;
         localStorage.setItem("accessToken", access);
         localStorage.setItem("refreshToken", refresh);
         console.log("Login successful:", response.data.message);
@@ -68,7 +70,9 @@ const Login = () => {
         console.error(error.response?.data || error.message);
         setErrors({
           ...errors,
-          general: error.response?.data?.error || "Something went wrong! Please try again later.",
+          general:
+            error.response?.data?.error ||
+            "Something went wrong! Please try again later.",
         });
       }
     }

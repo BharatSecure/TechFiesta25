@@ -7,7 +7,7 @@ import { useAuth } from "@/context/AuthContext";
 const RecentIncidents = () => {
   const [incidents, setIncidents] = useState([]);
   const [openCommentSection, setOpenCommentSection] = useState({});
-  const { user } = useAuth(); // Get authenticated user from context
+  const { user } = useAuth();
 
   // Fetch incidents from Django backend
   useEffect(() => {
@@ -22,7 +22,7 @@ const RecentIncidents = () => {
       }
     };
     fetchIncidents();
-  }, []); // Dependency is empty because no dynamic values are being fetched
+  }, []);
 
   const toggleComments = (id) => {
     setOpenCommentSection((prev) => ({
@@ -91,7 +91,6 @@ const RecentIncidents = () => {
                     <AddCommentForm
                       incidentId={incident.id}
                       onAddComment={(newComment) => {
-                        // Update local state with new comment
                         setIncidents((prev) =>
                           prev.map((inc) =>
                             inc.id === incident.id
@@ -119,11 +118,11 @@ const RecentIncidents = () => {
 // Comment form component
 const AddCommentForm = ({ incidentId, onAddComment }) => {
   const [commentText, setCommentText] = useState("");
-  const { user } = useAuth(); // Get auth context
+  const { user } = useAuth();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (commentText.trim() && user?.token) { // Ensure user is logged in
+    if (commentText.trim() && user) {
       try {
         const response = await axios.post(
           "http://127.0.0.1:8000/api/comments/",
@@ -133,7 +132,7 @@ const AddCommentForm = ({ incidentId, onAddComment }) => {
           },
           {
             headers: {
-              Authorization: `Token ${user.token}`, // Django TokenAuth
+              Authorization: `Token ${user.token}`,
             },
           }
         );
@@ -143,8 +142,6 @@ const AddCommentForm = ({ incidentId, onAddComment }) => {
         console.error("Error adding comment:", error);
         alert("Failed to add comment. Please try again.");
       }
-    } else {
-      alert("Please log in to comment!");
     }
   };
 
@@ -169,4 +166,6 @@ const AddCommentForm = ({ incidentId, onAddComment }) => {
   );
 };
 
+
 export default RecentIncidents;
+export { AddCommentForm };

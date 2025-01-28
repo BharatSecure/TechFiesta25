@@ -15,7 +15,8 @@ import { useAuth } from "@/context/AuthContext";
 
 const UserDashboard = () => {
   const navigate = useNavigate();
-  const { logout } = useAuth();
+  const { isLoggedIn, login, logout } = useAuth();
+  console.log(`is logged in ${isLoggedIn}`)
 
   const [total, setTotal] = useState();
   const [resolved, setResolved] = useState(0);
@@ -44,6 +45,7 @@ const UserDashboard = () => {
     logout();
     navigate("/login");
   };
+  
   useEffect(() => {
     let totalIncidents = 0;
     let resolvedIncidents = 0;

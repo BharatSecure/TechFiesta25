@@ -17,7 +17,7 @@ const policeStationIcon = new L.Icon({
 // Custom marker icon for user location
 const userLocationIcon = new L.Icon({
   iconUrl:
-    "https://tse1.mm.bing.net/th?id=OIP.mK4UTLLTl9D2i8HOVQBaMAHaHa&pid=Api&P=0&h=180",
+  "../../public/pointer.png",
   iconSize: [30, 30],
   iconAnchor: [15, 30],
 });

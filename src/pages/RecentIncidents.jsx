@@ -43,13 +43,16 @@ const RecentIncidents = () => {
               key={incident.id}
               className="mb-6 p-4 border rounded-lg shadow-md bg-white"
             >
-              <h2 className="text-xl font-semibold mb-2">{incident.incidentType}</h2>
+              <h2 className="text-xl font-semibold mb-2">
+                {incident.incidentType}
+              </h2>
               <p className="text-gray-600 mb-1">{incident.description}</p>
               <p className="text-sm text-gray-500">
                 Reported at: {new Date(incident.reported_at).toLocaleString()}
               </p>
               <p className="text-sm text-gray-500">
-                Location: {incident.location
+                Location:{" "}
+                {incident.location
                   ? `${incident.location.latitude}, ${incident.location.longitude}`
                   : "N/A"}
               </p>
@@ -80,7 +83,9 @@ const RecentIncidents = () => {
                                 {comment.commented_by.first_name}{" "}
                                 {comment.commented_by.last_name}
                               </p>
-                              <p className="text-sm text-gray-600">{comment.comment}</p>
+                              <p className="text-sm text-gray-600">
+                                {comment.comment}
+                              </p>
                             </div>
                           </li>
                         ))
@@ -96,7 +101,10 @@ const RecentIncidents = () => {
                             inc.id === incident.id
                               ? {
                                   ...inc,
-                                  comments: [...(inc.comments || []), newComment],
+                                  comments: [
+                                    ...(inc.comments || []),
+                                    newComment,
+                                  ],
                                 }
                               : inc
                           )
@@ -124,6 +132,11 @@ const AddCommentForm = ({ incidentId, onAddComment }) => {
     e.preventDefault();
     if (commentText.trim() && user) {
       try {
+        const token = localStorage.getItem("accessToken"); // Retrieve token from storage or context
+        if (!token) {
+          alert("Authorization token is missing. Please log in.");
+          return;
+        }
         const response = await axios.post(
           "http://127.0.0.1:8000/api/comments/",
           {
@@ -132,7 +145,7 @@ const AddCommentForm = ({ incidentId, onAddComment }) => {
           },
           {
             headers: {
-              Authorization: `Token ${user.token}`,
+              Authorization: `Bearer ${token}`,
             },
           }
         );
@@ -165,7 +178,6 @@ const AddCommentForm = ({ incidentId, onAddComment }) => {
     </form>
   );
 };
-
 
 export default RecentIncidents;
 export { AddCommentForm };

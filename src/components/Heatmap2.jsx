@@ -4,9 +4,20 @@ import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 import "leaflet.heat";
 
+// https://tse1.mm.bing.net/th?id=OIP.mK4UTLLTl9D2i8HOVQBaMAHaHa&pid=Api&P=0&h=180
+
 // Custom marker icon for police stations
 const policeStationIcon = new L.Icon({
-  iconUrl: "https://cdn-icons-png.flaticon.com/512/535/535239.png",
+  iconUrl:
+    "https://tse1.mm.bing.net/th?id=OIP.oVCuLP_ERzy8yJFGJc4t4QHaHa&pid=Api&P=0&h=180",
+  iconSize: [30, 30],
+  iconAnchor: [15, 30],
+});
+
+// Custom marker icon for user location
+const userLocationIcon = new L.Icon({
+  iconUrl:
+    "https://tse1.mm.bing.net/th?id=OIP.mK4UTLLTl9D2i8HOVQBaMAHaHa&pid=Api&P=0&h=180",
   iconSize: [30, 30],
   iconAnchor: [15, 30],
 });
@@ -77,6 +88,22 @@ const HeatMap = () => {
   const [heatmapData, setHeatmapData] = useState([]);
   const [policeStations, setPoliceStations] = useState([]);
 
+  // Get coordinates from localStorage or use default
+  const getCoordinates = () => {
+    try {
+      const coordinates = JSON.parse(localStorage.getItem("userCoordinates"));
+      if (coordinates && coordinates.latitude && coordinates.longitude) {
+        return [coordinates.latitude, coordinates.longitude];
+      }
+    } catch (error) {
+      console.error("Error parsing user coordinates from localStorage:", error);
+    }
+    // Default coordinates (e.g., Pune)
+    return [18.4576, 73.8507];
+  };
+
+  const userCoordinates = getCoordinates();
+
   useEffect(() => {
     // Static data for heatmap (latitude, longitude, intensity)
     const staticData = [
@@ -93,11 +120,11 @@ const HeatMap = () => {
     ];
 
     setHeatmapData(staticData);
+  }, []);
 
-    // Fetch police stations from Overpass API (within 10km radius of given coordinates)
-    const overpassUrl =
-      "https://overpass-api.de/api/interpreter?data=[out:json];node[%22amenity%22=%22police%22](around:10000,18.4576,73.8507);out;";
-
+  // Fetch police stations from Overpass API (within 10km radius of user coordinates)
+  const overpassUrl = `https://overpass-api.de/api/interpreter?data=[out:json];node[%22amenity%22=%22police%22](around:10000,${userCoordinates[0]},${userCoordinates[1]});out;`;
+  useEffect(() => {
     fetch(overpassUrl)
       .then((response) => response.json())
       .then((data) => {
@@ -111,11 +138,11 @@ const HeatMap = () => {
       .catch((error) =>
         console.error("Error fetching police stations:", error)
       );
-  }, []);
+  }, [userCoordinates]);
 
   return (
     <MapContainer
-      center={[18.457857567, 73.8508979]} // Default center coordinates
+      center={userCoordinates} // Use coordinates from localStorage or default
       zoom={15} // Default zoom level
       style={{ height: "100vh", width: "100%" }}
     >
@@ -123,6 +150,9 @@ const HeatMap = () => {
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
       />
+      <Marker position={userCoordinates} icon={userLocationIcon}>
+        <Popup>You are here!</Popup>
+      </Marker>
       <HeatMapLayer data={heatmapData} />
       <PoliceStations policeStations={policeStations} />
     </MapContainer>

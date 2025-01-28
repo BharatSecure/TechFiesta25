@@ -59,7 +59,12 @@ const Sos = () => {
         (position) => {
           const { latitude, longitude } = position.coords;
           console.log("User's Location:", { latitude, longitude });
-          // You can send the latitude and longitude to the backend or use it in the frontend
+
+          // Store coordinates in localStorage
+          localStorage.setItem(
+            "userCoordinates",
+            JSON.stringify({ latitude, longitude })
+          );
         },
         (error) => {
           console.error("Error accessing geolocation:", error.message);

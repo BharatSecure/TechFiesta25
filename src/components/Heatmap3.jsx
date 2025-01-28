@@ -75,7 +75,9 @@ const HeatMap = () => {
     // Fetch incidents from the Django backend
     const fetchIncidents = async () => {
       try {
-        const response = await fetch("http://127.0.0.1:8000/api/incidents/");
+        const response = await fetch(
+          "http://127.0.0.1:8000/api/all_incidents/"
+        );
         const incidents = await response.json();
 
         // Map the incidents to the format [latitude, longitude, intensity]

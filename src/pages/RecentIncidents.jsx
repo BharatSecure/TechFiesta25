@@ -126,7 +126,7 @@ const RecentIncidents = () => {
 // Comment form component
 const AddCommentForm = ({ incidentId, onAddComment }) => {
   const [commentText, setCommentText] = useState("");
-  const { isloggedin } = useAuth();  //not in use for now
+  const { isloggedin } = useAuth(); //not in use for now
 
   const handleSubmit = async (e) => {
     console.log("got inside fetch");
@@ -138,15 +138,16 @@ const AddCommentForm = ({ incidentId, onAddComment }) => {
           alert("Authorization token is missing. Please log in.");
           return;
         }
+        console.log(token);
         const response = await axios.post(
-          "http://127.0.0.1:8000/api/comments/",
+          `http://127.0.0.1:8000/api/incidents/${incidentId}/comments/`,
           {
-            commented_on: incidentId,
             comment: commentText,
           },
           {
             headers: {
               Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
             },
           }
         );
@@ -154,6 +155,9 @@ const AddCommentForm = ({ incidentId, onAddComment }) => {
         setCommentText("");
       } catch (error) {
         console.error("Error adding comment:", error);
+        console.error("Error response:", error.response?.data);
+        console.error("Error status:", error.response?.status);
+        console.error("Error headers:", error.response?.headers);
         alert("Failed to add comment. Please try again.");
       }
     }

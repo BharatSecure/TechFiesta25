@@ -7,7 +7,7 @@ import { useAuth } from "@/context/AuthContext";
 const RecentIncidents = () => {
   const [incidents, setIncidents] = useState([]);
   const [openCommentSection, setOpenCommentSection] = useState({});
-  const { user } = useAuth();
+  const { isLoggedIn } = useAuth();
 
   // Fetch incidents from Django backend
   useEffect(() => {
@@ -126,11 +126,12 @@ const RecentIncidents = () => {
 // Comment form component
 const AddCommentForm = ({ incidentId, onAddComment }) => {
   const [commentText, setCommentText] = useState("");
-  const { user } = useAuth();
+  const { isloggedin } = useAuth();  //not in use for now
 
   const handleSubmit = async (e) => {
+    console.log("got inside fetch");
     e.preventDefault();
-    if (commentText.trim() && user) {
+    if (true) {
       try {
         const token = localStorage.getItem("accessToken"); // Retrieve token from storage or context
         if (!token) {

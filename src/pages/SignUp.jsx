@@ -81,7 +81,7 @@ const SignUp = () => {
           password: "",
         });
         // login();
-        navigate("/my-reports");
+        navigate("/login");
       }
     } catch (err) {
       if (err.response) {

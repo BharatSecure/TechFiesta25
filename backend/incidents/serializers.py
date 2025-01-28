@@ -33,10 +33,9 @@ class CommentSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = Comment
-        fields = ['id', 'comment', 'commented_by', 'commented_at', 'useful']
+        fields = ['id', 'comment', 'commented_by', 'commented_at', 'useful', 'commented_on']
         read_only_fields = ['commented_by', 'commented_at']
 
-    # Remove user_email from validation as we handle it in the view
     def validate(self, attrs):
         attrs.pop('user_email', None)  # Remove if present
         return attrs

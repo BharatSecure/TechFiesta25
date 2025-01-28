@@ -383,14 +383,42 @@ class CommentListCreateView(APIView):
         return Response(serializer.data)
 
     def post(self, request, incident_id):
-        data = request.data
-        data['commented_on'] = incident_id
-        data['commented_by'] = request.user.id
-        serializer = CommentSerializer(data=data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    # Extract the Authorization header
+        auth_header = request.headers.get('Authorization', None)
+        if not auth_header or not auth_header.startswith('Bearer '):
+            return Response({"error": "Authorization header missing or malformed"}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Extract the token from the header
+        token_str = auth_header.split(' ')[1]
+        try:
+            token = AccessToken(token_str)
+            print("Done successfully")
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            # Verify the incident exists
+            incident = Incidents.objects.get(id=incident_id)
+            
+            # Prepare the data
+            serializer_data = {
+                'comment': request.data.get('comment'),
+                'commented_on': incident.id 
+            }
+            
+            serializer = CommentSerializer(data=serializer_data)
+            if serializer.is_valid():
+                # Pass the user when saving
+                serializer.save(commented_by_id=token['user_id'])
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+            
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            
+        except Incidents.DoesNotExist:
+            return Response(
+                {"error": "Incident not found"}, 
+                status=status.HTTP_404_NOT_FOUND
+            )
     
 
 @api_view(['GET'])

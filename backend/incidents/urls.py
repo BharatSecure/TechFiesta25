@@ -13,4 +13,5 @@ urlpatterns = [
     path('get_location/', views.get_location, name='get-location'),
     path('api/latest-incidents/', views.LatestIncidentsView.as_view(), name='latest-incidents'),
     path('api/comments/', views.CommentCreateView.as_view(), name='create-comment'),
+    path('all_incidents/', views.all_incidents, name='all-incidents'),
 ]

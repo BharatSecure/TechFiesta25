@@ -370,6 +370,11 @@ def all_ongoing_incidents(request):
     incidents = Incidents.objects.filter(status="Submitted")
     return Response(incidents, status=201)
 
+@api_view(['GET'])
+def all_incidents(request):
+    incidents = Incidents.objects.all()
+    return Response(incidents, status=201)
+
 class CommentListCreateView(APIView):
 
     def get(self, request, incident_id):
@@ -387,9 +392,10 @@ class CommentListCreateView(APIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
+
 @api_view(['GET'])
 def get_location(request):
-    incident = Incidents.objects.get(id=8)
+    incident = Incidents.objects.get(id=1)
     print(incident.location)
     return Response({
         "link": get_google_maps_link(incident.location['latitude'], incident.location['longitude'])

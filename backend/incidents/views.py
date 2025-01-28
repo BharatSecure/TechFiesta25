@@ -265,6 +265,55 @@ def get_coordinates(location, api_key):
     else:
         raise ValueError(f"Could not find coordinates for location: {location}")
     
+# views.py
+from rest_framework import generics, permissions
+from .models import Incidents, Comment
+from .serializers import IncidentSerializer, CommentSerializer
+
+class LatestIncidentsView(generics.ListAPIView):
+    serializer_class = IncidentSerializer
+    queryset = Incidents.objects.all().order_by('-reported_at')  # Get latest first
+    
+    def get_queryset(self):
+        return self.queryset.prefetch_related('comments')[:10]  # Get 10 latest with comments
+
+# views.py
+from rest_framework import generics, status
+from rest_framework.response import Response
+from .models import Comment, User, Incidents
+
+class CommentCreateView(generics.CreateAPIView):
+    serializer_class = CommentSerializer
+    
+    def create(self, request, *args, **kwargs):
+        email = request.data.get('user_email')
+        incident_id = request.data.get('commented_on')
+        
+        # Verify user exists
+        try:
+            user = User.objects.get(email=email)
+        except User.DoesNotExist:
+            return Response(
+                {"error": "User not found. Please login first."},
+                status=status.HTTP_403_FORBIDDEN
+            )
+
+        # Verify incident exists
+        try:
+            incident = Incidents.objects.get(id=incident_id)
+        except Incidents.DoesNotExist:
+            return Response(
+                {"error": "Incident not found."},
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        # Create comment
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save(commented_by=user, commented_on=incident)
+        
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+    
 # class EmergencyHelplineAPIView(APIView):
 #     """
 #     API View for the Emergency Helpline Bot.
@@ -337,6 +386,7 @@ class CommentListCreateView(APIView):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
 @api_view(['GET'])
 def get_location(request):
     incident = Incidents.objects.get(id=8)

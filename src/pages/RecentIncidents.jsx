@@ -3,28 +3,26 @@ import axios from "axios";
 import { FaCommentDots } from "react-icons/fa";
 import Footer from "@/components/Footer";
 import { useAuth } from "@/context/AuthContext";
-import { Link } from "react-router-dom";
 
 const RecentIncidents = () => {
-  const { isLoggedIn, user } = useAuth();
   const [incidents, setIncidents] = useState([]);
   const [openCommentSection, setOpenCommentSection] = useState({});
+  const { user } = useAuth(); // Get authenticated user from context
 
-  // Fetch incidents from the backend
+  // Fetch incidents from Django backend
   useEffect(() => {
     const fetchIncidents = async () => {
       try {
         const response = await axios.get(
           "http://127.0.0.1:8000/api/latest-incidents/"
         );
-        setIncidents(response.data); // Update incidents state
+        setIncidents(response.data);
       } catch (error) {
         console.error("Error fetching incidents:", error);
       }
     };
-
     fetchIncidents();
-  }, []);
+  }, []); // Dependency is empty because no dynamic values are being fetched
 
   const toggleComments = (id) => {
     setOpenCommentSection((prev) => ({
@@ -51,7 +49,9 @@ const RecentIncidents = () => {
                 Reported at: {new Date(incident.reported_at).toLocaleString()}
               </p>
               <p className="text-sm text-gray-500">
-                Location: {incident.location ? `${incident.location.latitude}, ${incident.location.longitude}` : "N/A"}
+                Location: {incident.location
+                  ? `${incident.location.latitude}, ${incident.location.longitude}`
+                  : "N/A"}
               </p>
 
               <button
@@ -63,7 +63,9 @@ const RecentIncidents = () => {
               </button>
 
               <div
-                className={`transition-all duration-300 overflow-hidden ${openCommentSection[incident.id] ? "max-h-screen" : "max-h-0"}`}
+                className={`transition-all duration-300 overflow-hidden ${
+                  openCommentSection[incident.id] ? "max-h-screen" : "max-h-0"
+                }`}
               >
                 {openCommentSection[incident.id] && (
                   <div className="mt-4">
@@ -75,11 +77,10 @@ const RecentIncidents = () => {
                             <div className="w-10 h-10 rounded-full bg-gray-300 flex-shrink-0"></div>
                             <div className="flex-1">
                               <p className="text-sm font-semibold text-gray-800">
-                                {comment.commented_by.first_name} {comment.commented_by.last_name}
+                                {comment.commented_by.first_name}{" "}
+                                {comment.commented_by.last_name}
                               </p>
-                              <p className="text-sm text-gray-600">
-                                {comment.comment}
-                              </p>
+                              <p className="text-sm text-gray-600">{comment.comment}</p>
                             </div>
                           </li>
                         ))
@@ -87,30 +88,22 @@ const RecentIncidents = () => {
                         <p className="text-gray-500">No comments yet.</p>
                       )}
                     </ul>
-                    {isLoggedIn ? (
-                      <AddCommentForm
-                        incidentId={incident.id}
-                        userId={user.id}
-                        onAddComment={(comment) =>
-                          setIncidents((prev) =>
-                            prev.map((inc) =>
-                              inc.id === incident.id
-                                ? {
-                                    ...inc,
-                                    comments: [...inc.comments, comment],
-                                  }
-                                : inc
-                            )
+                    <AddCommentForm
+                      incidentId={incident.id}
+                      onAddComment={(newComment) => {
+                        // Update local state with new comment
+                        setIncidents((prev) =>
+                          prev.map((inc) =>
+                            inc.id === incident.id
+                              ? {
+                                  ...inc,
+                                  comments: [...(inc.comments || []), newComment],
+                                }
+                              : inc
                           )
-                        }
-                      />
-                    ) : (
-                      <Link to="/login">
-                        <p className="text-blue-500 hover:text-blue-700 mt-2 text-sm lg:text-base">
-                          Please log in to add a comment.
-                        </p>
-                      </Link>
-                    )}
+                        );
+                      }}
+                    />
                   </div>
                 )}
               </div>
@@ -123,27 +116,35 @@ const RecentIncidents = () => {
   );
 };
 
-// Component for adding a comment
-const AddCommentForm = ({ incidentId, userId, onAddComment }) => {
+// Comment form component
+const AddCommentForm = ({ incidentId, onAddComment }) => {
   const [commentText, setCommentText] = useState("");
+  const { user } = useAuth(); // Get auth context
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (commentText.trim()) {
+    if (commentText.trim() && user?.token) { // Ensure user is logged in
       try {
         const response = await axios.post(
-          `http://127.0.0.1:8000/api/comments/`,
+          "http://127.0.0.1:8000/api/comments/",
           {
-            commented_by: userId,
             commented_on: incidentId,
             comment: commentText,
+          },
+          {
+            headers: {
+              Authorization: `Token ${user.token}`, // Django TokenAuth
+            },
           }
         );
         onAddComment(response.data);
         setCommentText("");
       } catch (error) {
         console.error("Error adding comment:", error);
+        alert("Failed to add comment. Please try again.");
       }
+    } else {
+      alert("Please log in to comment!");
     }
   };
 

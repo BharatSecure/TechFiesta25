@@ -2,7 +2,7 @@ from rest_framework.decorators import api_view, permission_classes, authenticati
 from rest_framework.response import Response
 from geopy.distance import great_circle
 from incidents.models import DisasterReliefStations, FireStations, PoliceStations
-from .serializers import IncidentSerializer, UserSerializer
+from .serializers import CommentSerializer, IncidentSerializer, UserSerializer
 from django.core.mail import send_mail
 import requests
 from rest_framework import status
@@ -12,7 +12,7 @@ from utils.call_Operator import EmergencyHelplineBot
 from twilio.rest import Client
 import json
 from geopy.distance import great_circle
-from .models import Incidents, FireStations, PoliceStations, User
+from .models import Incidents, FireStations, PoliceStations, User, Comment
 from .serializers import IncidentSerializer
 from rest_framework.views import APIView
 from rest_framework import status
@@ -263,3 +263,19 @@ def all_ongoing_incidents(request):
     incidents = Incidents.objects.filter(status="Submitted")
     return Response(incidents, status=201)
 
+class CommentListCreateView(APIView):
+
+    def get(self, request, incident_id):
+        comments = Comment.objects.filter(commented_on_id=incident_id).order_by('-commented_at')
+        serializer = CommentSerializer(comments, many=True)
+        return Response(serializer.data)
+
+    def post(self, request, incident_id):
+        data = request.data
+        data['commented_on'] = incident_id
+        data['commented_by'] = request.user.id
+        serializer = CommentSerializer(data=data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

@@ -6,7 +6,7 @@ import { useAuth } from "@/context/AuthContext";
 import { Link } from "react-router-dom";
 
 const RecentIncidents = () => {
-  const { isLoggedIn } = useAuth();
+  const { isLoggedIn, user } = useAuth();
   const [incidents, setIncidents] = useState([]);
   const [openCommentSection, setOpenCommentSection] = useState({});
 
@@ -15,7 +15,7 @@ const RecentIncidents = () => {
     const fetchIncidents = async () => {
       try {
         const response = await axios.get(
-          "http://127.0.0.1:8000/api/unresolved_incidents/"
+          "http://127.0.0.1:8000/api/latest-incidents/"
         );
         setIncidents(response.data); // Update incidents state
       } catch (error) {
@@ -45,10 +45,13 @@ const RecentIncidents = () => {
               key={incident.id}
               className="mb-6 p-4 border rounded-lg shadow-md bg-white"
             >
-              <h2 className="text-xl font-semibold mb-2">{incident.title}</h2>
+              <h2 className="text-xl font-semibold mb-2">{incident.incidentType}</h2>
               <p className="text-gray-600 mb-1">{incident.description}</p>
               <p className="text-sm text-gray-500">
-                Reported at: {new Date(incident.time).toLocaleString()}
+                Reported at: {new Date(incident.reported_at).toLocaleString()}
+              </p>
+              <p className="text-sm text-gray-500">
+                Location: {incident.location ? `${incident.location.latitude}, ${incident.location.longitude}` : "N/A"}
               </p>
 
               <button
@@ -60,24 +63,22 @@ const RecentIncidents = () => {
               </button>
 
               <div
-                className={`transition-all duration-300 overflow-hidden ${
-                  openCommentSection[incident.id] ? "max-h-screen" : "max-h-0"
-                }`}
+                className={`transition-all duration-300 overflow-hidden ${openCommentSection[incident.id] ? "max-h-screen" : "max-h-0"}`}
               >
                 {openCommentSection[incident.id] && (
                   <div className="mt-4">
                     <h3 className="text-lg font-semibold mb-4">Comments</h3>
                     <ul className="space-y-4">
-                      {incident.comments.length > 0 ? (
+                      {incident.comments && incident.comments.length > 0 ? (
                         incident.comments.map((comment, index) => (
                           <li key={index} className="flex items-start gap-3">
                             <div className="w-10 h-10 rounded-full bg-gray-300 flex-shrink-0"></div>
                             <div className="flex-1">
                               <p className="text-sm font-semibold text-gray-800">
-                                {comment.username}
+                                {comment.commented_by.first_name} {comment.commented_by.last_name}
                               </p>
                               <p className="text-sm text-gray-600">
-                                {comment.text}
+                                {comment.comment}
                               </p>
                             </div>
                           </li>
@@ -89,6 +90,7 @@ const RecentIncidents = () => {
                     {isLoggedIn ? (
                       <AddCommentForm
                         incidentId={incident.id}
+                        userId={user.id}
                         onAddComment={(comment) =>
                           setIncidents((prev) =>
                             prev.map((inc) =>
@@ -122,7 +124,7 @@ const RecentIncidents = () => {
 };
 
 // Component for adding a comment
-const AddCommentForm = ({ incidentId, onAddComment }) => {
+const AddCommentForm = ({ incidentId, userId, onAddComment }) => {
   const [commentText, setCommentText] = useState("");
 
   const handleSubmit = async (e) => {
@@ -132,9 +134,9 @@ const AddCommentForm = ({ incidentId, onAddComment }) => {
         const response = await axios.post(
           `http://127.0.0.1:8000/api/comments/`,
           {
-            incident: incidentId,
-            username: "Anonymous", // Replace with logged-in user's name
-            text: commentText,
+            commented_by: userId,
+            commented_on: incidentId,
+            comment: commentText,
           }
         );
         onAddComment(response.data);

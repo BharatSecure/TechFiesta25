@@ -9,4 +9,5 @@ urlpatterns = [
     path("all_user_incidents/", views.all_user_incidents, name="all_user_incidents"),
     path("all_incidents/", views.all_ongoing_incidents, name='all_ongoing_incidents'),
     path('api/latest-incidents/', views.latest_incidents, name='latest-incidents'),
+    path('incidents/<int:incident_id>/comments/', views.CommentListCreateView.as_view(), name='incident-comments'),
 ]

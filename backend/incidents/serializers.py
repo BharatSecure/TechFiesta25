@@ -1,14 +1,10 @@
 from rest_framework import serializers
-from .models import Incidents
+from .models import Incidents, User, Comment
 
 class IncidentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Incidents
         fields = '__all__'
-
-
-from rest_framework import serializers
-from django.contrib.auth.models import User
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -31,3 +27,11 @@ class UserSerializer(serializers.ModelSerializer):
         user.set_password(validated_data['password'])
         user.save()
         return user
+
+class CommentSerializer(serializers.ModelSerializer):
+    commented_by_username = serializers.CharField(source='commented_by.first-name', read_only=True)
+
+    class Meta:
+        model = Comment
+        fields = ['id', 'comment', 'file', 'commented_by', 'commented_by', 'commented_at', 'commented_on', 'useful']
+        read_only_fields = ['id', 'commented_at', 'commented_by']

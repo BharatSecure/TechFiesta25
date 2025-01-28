@@ -62,7 +62,7 @@ class Comment(models.Model):
     comment = models.TextField()
     file = models.FileField(upload_to='comments_files/', blank=True, null=True)
     commented_by = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
+        User,
         on_delete=models.CASCADE,
         related_name='comments'
     )

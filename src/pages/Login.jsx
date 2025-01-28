@@ -64,6 +64,7 @@ const Login = () => {
         localStorage.setItem("refreshToken", refresh);
         console.log("Login successful:", response.data.message);
         console.log(`Access Token: ${access}`);
+        login();
         navigate("/my-reports"); // Redirect to the dashboard
       } catch (error) {
         // Handle errors

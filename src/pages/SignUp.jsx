@@ -12,6 +12,7 @@ import {
 import Footer from "../components/Footer";
 import { useNavigate, Link } from "react-router-dom";
 import ScaleInComponent from "@/lib/ScaleInComponent";
+import { useAuth } from "../context/AuthContext";
 
 const SignUp = () => {
   const navigate = useNavigate();
@@ -30,6 +31,7 @@ const SignUp = () => {
   const [errors, setErrors] = useState({});
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
+  // const { isLoggedIn, login, logout } = useAuth();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -61,7 +63,10 @@ const SignUp = () => {
     setError("");
 
     try {
-      const response = await axios.post("http://127.0.0.1:8000/api/signup/", formData);
+      const response = await axios.post(
+        "http://127.0.0.1:8000/api/signup/",
+        formData
+      );
       if (response.status === 201) {
         setMessage("User created successfully!");
         setFormData({
@@ -75,11 +80,14 @@ const SignUp = () => {
           emergencyContact2: "",
           password: "",
         });
-        navigate("/login");
+        // login();
+        navigate("/my-reports");
       }
     } catch (err) {
       if (err.response) {
-        setError(err.response.data.detail || "Error occurred while signing up.");
+        setError(
+          err.response.data.detail || "Error occurred while signing up."
+        );
       } else {
         setError("An unexpected error occurred.");
       }
@@ -126,11 +134,28 @@ const SignUp = () => {
                   { label: "Last Name", name: "lastName" },
                   { label: "Email", name: "email", type: "email" },
                   { label: "Phone Number", name: "phoneNumber", type: "tel" },
-                  { label: "Address", name: "address", multiline: true, rows: 3 },
+                  {
+                    label: "Address",
+                    name: "address",
+                    multiline: true,
+                    rows: 3,
+                  },
                   { label: "Aadhar Number", name: "aadharNumber" },
-                  { label: "Emergency Contact 1", name: "emergencyContact1", type: "tel" },
-                  { label: "Emergency Contact 2", name: "emergencyContact2", type: "tel" },
-                  { label: "Create Password", name: "password", type: "password" },
+                  {
+                    label: "Emergency Contact 1",
+                    name: "emergencyContact1",
+                    type: "tel",
+                  },
+                  {
+                    label: "Emergency Contact 2",
+                    name: "emergencyContact2",
+                    type: "tel",
+                  },
+                  {
+                    label: "Create Password",
+                    name: "password",
+                    type: "password",
+                  },
                 ].map((field, index) => (
                   <Grid
                     item

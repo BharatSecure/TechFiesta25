@@ -3,6 +3,8 @@ from rest_framework.response import Response
 from geopy.distance import great_circle
 from incidents.models import DisasterReliefStations, FireStations, PoliceStations
 from .serializers import CommentSerializer, IncidentSerializer, UserSerializer
+from incidents.models import DisasterReliefStations, FireStations, PoliceStations, Admin
+from .serializers import IncidentSerializer, UserSerializer
 from django.core.mail import send_mail
 import requests
 from rest_framework import status
@@ -76,67 +78,104 @@ class LoginView(APIView):
         email = request.data.get('email')
         password = request.data.get('password')
 
-        # Validate input
+        # Input validation
         if not email or not password:
-            return Response({"error": "Email and password are required."}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({
+                "error": "Both email and password are required."
+            }, status=status.HTTP_400_BAD_REQUEST)
 
-        # Check if user exists
-        user = get_object_or_404(User, email=email)
+        try:
+            # Determine if it's an admin or regular user login
+            if "admin" in email:
+                user = get_object_or_404(Admin, email=email)
+                user_type = "admin"
+            else:
+                user = get_object_or_404(User, email=email)
+                user_type = "user"
 
-        # Verify password
-        if not check_password(password, user.password):
-            return Response({"error": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED)
+            # Verify password
+            if not check_password(password, user.password):
+                return Response({
+                    "error": "Invalid credentials"
+                }, status=status.HTTP_401_UNAUTHORIZED)
 
-        # Generate tokens
-        print(user.id)
-        refresh = RefreshToken.for_user(user)
-        return Response({
-            "message": "Login successful",
-            "access": str(refresh.access_token),
-            "refresh": str(refresh),
-        }, status=status.HTTP_200_OK)
+            # Generate JWT tokens
+            refresh = RefreshToken.for_user(user)
+            return Response({
+                "message": "Login successful",
+                "user_type": user_type,
+                "user_id": user.id,
+                "email": user.email,
+                "tokens": {
+                    "access": str(refresh.access_token),
+                    "refresh": str(refresh)
+                }
+            }, status=status.HTTP_200_OK)
+
+        except Exception as e:
+            return Response({
+                "error": "Invalid credentials"
+            }, status=status.HTTP_401_UNAUTHORIZED)
         
 @api_view(['POST'])
 def report_incident(request):
-    # Extract the Authorization header
-    auth_header = request.META.get('HTTP_AUTHORIZATION', None)
+    user = None
     
-    if not auth_header or not auth_header.startswith('Bearer '):
-        return Response({"error": "Authorization header missing or malformed"}, status=400)
+    # Check for authentication token if provided
+    auth_header = request.META.get('HTTP_AUTHORIZATION')
+    if auth_header and auth_header.startswith('Bearer '):
+        try:
+            # Extract and validate token
+            token_str = auth_header.split(' ')[1]
+            token = AccessToken(token_str)
+            user = User.objects.get(id=token['user_id'])
+        except Exception:
+            # If token validation fails, we'll fall back to anonymous user
+            pass
     
-    # Extract the token from the header
-    token_str = auth_header.split(' ')[1] 
-    
-    try:
-        token = AccessToken(token_str) 
-        user = User.objects.get(id=token['user_id'])  
-    except (Exception, AuthenticationFailed) as e:
-        return Response({"error": f"Invalid or expired token: {str(e)}"}, status=401)
-    
-    # In case of no token or invalid token, fallback to anonymous user
+    # If no valid authentication was provided or token validation failed,
+    # get or create anonymous user
     if not user:
-        user, _ = User.objects.get_or_create(first_name='Anonymous')  # Ensure anonymous user exists
+        user, _ = User.objects.get_or_create(
+            email='anonymous@example.com',
+            defaults={
+                'first_name': 'Anonymous',
+                'last_name': 'User',
+                'phone_number': '0000000000',
+                'address': 'Anonymous',
+                'aadhar_number': '000000000000',
+                'emergency_contact1': '0000000000',
+                'emergency_contact2': '0000000000',
+                'password': 'anonymous'
+            }
+        )
 
     serializer = IncidentSerializer(data=request.data)
 
     if serializer.is_valid():
-        # Save the incident with the logged-in user
+        # Save the incident with the appropriate user
         incident = serializer.save(reported_by=user)
 
         # Parse and validate location data
-        if isinstance(incident.location, str):
-            try:
-                incident.location = json.loads(incident.location)  # Convert string to JSON object
-            except json.JSONDecodeError:
-                return Response({"error": "Invalid location data"}, status=400)
+        try:
+            if isinstance(incident.location, str):
+                incident.location = json.loads(incident.location)
+        except json.JSONDecodeError:
+            return Response({
+                "error": "Invalid location data format"
+            }, status=status.HTTP_400_BAD_REQUEST)
 
         user_lat = incident.location.get('latitude')
         user_lon = incident.location.get('longitude')
 
-        if not user_lat or not user_lon or not isinstance(user_lat, (int, float)) or not isinstance(user_lon, (int, float)):
-            return Response({"error": "Location data must include valid latitude and longitude"}, status=400)
+        if not user_lat or not user_lon or \
+           not isinstance(user_lat, (int, float)) or \
+           not isinstance(user_lon, (int, float)):
+            return Response({
+                "error": "Location must include valid latitude and longitude"
+            }, status=status.HTTP_400_BAD_REQUEST)
 
-        # Map incident type to station model
+        # Map incident types to appropriate station models
         station_map = {
             'Fire': FireStations,
             'Theft': PoliceStations,
@@ -148,28 +187,47 @@ def report_incident(request):
 
         if station_model:
             try:
-                # Fetch all stations and find the nearest one
+                # Find nearest station
                 stations = station_model.objects.all()
-                nearest_station = min(
-                    stations,
-                    key=lambda station: great_circle(
-                        (user_lat, user_lon),
-                        (station.latitude, station.longitude)
-                    ).km
-                )
+                if stations.exists():
+                    nearest_station = min(
+                        stations,
+                        key=lambda station: great_circle(
+                            (user_lat, user_lon),
+                            (station.latitude, station.longitude)
+                        ).km
+                    )
 
-                # Send SMS and email notifications
-                number = '+91' + str(nearest_station.number)
-                message = f"New {incident.incidentType} reported at ({user_lat}, {user_lon})"
-                send_sms(f"New {incident.incidentType} reported! \nDetails: {incident.description}", number)
-                send_email_example("New Incident Alert", f"Details: {serializer.data['description']}", nearest_station.email)
+                    # Send notifications
+                    try:
+                        number = '+91' + str(nearest_station.number)
+                        message = (
+                            f"New {incident.incidentType} reported!\n"
+                            f"Location: ({user_lat}, {user_lon})\n"
+                            f"Description: {incident.description}"
+                        )
+                        
+                        send_sms(message, number)
+                        send_email_example(
+                            "New Incident Alert",
+                            message,
+                            nearest_station.email
+                        )
+                    except Exception as e:
+                        # Log notification error but don't fail the request
+                        print(f"Notification error: {str(e)}")
+
             except Exception as e:
-                return Response({"error": f"An error occurred while notifying the station: {str(e)}"}, status=500)
+                return Response({
+                    "error": f"Error processing station data: {str(e)}"
+                }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-        return Response({"message": "Incident reported successfully!"}, status=201)
+        return Response({
+            "message": "Incident reported successfully!",
+            "incident_id": incident.id
+        }, status=status.HTTP_201_CREATED)
 
-    return Response(serializer.errors, status=400)
-
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 def send_sms(message, number):
     account_sid = 'ACa342288beff5795775a39a8ba798b51b'
@@ -279,3 +337,16 @@ class CommentListCreateView(APIView):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+@api_view(['GET'])
+def get_location(request):
+    incident = Incidents.objects.get(id=8)
+    print(incident.location)
+    return Response({
+        "link": get_google_maps_link(incident.location['latitude'], incident.location['longitude'])
+    })
+
+
+
+def get_google_maps_link(latitude, longitude):
+    return f"https://www.google.com/maps?q={latitude},{longitude}"
+

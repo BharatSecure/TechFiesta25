@@ -14,11 +14,11 @@ const HeatMapLayer = ({ data }) => {
       blur: 20,
       maxZoom: 15,
       gradient: {
-        0.3: "rgba(255, 255, 0, 1.0)", // Yellow (Medium severity)
-        0.6: "rgba(255, 165, 0, 1.0)", // Orange (Medium-high severity)
+        0.3: "rgba(255, 255, 0, 1.0)", // Yellow (Low severity)
+        0.6: "rgba(255, 165, 0, 1.0)", // Orange (Medium severity)
         1.0: "rgba(255, 0, 0, 1.0)", // Red (High severity)
       },
-      max: 3.0, // Maximum intensity value based on severity (High = 3)
+      max: 3.0, // Maximum intensity value based on severity
       minOpacity: 0.4,
       maxOpacity: 1,
       scaleRadius: true,
@@ -40,7 +40,7 @@ const Legend = () => {
         <span
           style={{
             ...colorBoxStyle,
-            backgroundColor: "rgba(255, 255, 0, 1.0)", // Yellow
+            backgroundColor: "rgba(255, 255, 0, 1.0)", // Yellow (Low severity)
           }}
         ></span>
         Low
@@ -49,7 +49,7 @@ const Legend = () => {
         <span
           style={{
             ...colorBoxStyle,
-            backgroundColor: "rgba(255, 165, 0, 1.0)", // Orange
+            backgroundColor: "rgba(255, 165, 0, 1.0)", // Orange (Medium severity)
           }}
         ></span>
         Medium
@@ -58,7 +58,7 @@ const Legend = () => {
         <span
           style={{
             ...colorBoxStyle,
-            backgroundColor: "rgba(255, 0, 0, 1.0)", // Red
+            backgroundColor: "rgba(255, 0, 0, 1.0)", // Red (High severity)
           }}
         ></span>
         High
@@ -79,15 +79,14 @@ const HeatMap = () => {
           "http://127.0.0.1:8000/api/all_incidents/"
         );
         const incidents = await response.json();
+        console.log("Fetched incidents:", incidents);
 
         // Map the incidents to the format [latitude, longitude, intensity]
-        const mappedData = incidents.map((incident) => {
-          return [
-            incident.location_latitude,
-            incident.location_longitude,
-            severityToIntensity(incident.severity),
-          ];
-        });
+        const mappedData = incidents.map((incident) => [
+          incident.location_latitude,
+          incident.location_longitude,
+          severityToIntensity(incident.severity),
+        ]);
 
         setHeatmapData(mappedData);
       } catch (error) {
@@ -113,16 +112,16 @@ const HeatMap = () => {
 
   return (
     <MapContainer
-      center={[22.1309, 78.6677]} // Default center coordinates (adjust as needed)
+      center={[22.1309, 78.6677]}
       zoom={7}
-      className="h-full w-full"
+      style={{ height: "100vh", width: "100%" }} // Ensure map has height and width
     >
       <TileLayer
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
       />
-      <HeatMapLayer data={heatmapData} />
-      <Legend /> {/* Add the Legend to the map */}
+      {heatmapData.length > 0 && <HeatMapLayer data={heatmapData} />}
+      <Legend />
     </MapContainer>
   );
 };

@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import Footer from "../components/Footer";
 import axios from "axios";
 import { Modal, Box, Button, Typography } from "@mui/material";
+import { BarLoader } from "react-spinners";
 
 const SimpleModal = ({ open, handleClose, message }) => {
   return (
@@ -216,7 +217,10 @@ const IncidentReportForm = () => {
   //   });
   // };
 
+  const [loadingSpinner, setLoadingSpinner] = useState(false);
+
   const handleSubmit = async (e) => {
+    setLoadingSpinner(true);
     e.preventDefault();
 
     // Use custom incident type if selected
@@ -286,6 +290,7 @@ const IncidentReportForm = () => {
 
       console.log("Server response:", response.data);
       console.log("Reported Incident:", submittedData);
+      setLoadingSpinner(false);
       alert("Incident reported successfully!");
 
       // Reset form after successful submission
@@ -304,6 +309,7 @@ const IncidentReportForm = () => {
         "Error reporting incident:",
         error.response?.data || error.message
       );
+      setLoadingSpinner(false);
       alert("Failed to report incident");
     }
   };
@@ -495,6 +501,18 @@ const IncidentReportForm = () => {
             >
               Submit
             </button>
+            {loadingSpinner && (
+              <div
+                style={{
+                  margin: "auto",
+                  marginTop: "5px",
+                  display: "flex",
+                  justifyContent: "center",
+                }}
+              >
+                <BarLoader />
+              </div>
+            )}
           </form>
           {/* Modal */}
           {modalOpen && (

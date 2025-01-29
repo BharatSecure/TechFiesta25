@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect,lazy,Suspense } from "react";
 import axios from "axios";
 import { FaCommentDots } from "react-icons/fa";
 import Footer from "@/components/Footer";
 import { useAuth } from "@/context/AuthContext";
+const AddCommentForm = lazy(() => import("../components/AddCommentForm"));
 
 const RecentIncidents = () => {
   const [incidents, setIncidents] = useState([]);
@@ -71,50 +72,56 @@ const RecentIncidents = () => {
                 }`}
               >
                 {openCommentSection[incident.id] && (
-                  <div className="mt-4">
-                    <h3 className="text-lg font-semibold mb-4">Comments</h3>
-                    <ul className="space-y-4">
-                      {incident.comments && incident.comments.length > 0 ? (
-                        incident.comments.map((comment, index) => (
-                          <li key={index} className="flex items-start gap-3">
-                            {/* <div className="w-10 h-10 rounded-full bg-gray-300 flex-shrink-0"></div> */}
-                            <div className="w-10 h-10 rounded-full flex-shrink-0">
-                              <img className="rounded-full" src="https://cdn.pfps.gg/pfps/2301-default-2.png" alt="pfp" />
-                            </div>
-                            <div className="flex-1">
-                              <p className="text-sm font-semibold text-gray-800">
-                                {comment.commented_by.first_name}{" "}
-                                {comment.commented_by.last_name}
-                              </p>
-                              <p className="text-sm text-gray-600">
-                                {comment.comment}
-                              </p>
-                            </div>
-                          </li>
-                        ))
-                      ) : (
-                        <p className="text-gray-500">No comments yet.</p>
-                      )}
-                    </ul>
-                    <AddCommentForm
-                      incidentId={incident.id}
-                      onAddComment={(newComment) => {
-                        setIncidents((prev) =>
-                          prev.map((inc) =>
-                            inc.id === incident.id
-                              ? {
-                                  ...inc,
-                                  comments: [
-                                    ...(inc.comments || []),
-                                    newComment,
-                                  ],
-                                }
-                              : inc
-                          )
-                        );
-                      }}
-                    />
-                  </div>
+                  <Suspense fallback={<p>Loading comments...</p>}>
+                    <div className="mt-4">
+                      <h3 className="text-lg font-semibold mb-4">Comments</h3>
+                      <ul className="space-y-4">
+                        {incident.comments && incident.comments.length > 0 ? (
+                          incident.comments.map((comment, index) => (
+                            <li key={index} className="flex items-start gap-3">
+                              {/* <div className="w-10 h-10 rounded-full bg-gray-300 flex-shrink-0"></div> */}
+                              <div className="w-10 h-10 rounded-full flex-shrink-0">
+                                <img
+                                  className="rounded-full"
+                                  src="https://cdn.pfps.gg/pfps/2301-default-2.png"
+                                  alt="pfp"
+                                />
+                              </div>
+                              <div className="flex-1">
+                                <p className="text-sm font-semibold text-gray-800">
+                                  {comment.commented_by.first_name}{" "}
+                                  {comment.commented_by.last_name}
+                                </p>
+                                <p className="text-sm text-gray-600">
+                                  {comment.comment}
+                                </p>
+                              </div>
+                            </li>
+                          ))
+                        ) : (
+                          <p className="text-gray-500">No comments yet.</p>
+                        )}
+                      </ul>
+                      <AddCommentForm
+                        incidentId={incident.id}
+                        onAddComment={(newComment) => {
+                          setIncidents((prev) =>
+                            prev.map((inc) =>
+                              inc.id === incident.id
+                                ? {
+                                    ...inc,
+                                    comments: [
+                                      ...(inc.comments || []),
+                                      newComment,
+                                    ],
+                                  }
+                                : inc
+                            )
+                          );
+                        }}
+                      />
+                    </div>
+                  </Suspense>
                 )}
               </div>
             </div>
@@ -126,66 +133,4 @@ const RecentIncidents = () => {
   );
 };
 
-// Comment form component
-const AddCommentForm = ({ incidentId, onAddComment }) => {
-  const [commentText, setCommentText] = useState("");
-  const { isloggedin } = useAuth(); //not in use for now
-
-  const handleSubmit = async (e) => {
-    console.log("got inside fetch");
-    e.preventDefault();
-    if (true) {
-      try {
-        const token = localStorage.getItem("accessToken"); // Retrieve token from storage or context
-        if (!token) {
-          alert("Authorization token is missing. Please log in.");
-          return;
-        }
-        console.log(token);
-        const response = await axios.post(
-          `http://127.0.0.1:8000/api/incidents/${incidentId}/comments/`,
-          {
-            comment: commentText,
-          },
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-              "Content-Type": "application/json",
-            },
-          }
-        );
-        onAddComment(response.data);
-        setCommentText("");
-      } catch (error) {
-        console.error("Error adding comment:", error);
-        console.error("Error response:", error.response?.data);
-        console.error("Error status:", error.response?.status);
-        console.error("Error headers:", error.response?.headers);
-        alert("Failed to add comment. Please try again.");
-      }
-    }
-  };
-
-  return (
-    <form onSubmit={handleSubmit} className="mt-4">
-      <div className="flex flex-col sm:flex-row gap-2">
-        <input
-          type="text"
-          placeholder="Add a comment..."
-          value={commentText}
-          onChange={(e) => setCommentText(e.target.value)}
-          className="flex-1 border rounded-md p-2"
-        />
-        <button
-          type="submit"
-          className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600"
-        >
-          Comment
-        </button>
-      </div>
-    </form>
-  );
-};
-
 export default RecentIncidents;
-export { AddCommentForm };

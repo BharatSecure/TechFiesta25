@@ -1,27 +1,33 @@
-import Navbar1 from "./components/Navbar1";
+// import React, { Suspense, lazy } from "react";
 import "./App.css";
+import Navbar1 from "./components/Navbar1";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Home from "./pages/Home";
 import IncidentReportForm from "./pages/IncidentReportForm";
-import UserDashboard from "./pages/UserDashboard";
-// import { IncidentsProvider } from "./context/IncidentsContext"; not in use anymore
-import AdminDashboard from "./pages/AdminDashboard";
-import AboutUs from "../src/pages/AboutUs";
+import UserDashboard from "./pages/UserDashboard";//lazy loaded
+// const UserDashboard = lazy(() => import("./pages/UserDashboard"));
+import AdminDashboard from "./pages/AdminDashboard"; //lazy loaded
+// const AdminDashboard = lazy(() => import("./pages/AdminDashboard"));
+import AboutUs from "./pages/AboutUs";
+// const AboutUs = lazy(() => import("./pages/AboutUs"));
 
-import HeatMap from "./components/Heatmap"; //static heatmap 
-import HeatMap2 from "./components/Heatmap2";  //testing heatmap
-import HeatMap3 from "./components/Heatmap3";  //heatmap to be conncted to backend
+import HeatMap from "./components/Heatmap"; //static heatmap
+import HeatMap2 from "./components/Heatmap2"; //testing heatmap
+import HeatMap3 from "./components/Heatmap3"; //heatmap to be conncted to backend
 import VoiceToText from "./components/VoiceToText";
 import SignUp from "./pages/SignUp";
 import Login from "./pages/Login";
-// import Blogs from "./pages/Blog"; not in use anymore
+// import Blogs from "./pages/Blog"; not in use anymore  //lazy loaded
 import ScrollToTop from "./lib/ScrollToTop";
 import { AuthProvider } from "./context/AuthContext";
 import RecentIncidents from "./pages/RecentIncidents";
+// const RecentIncidents = lazy(() => import("./pages/RecentIncidents"));
 import FeedbackForm from "./pages/FeedbackForm";
+// import { IncidentsProvider } from "./context/IncidentsContext"; not in use anymore
 
 if ("serviceWorker" in navigator) {
-  navigator.serviceWorker.register("./sw.js")
+  navigator.serviceWorker
+    .register("./sw.js")
     .then((registration) => {
       console.log("Service Worker registered:", registration);
     })
@@ -34,9 +40,10 @@ const App = () => {
   return (
     <AuthProvider>
       <div>
-          <BrowserRouter>
-            <ScrollToTop />
-            <Navbar1 />
+        <BrowserRouter>
+          <ScrollToTop />
+          <Navbar1 />
+          {/* <Suspense fallback={<div className="loader"></div>}> */}
             <Routes>
               <Route path="/" element={<Home />} />
               <Route path="/report-incident" element={<IncidentReportForm />} />
@@ -50,7 +57,8 @@ const App = () => {
               <Route path="/blogs" element={<RecentIncidents />} />
               <Route path="/feedback" element={<FeedbackForm />} />
             </Routes>
-          </BrowserRouter>
+          {/* </Suspense> */}
+        </BrowserRouter>
       </div>
     </AuthProvider>
   );

@@ -1,11 +1,17 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, Suspense, lazy } from "react";
 import { useLocation } from "react-router-dom";
-import Hero from "../components/about-components/Hero.jsx";
-import Features from "../components/about-components/Features.jsx";
-import Team from "../components/about-components/Team.jsx";
-import Video from "../components/about-components/Video.jsx";
-import AboutUsDetails from "../components/about-components/AboutUsDetails.jsx";
-import Footer from "../components/Footer.jsx";
+import Hero from "../components/about-components/Hero.jsx"; // Keep this loaded for instant render
+
+// Lazy load non-critical components
+const Features = lazy(() =>
+  import("../components/about-components/Features.jsx")
+);
+const Video = lazy(() => import("../components/about-components/Video.jsx"));
+const AboutUsDetails = lazy(() =>
+  import("../components/about-components/AboutUsDetails.jsx")
+);
+const Team = lazy(() => import("../components/about-components/Team.jsx"));
+const Footer = lazy(() => import("../components/Footer.jsx"));
 
 const AboutUs = () => {
   const featuresRef = useRef(null); // Create a reference for Features section
@@ -31,11 +37,56 @@ const AboutUs = () => {
   return (
     <div style={{ fontFamily: "ubuntu", backgroundColor: "white" }}>
       <Hero onLearnMore={scrollToFeatures} />
-      <AboutUsDetails />
-      <Features ref={featuresRef} /> {/* Attach ref to Features */}
-      <Video />
-      <Team />
-      <Footer />
+
+      <Suspense
+        fallback={
+          <div style={{ height: "40%", width: "100%" }}>
+            <div className="loader"></div>
+          </div>
+        }
+      >
+        <AboutUsDetails />
+      </Suspense>
+
+      <Suspense
+        fallback={
+          <div style={{ height: "40%", width: "100%" }}>
+            <div className="loader"></div>
+          </div>
+        }
+      >
+        <Features ref={featuresRef} />
+      </Suspense>
+
+      <Suspense
+        fallback={
+          <div style={{ height: "40%", width: "100%" }}>
+            <div className="loader"></div>
+          </div>
+        }
+      >
+        <Video />
+      </Suspense>
+
+      <Suspense
+        fallback={
+          <div style={{ height: "40%", width: "100%" }}>
+            <div className="loader"></div>
+          </div>
+        }
+      >
+        <Team />
+      </Suspense>
+
+      <Suspense
+        fallback={
+          <div style={{ height: "40%", width: "100%" }}>
+            <div className="loader"></div>
+          </div>
+        }
+      >
+        <Footer />
+      </Suspense>
     </div>
   );
 };

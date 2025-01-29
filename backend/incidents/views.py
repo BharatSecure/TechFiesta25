@@ -86,7 +86,7 @@ class LoginView(APIView):
 
         try:
             # Determine if it's an admin or regular user login
-            if "admin" in email:
+            if email.endswith("@admin.com"):
                 user = get_object_or_404(Admin, email=email)
                 user_type = "admin"
             else:
@@ -373,7 +373,8 @@ def all_ongoing_incidents(request):
 @api_view(['GET'])
 def all_incidents(request):
     incidents = Incidents.objects.all()
-    return Response(incidents, status=201)
+    serializer = IncidentSerializer(incidents, many=True)
+    return Response(serializer.data, status=201)
 
 class CommentListCreateView(APIView):
 

@@ -83,8 +83,8 @@ const HeatMap = () => {
 
         // Map the incidents to the format [latitude, longitude, intensity]
         const mappedData = incidents.map((incident) => [
-          incident.location_latitude,
-          incident.location_longitude,
+          incident.location.latitude,
+          incident.location.longitude,
           severityToIntensity(incident.severity),
         ]);
 
@@ -100,11 +100,11 @@ const HeatMap = () => {
   // Helper function to convert severity to intensity
   const severityToIntensity = (severity) => {
     switch (severity) {
-      case "High":
+      case "high":
         return 3; // High severity = intensity 3
-      case "Medium":
+      case "medium":
         return 2; // Medium severity = intensity 2
-      case "Low":
+      case "low":
       default:
         return 1; // Low severity = intensity 1
     }

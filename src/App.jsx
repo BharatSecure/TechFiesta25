@@ -19,6 +19,7 @@ import ScrollToTop from "./lib/ScrollToTop";
 import { AuthProvider } from "./context/AuthContext";
 import RecentIncidents from "./pages/RecentIncidents";
 import FeedbackForm from "./pages/FeedbackForm";
+import ViewDetails from "./pages/ViewDetails";
 
 if ("serviceWorker" in navigator) {
   navigator.serviceWorker
@@ -50,6 +51,7 @@ const App = () => {
             <Route path="/login" element={<Login />} />
             <Route path="/blogs" element={<RecentIncidents />} />
             <Route path="/feedback" element={<FeedbackForm />} />
+            <Route path="/view-details/:id" element={<ViewDetails/>}/>
           </Routes>
         </BrowserRouter>
       </div>

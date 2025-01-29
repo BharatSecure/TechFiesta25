@@ -265,6 +265,55 @@ def get_coordinates(location, api_key):
     else:
         raise ValueError(f"Could not find coordinates for location: {location}")
     
+# views.py
+from rest_framework import generics, permissions
+from .models import Incidents, Comment
+from .serializers import IncidentSerializer, CommentSerializer
+
+class LatestIncidentsView(generics.ListAPIView):
+    serializer_class = IncidentSerializer
+    queryset = Incidents.objects.all().order_by('-reported_at')  # Get latest first
+    
+    def get_queryset(self):
+        return self.queryset.prefetch_related('comments')[:10]  # Get 10 latest with comments
+
+# views.py
+from rest_framework import generics, status
+from rest_framework.response import Response
+from .models import Comment, User, Incidents
+
+class CommentCreateView(generics.CreateAPIView):
+    serializer_class = CommentSerializer
+    
+    def create(self, request, *args, **kwargs):
+        email = request.data.get('user_email')
+        incident_id = request.data.get('commented_on')
+        
+        # Verify user exists
+        try:
+            user = User.objects.get(email=email)
+        except User.DoesNotExist:
+            return Response(
+                {"error": "User not found. Please login first."},
+                status=status.HTTP_403_FORBIDDEN
+            )
+
+        # Verify incident exists
+        try:
+            incident = Incidents.objects.get(id=incident_id)
+        except Incidents.DoesNotExist:
+            return Response(
+                {"error": "Incident not found."},
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        # Create comment
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save(commented_by=user, commented_on=incident)
+        
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+    
 # class EmergencyHelplineAPIView(APIView):
 #     """
 #     API View for the Emergency Helpline Bot.
@@ -334,14 +383,43 @@ class CommentListCreateView(APIView):
         return Response(serializer.data)
 
     def post(self, request, incident_id):
-        data = request.data
-        data['commented_on'] = incident_id
-        data['commented_by'] = request.user.id
-        serializer = CommentSerializer(data=data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    # Extract the Authorization header
+        auth_header = request.headers.get('Authorization', None)
+        if not auth_header or not auth_header.startswith('Bearer '):
+            return Response({"error": "Authorization header missing or malformed"}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Extract the token from the header
+        token_str = auth_header.split(' ')[1]
+        try:
+            token = AccessToken(token_str)
+            print("Done successfully")
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            # Verify the incident exists
+            incident = Incidents.objects.get(id=incident_id)
+            
+            # Prepare the data
+            serializer_data = {
+                'comment': request.data.get('comment'),
+                'commented_on': incident.id 
+            }
+            
+            serializer = CommentSerializer(data=serializer_data)
+            if serializer.is_valid():
+                # Pass the user when saving
+                serializer.save(commented_by_id=token['user_id'])
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+            
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            
+        except Incidents.DoesNotExist:
+            return Response(
+                {"error": "Incident not found"}, 
+                status=status.HTTP_404_NOT_FOUND
+            )
+    
 
 @api_view(['GET'])
 def get_location(request):

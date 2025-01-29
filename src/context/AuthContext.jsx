@@ -8,7 +8,7 @@ export const AuthProvider = ({ children }) => {
   // Check if user is logged in on component mount
   useEffect(() => {
     const storedToken =
-      localStorage.getItem("token") || sessionStorage.getItem("token");
+      localStorage.getItem("accessToken") || sessionStorage.getItem("accessToken");
     if (storedToken) {
       setIsLoggedIn(true);
     }
@@ -17,14 +17,16 @@ export const AuthProvider = ({ children }) => {
   const login = (email, password, rememberMe) => {
     // Basic login validation for the frontend
     const storage = rememberMe ? localStorage : sessionStorage;
-    storage.setItem("token", "mock_token_123");
+    // storage.setItem("token", "mock_token_123");
     setIsLoggedIn(true);
   };
 
   const logout = () => {
     // Clear token from both localStorage and sessionStorage
-    localStorage.removeItem("token");
-    sessionStorage.removeItem("token");
+    localStorage.removeItem("accessToken");
+    sessionStorage.removeItem("accessToken");
+    localStorage.removeItem("refreshToken");
+    sessionStorage.removeItem("refreshToken");
     setIsLoggedIn(false);
   };
 

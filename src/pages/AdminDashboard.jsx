@@ -3,7 +3,7 @@ import { MdReportProblem, MdCheckCircle, MdHourglassEmpty, MdChat } from "react-
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import Footer from "@/components/Footer";
 import { useAuth } from "@/context/AuthContext";
-
+import { useNavigate } from "react-router-dom";
 
 
 const AdminDashboard = () => {
@@ -219,6 +219,9 @@ setNewTasks((prevNewTasks) =>
 }
 
 
+const navigate = useNavigate();
+
+
 
 
 
@@ -324,7 +327,7 @@ setNewTasks((prevNewTasks) =>
           
           
           >Accept Task</button>
-          <button className="bg-gray-800 hover:bg-gray-950 text-white px-4 py-2 rounded-lg mt-4 relative bottom-0 right-0 w-full">View Details</button>
+          <button className="bg-gray-800 hover:bg-gray-950 text-white px-4 py-2 rounded-lg mt-4 relative bottom-0 right-0 w-full" onClick={()=>navigate(`/view-details/${incident.id}`)}>View Details</button>
         </div>
       ))}
     </div>
@@ -433,7 +436,7 @@ setNewTasks((prevNewTasks) =>
 
 
           </div>
-          <button className="bg-gray-800 hover:bg-gray-950 text-white px-4 py-2 rounded-lg mt-4 relative bottom-0 right-0 w-full">View Details</button>
+          <button className="bg-gray-800 hover:bg-gray-950 text-white px-4 py-2 rounded-lg mt-4 relative bottom-0 right-0 w-full" onClick={()=>navigate(`/view-details/${incident.id}`)}>View Details</button>
         </div>
       ))}
     </div>

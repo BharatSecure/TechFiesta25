@@ -23,6 +23,8 @@
     "chart.js": "^4.4.7",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "html2canvas": "^1.4.1",
+    "jspdf": "^2.5.2",
     "leaflet": "^1.9.4",
     "leaflet.heat": "^0.2.0",
     "lucide-react": "^0.473.0",

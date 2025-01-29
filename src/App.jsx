@@ -23,7 +23,7 @@ import { AuthProvider } from "./context/AuthContext";
 import RecentIncidents from "./pages/RecentIncidents";
 // const RecentIncidents = lazy(() => import("./pages/RecentIncidents"));
 import FeedbackForm from "./pages/FeedbackForm";
-// import { IncidentsProvider } from "./context/IncidentsContext"; not in use anymore
+import ViewDetails from "./pages/ViewDetails";
 
 if ("serviceWorker" in navigator) {
   navigator.serviceWorker
@@ -43,21 +43,20 @@ const App = () => {
         <BrowserRouter>
           <ScrollToTop />
           <Navbar1 />
-          {/* <Suspense fallback={<div className="loader"></div>}> */}
-            <Routes>
-              <Route path="/" element={<Home />} />
-              <Route path="/report-incident" element={<IncidentReportForm />} />
-              <Route path="/my-reports" element={<UserDashboard />} />
-              <Route path="/admin" element={<AdminDashboard />} />
-              <Route path="/about" element={<AboutUs />} />
-              <Route path="/heatmap" element={<HeatMap2 />} />
-              <Route path="/voice-report" element={<VoiceToText />} />
-              <Route path="/signUp" element={<SignUp />} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/blogs" element={<RecentIncidents />} />
-              <Route path="/feedback" element={<FeedbackForm />} />
-            </Routes>
-          {/* </Suspense> */}
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/report-incident" element={<IncidentReportForm />} />
+            <Route path="/my-reports" element={<UserDashboard />} />
+            <Route path="/admin" element={<AdminDashboard />} />
+            <Route path="/about" element={<AboutUs />} />
+            <Route path="/heatmap" element={<HeatMap2 />} />
+            <Route path="/voice-report" element={<VoiceToText />} />
+            <Route path="/signUp" element={<SignUp />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/blogs" element={<RecentIncidents />} />
+            <Route path="/view-details/:id" element={<ViewDetails/>}/>
+            <Route path="/feedback" element={<FeedbackForm />} />
+          </Routes>
         </BrowserRouter>
       </div>
     </AuthProvider>

@@ -23,6 +23,7 @@ import { AuthProvider } from "./context/AuthContext";
 import RecentIncidents from "./pages/RecentIncidents";
 // const RecentIncidents = lazy(() => import("./pages/RecentIncidents"));
 import FeedbackForm from "./pages/FeedbackForm";
+import ViewDetails from "./pages/ViewDetails";
 
 if ("serviceWorker" in navigator) {
   navigator.serviceWorker
@@ -53,6 +54,7 @@ const App = () => {
             <Route path="/signUp" element={<SignUp />} />
             <Route path="/login" element={<Login />} />
             <Route path="/blogs" element={<RecentIncidents />} />
+            <Route path="/view-details/:id" element={<ViewDetails/>}/>
             <Route path="/feedback" element={<FeedbackForm />} />
           </Routes>
         </BrowserRouter>

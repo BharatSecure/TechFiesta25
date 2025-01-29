@@ -12,8 +12,8 @@ import AboutUs from "./pages/AboutUs";
 // const AboutUs = lazy(() => import("./pages/AboutUs"));
 
 // import HeatMap from "./components/Heatmap"; //static heatmap
-// import HeatMap2 from "./components/Heatmap2"; //testing heatmap
-import HeatMap3 from "./components/Heatmap3"; //heatmap to be conncted to backend
+import HeatMap2 from "./components/Heatmap2"; //testing heatmap
+// import HeatMap3 from "./components/Heatmap3"; //heatmap to be conncted to backend
 import VoiceToText from "./components/VoiceToText";
 import SignUp from "./pages/SignUp";
 import Login from "./pages/Login";
@@ -50,7 +50,7 @@ const App = () => {
               <Route path="/my-reports" element={<UserDashboard />} />
               <Route path="/admin" element={<AdminDashboard />} />
               <Route path="/about" element={<AboutUs />} />
-              <Route path="/heatmap" element={<HeatMap3 />} />
+              <Route path="/heatmap" element={<HeatMap2 />} />
               <Route path="/voice-report" element={<VoiceToText />} />
               <Route path="/signUp" element={<SignUp />} />
               <Route path="/login" element={<Login />} />

@@ -3,6 +3,7 @@ import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 import "leaflet.heat";
+import Legend from "./Legend";
 
 // https://tse1.mm.bing.net/th?id=OIP.mK4UTLLTl9D2i8HOVQBaMAHaHa&pid=Api&P=0&h=180
 
@@ -16,8 +17,7 @@ const policeStationIcon = new L.Icon({
 
 // Custom marker icon for user location
 const userLocationIcon = new L.Icon({
-  iconUrl:
-  "../../public/pointer.png",
+  iconUrl: "https://static.thenounproject.com/png/3859353-200.png",
   iconSize: [30, 30],
   iconAnchor: [15, 30],
 });
@@ -105,23 +105,43 @@ const HeatMap = () => {
   const userCoordinates = getCoordinates();
 
   useEffect(() => {
-    // Static data for heatmap (latitude, longitude, intensity)
-    const staticData = [
-      [22.5726, 88.3639, 0.9], // High severity (Kolkata)
-      [28.7041, 77.1025, 0.7], // Medium severity (Delhi)
-      [19.076, 72.8777, 0.5], // Low-medium severity (Mumbai)
-      [13.0827, 80.2707, 0.8], // High-medium severity (Chennai)
-      [22.7196, 75.8577, 0.4], // Low severity (Indore)
-      [18.4576, 73.8507, 0.4], // Pune
-      [18.4572, 73.8502, 0.4], // Pune
-      [18.4574, 73.8508, 0.4], // Pune
-      [18.43322731646412, 73.851721830796, 0.9],
-      [19.1971246, 72.8328881, 0.9],
-    ];
+    // Fetch incidents from the Django backend
+    const fetchIncidents = async () => {
+      try {
+        const response = await fetch(
+          "http://127.0.0.1:8000/api/all_incidents/"
+        );
+        const incidents = await response.json();
+        console.log("Fetched incidents:", incidents);
 
-    setHeatmapData(staticData);
+        // Map the incidents to the format [latitude, longitude, intensity]
+        const mappedData = incidents.map((incident) => [
+          incident.location.latitude,
+          incident.location.longitude,
+          severityToIntensity(incident.severity),
+        ]);
+
+        setHeatmapData(mappedData);
+      } catch (error) {
+        console.error("Error fetching incidents:", error);
+      }
+    };
+
+    fetchIncidents();
   }, []);
 
+  // Helper function to convert severity to intensity
+  const severityToIntensity = (severity) => {
+    switch (severity) {
+      case "high":
+        return 3; // High severity = intensity 3
+      case "medium":
+        return 2; // Medium severity = intensity 2
+      case "low":
+      default:
+        return 1; // Low severity = intensity 1
+    }
+  };
   // Fetch police stations from Overpass API (within 10km radius of user coordinates)
   const overpassUrl = `https://overpass-api.de/api/interpreter?data=[out:json];node[%22amenity%22=%22police%22](around:10000,${userCoordinates[0]},${userCoordinates[1]});out;`;
   useEffect(() => {
@@ -131,7 +151,7 @@ const HeatMap = () => {
         const stations = data.elements.map((element) => ({
           lat: element.lat,
           lng: element.lon,
-          name: element.tags.name || "Unnamed Police Station",
+          name: element.tags.name || "Police Station",
         }));
         setPoliceStations(stations);
       })
@@ -155,6 +175,7 @@ const HeatMap = () => {
       </Marker>
       <HeatMapLayer data={heatmapData} />
       <PoliceStations policeStations={policeStations} />
+      <Legend />
     </MapContainer>
   );
 };

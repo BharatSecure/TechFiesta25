@@ -248,7 +248,7 @@ const IncidentReportForm = () => {
       location: locationToSend, // Serialized location
       description: formData.description,
       severity: severityMap[formData.severity] || "low", // Default to 'low' if undefined
-      reportAnonymously: formData.reportAnonymously,
+      // reportAnonymously: formData.reportAnonymously,
       file: file ? file.name : null,
     };
     // console.log("Submitted Data:", submittedData);
@@ -265,7 +265,7 @@ const IncidentReportForm = () => {
     formDataToSend.append("location", submittedData.location);
     formDataToSend.append("description", submittedData.description);
     formDataToSend.append("severity", submittedData.severity);
-    formDataToSend.append("reportAnonymously", submittedData.reportAnonymously);
+    // formDataToSend.append("reportAnonymously", submittedData.reportAnonymously);
 
     if (file) {
       formDataToSend.append("file", file);
@@ -462,7 +462,7 @@ const IncidentReportForm = () => {
             </div>
 
             {/* Report Anonymously */}
-            <div className="mb-6">
+            {/* <div className="mb-6">
               <label className="inline-flex items-center">
                 <input
                   type="checkbox"
@@ -473,7 +473,7 @@ const IncidentReportForm = () => {
                 />
                 <span className="ml-2 text-gray-600">Report Anonymously</span>
               </label>
-            </div>
+            </div> */}
 
             {/* File Upload */}
             <div className="mb-6">

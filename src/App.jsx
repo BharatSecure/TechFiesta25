@@ -43,7 +43,7 @@ const App = () => {
               <Route path="/my-reports" element={<UserDashboard />} />
               <Route path="/admin" element={<AdminDashboard />} />
               <Route path="/about" element={<AboutUs />} />
-              <Route path="/heatmap" element={<HeatMap2 />} />
+              <Route path="/heatmap" element={<HeatMap3 />} />
               <Route path="/voice-report" element={<VoiceToText />} />
               <Route path="/signUp" element={<SignUp />} />
               <Route path="/login" element={<Login />} />

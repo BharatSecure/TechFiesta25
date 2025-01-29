@@ -77,7 +77,10 @@ const RecentIncidents = () => {
                       {incident.comments && incident.comments.length > 0 ? (
                         incident.comments.map((comment, index) => (
                           <li key={index} className="flex items-start gap-3">
-                            <div className="w-10 h-10 rounded-full bg-gray-300 flex-shrink-0"></div>
+                            {/* <div className="w-10 h-10 rounded-full bg-gray-300 flex-shrink-0"></div> */}
+                            <div className="w-10 h-10 rounded-full flex-shrink-0">
+                              <img className="rounded-full" src="https://cdn.pfps.gg/pfps/2301-default-2.png" alt="pfp" />
+                            </div>
                             <div className="flex-1">
                               <p className="text-sm font-semibold text-gray-800">
                                 {comment.commented_by.first_name}{" "}

@@ -373,7 +373,9 @@ def all_ongoing_incidents(request):
 @api_view(['GET'])
 def all_incidents(request):
     incidents = Incidents.objects.all()
-    return Response(incidents, status=201)
+    serializer = IncidentSerializer(incidents, many=True)
+    print(serializer.data)
+    return Response(serializer.data, status=201)
 
 class CommentListCreateView(APIView):
 

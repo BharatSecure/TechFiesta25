@@ -273,10 +273,6 @@ const IncidentReportForm = () => {
 
     try {
       const token = localStorage.getItem("accessToken"); // Retrieve token from storage or context
-      if (!token) {
-        alert("Authorization token is missing. Please log in.");
-        return;
-      }
 
       const response = await axios.post(
         "http://127.0.0.1:8000/api/report-incident/",

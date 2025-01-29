@@ -1,6 +1,6 @@
 from django.db import models
 from django.conf import settings
-
+from django.contrib.auth.hashers import make_password
 class User(models.Model):
     first_name = models.CharField(max_length=50)
     last_name = models.CharField(max_length=50)
@@ -145,5 +145,10 @@ class Admin(models.Model):
         NGO, on_delete=models.SET_NULL, null=True, blank=True, related_name="admin"
     )
 
+    def save(self, *args, **kwargs):
+        """Automatically hash the password before saving."""
+        if not self.password.startswith('pbkdf2_'):  # Avoid rehashing if already hashed
+            self.password = make_password(self.password)
+        super().save(*args, **kwargs)
     def __str__(self):
         return f"Admin: (ID: {self.id})"

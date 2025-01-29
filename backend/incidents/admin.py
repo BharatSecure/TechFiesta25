@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Incidents, PoliceStations, FireStations, DisasterReliefStations, User, Comment, Admin
+from .models import Incidents, PoliceStations, FireStations, DisasterReliefStations, User, Comment, Admin, Hospital, NGO
 
 # Register your models here.
 admin.site.register(User)
@@ -9,6 +9,8 @@ admin.site.register(PoliceStations)
 admin.site.register(FireStations)
 admin.site.register(DisasterReliefStations)
 admin.site.register(Admin)
+admin.site.register(Hospital)
+admin.site.register(NGO)
 @admin.register(Comment)
 class CommentAdmin(admin.ModelAdmin):
     list_display = ('comment', 'commented_by', 'commented_at', 'commented_on', 'useful')

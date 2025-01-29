@@ -86,7 +86,7 @@ class LoginView(APIView):
 
         try:
             # Determine if it's an admin or regular user login
-            if "admin" in email:
+            if email.endswith("@admin.com"):
                 user = get_object_or_404(Admin, email=email)
                 user_type = "admin"
             else:

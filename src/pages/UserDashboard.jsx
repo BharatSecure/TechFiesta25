@@ -22,9 +22,7 @@ const UserDashboard = () => {
   const [resolved, setResolved] = useState(0);
   const [unresolved, setUnResolved] = useState(0);
   const [incidents, setIncidents] = useState([]);
-  const token =
-    localStorage.getItem("accessToken") ||
-    sessionStorage.getItem("accessToken");
+  const token = localStorage.getItem("accessToken");
 
   const getSeverityColor = (severity) => {
     if (severity === "Low")
@@ -68,6 +66,7 @@ const UserDashboard = () => {
   useEffect(() => {
     const fetchIncidents = async () => {
       try {
+        console.log(`Access Token: ${token}`);
         const response = await fetch(
           "http://127.0.0.1:8000/api/all_user_incidents/",
           {

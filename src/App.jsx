@@ -11,8 +11,8 @@ import AdminDashboard from "./pages/AdminDashboard"; //lazy loaded
 import AboutUs from "./pages/AboutUs";
 // const AboutUs = lazy(() => import("./pages/AboutUs"));
 
-import HeatMap from "./components/Heatmap"; //static heatmap
-import HeatMap2 from "./components/Heatmap2"; //testing heatmap
+// import HeatMap from "./components/Heatmap"; //static heatmap
+// import HeatMap2 from "./components/Heatmap2"; //testing heatmap
 import HeatMap3 from "./components/Heatmap3"; //heatmap to be conncted to backend
 import VoiceToText from "./components/VoiceToText";
 import SignUp from "./pages/SignUp";

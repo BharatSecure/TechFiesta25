@@ -16,7 +16,7 @@ import { useAuth } from "@/context/AuthContext";
 const UserDashboard = () => {
   const navigate = useNavigate();
   const { isLoggedIn, login, logout } = useAuth();
-  console.log(`is logged in ${isLoggedIn}`)
+  console.log(`is logged in ${isLoggedIn}`);
 
   const [total, setTotal] = useState();
   const [resolved, setResolved] = useState(0);
@@ -45,7 +45,7 @@ const UserDashboard = () => {
     logout();
     navigate("/login");
   };
-  
+
   useEffect(() => {
     let totalIncidents = 0;
     let resolvedIncidents = 0;
@@ -185,7 +185,9 @@ const UserDashboard = () => {
                     className="hover:bg-gray-50 transition-all cursor-pointer"
                   >
                     <td className="p-4 font-semibold">{incident.id}</td>
-                    <td className="p-4 font-semibold">{incident.title}</td>
+                    <td className="p-4 font-semibold">
+                      {incident.incidentType}
+                    </td>
                     <td className="p-4 truncate max-w-[150px] sm:max-w-none">
                       {incident.description}
                     </td>

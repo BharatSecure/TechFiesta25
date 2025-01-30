@@ -168,5 +168,9 @@ EMAIL_HOST_PASSWORD = 'djezbcquynkqypdd'
 
 ASGI_APPLICATION = 'backend.asgi.application'
 
+<<<<<<< Updated upstream
+AUTH_USER_MODEL = 'incidents.User'
+>>>>>>> Stashed changes
+=======
 AUTH_USER_MODEL = 'incidents.User'
 >>>>>>> Stashed changes

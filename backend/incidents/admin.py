@@ -1,8 +1,11 @@
 from django.contrib import admin
 
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 # Register your models here.
 =======
+=======
+>>>>>>> Stashed changes
 from .models import Incidents, PoliceStations, FireStations, DisasterReliefStations, User, Comment, Admin, Hospital, NGO, Conversation, Message
 
 # Register your models here.

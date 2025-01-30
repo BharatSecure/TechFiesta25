@@ -4,11 +4,14 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Home from "./pages/Home";
 import IncidentReportForm from "./pages/IncidentReportForm";
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 import UserDashboard from "./pages/UserDashboard";
 import { IncidentsProvider } from "./context/IncidentsContext";
 import AdminDashboard from "./pages/AdminDashboard";
 import AboutUs from "../src/pages/AboutUs";
 =======
+=======
+>>>>>>> Stashed changes
 import UserDashboard from "./pages/UserDashboard"; //lazy loaded
 // const UserDashboard = lazy(() => import("./pages/UserDashboard"));
 import AdminDashboard from "./pages/AdminDashboard"; //lazy loaded
@@ -31,6 +34,9 @@ import FeedbackForm from "./pages/FeedbackForm";
 // import { IncidentsProvider } from "./context/IncidentsContext"; not in use anymore
 import chatbotTrial from "./pages/chatbotTrial";
 import ConversationsList from "./pages/chatbotTrial";
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
 
 if ("serviceWorker" in navigator) {
@@ -47,6 +53,7 @@ const App = () => {
   return (
     <AuthProvider>
       <div>
+<<<<<<< Updated upstream
 <<<<<<< Updated upstream
         <IncidentsProvider>
           <BrowserRouter>
@@ -68,6 +75,8 @@ const App = () => {
           </BrowserRouter>
         </IncidentsProvider>
 =======
+=======
+>>>>>>> Stashed changes
         <BrowserRouter>
           <ScrollToTop />
           <Navbar1 />

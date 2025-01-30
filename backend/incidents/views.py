@@ -453,7 +453,7 @@ class CustomChatMemoryHistory(BaseChatMessageHistory):
 
     def to_dict(self) -> dict:
         """Convert memory to a dictionary."""
-        return {"messages": [msg.dict() for msg in self.messages]}
+        return {"messages": [msg.as_dict() for msg in self.messages]}
 
 class ConversationViewSet(viewsets.ModelViewSet):
     serializer_class = ConversationSerializer
@@ -465,22 +465,8 @@ class ConversationViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
 
-    def _validate_token(self, request):
-        auth_header = request.headers.get('Authorization', None)
-        if not auth_header or not auth_header.startswith('Bearer '):
-            raise ImproperlyConfigured("Authorization header missing or malformed")
-
-        token_str = auth_header.split(' ')[1]
-        try:
-            AccessToken(token_str)
-        except Exception as e:
-            raise ImproperlyConfigured(str(e))
-
     @action(detail=True, methods=['post'])
     def send_message(self, request, pk=None):
-        # Validate the token
-        self._validate_token(request)
-        
         # Retrieve the conversation
         conversation = self.get_object()
         
@@ -521,7 +507,7 @@ class ConversationViewSet(viewsets.ModelViewSet):
         try:
             # Get AI response with chat history and input
             response = chain.invoke({
-                "chat_history": [msg.dict() for msg in memory.messages],  # Convert messages to dict
+                "chat_history": [msg.as_dict() for msg in memory.messages],  # Convert messages to dict
                 "input": user_input
             })
             

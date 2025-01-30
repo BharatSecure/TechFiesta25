@@ -1,3 +1,24 @@
 from django.contrib import admin
 
+<<<<<<< Updated upstream
 # Register your models here.
+=======
+from .models import Incidents, PoliceStations, FireStations, DisasterReliefStations, User, Comment, Admin, Hospital, NGO, Conversation, Message
+
+# Register your models here.
+admin.site.register(User)
+admin.site.register(Incidents)
+admin.site.register(PoliceStations)
+admin.site.register(FireStations)
+admin.site.register(DisasterReliefStations)
+admin.site.register(Admin)
+admin.site.register(Hospital)
+admin.site.register(NGO)
+admin.site.register(Conversation)
+admin.site.register(Message)
+@admin.register(Comment)
+class CommentAdmin(admin.ModelAdmin):
+    list_display = ('comment', 'commented_by', 'commented_at', 'commented_on', 'useful')
+    list_filter = ('commented_at', 'useful')
+    search_fields = ('comment', 'commented_by__username', 'commented_on__title')  # Adjust 'title' if Incident has a different descriptive field
+>>>>>>> Stashed changes

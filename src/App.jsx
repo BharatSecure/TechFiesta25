@@ -46,7 +46,7 @@ const ProtectedRoute = ({ element, adminOnly = false }) => {
   useEffect(() => {
     const timer = setTimeout(() => {
       setLoading(false);
-    }, 1000); // 2-second delay
+    }, 100); // 
 
     return () => clearTimeout(timer);
   }, []);

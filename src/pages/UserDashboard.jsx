@@ -3,7 +3,7 @@ import { MdReportProblem } from "react-icons/md";
 import { MdCheckCircle } from "react-icons/md";
 import { MdHourglassEmpty } from "react-icons/md";
 import { MdChat } from "react-icons/md";
-import { Navigate, useNavigate } from "react-router-dom";
+import { data, Navigate, useNavigate } from "react-router-dom";
 import axios from "axios";
 import {
   Popover,
@@ -25,17 +25,17 @@ const UserDashboard = () => {
   const token = localStorage.getItem("accessToken");
 
   const getSeverityColor = (severity) => {
-    if (severity === "Low")
+    if (severity === "low")
       return "text-yellow-700 border-lime-600 bg-lime-300 border-2";
-    if (severity === "Medium")
+    if (severity === "medium")
       return "text-yellow-700 border-yellow-600 bg-yellow-300 border-2";
-    if (severity === "High")
+    if (severity === "high")
       return "text-red-800 border-red-600 bg-red-300 border-2";
   };
 
   const getStatusColor = (status) => {
-    if (status === "Resolved") return "bg-green-100 text-green-700";
-    if (status === "Not Resolved") return "bg-red-100 text-red-700";
+    if (status === "completed") return "bg-green-100 text-green-700";
+    if (status === "submitted") return "bg-red-100 text-red-700";
     return "bg-yellow-100 text-yellow-700";
   };
 
@@ -51,7 +51,7 @@ const UserDashboard = () => {
 
     incidents.forEach((inci) => {
       totalIncidents++;
-      if (inci.status === "Resolved") {
+      if (inci.status === "completed") {
         resolvedIncidents++;
       } else {
         unresolvedIncidents++;
@@ -107,6 +107,7 @@ const UserDashboard = () => {
     fetchIncidents();
   }, []); // Empty dependency array ensures this runs only once
 
+  console.log('user data dashboard',incidents)
   return (
     <>
       <div className="h-full bg-gradient-to-r from-green-100 to-green-200">
@@ -196,7 +197,9 @@ const UserDashboard = () => {
                           incident.severity
                         )}`}
                       >
-                        {incident.severity}
+                     {incident.severity?.charAt(0).toUpperCase() + incident.severity?.slice(1)}
+
+                        
                       </button>
                     </td>
                     <td className="p-4">
@@ -205,7 +208,8 @@ const UserDashboard = () => {
                           incident.status
                         )}`}
                       >
-                        {incident.status}
+                        {incident.status?.charAt(0).toUpperCase() + incident.status?.slice(1)}
+
                       </button>
                     </td>
                     {/* <td className="p-4 text-gray-600">{incident.location}</td> */}

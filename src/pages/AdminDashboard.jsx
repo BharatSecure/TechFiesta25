@@ -239,9 +239,12 @@ const navigate = useNavigate();
   <div className="flex-grow p-8 pb-24  ">
     {/* Header */}
     <header className="mb-6 lg:text-center">
-      <h1 className="lg:text-3xl sm:text-2xl  font-bold text-gray-800">
-        <span className="text-xl text-emerald-600">Admin Dashboard</span>
-      </h1>
+    <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-800">
+  <span className="block sm:inline text-lg sm:text-xl md:text-2xl text-emerald-600">
+    Admin Dashboard
+  </span>
+</h1>
+
     </header>
 
     <button

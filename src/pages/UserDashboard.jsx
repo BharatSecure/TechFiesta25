@@ -66,7 +66,7 @@ const UserDashboard = () => {
   useEffect(() => {
     const fetchIncidents = async () => {
       try {
-        console.log(`Access Token: ${token}`);
+        // console.log(`Access Token: ${token}`);
         const response = await fetch(
           "http://127.0.0.1:8000/api/all_user_incidents/",
           {

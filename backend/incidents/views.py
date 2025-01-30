@@ -1,6 +1,3 @@
-<<<<<<< Updated upstream
-from rest_framework.views import APIView
-=======
 from rest_framework.decorators import api_view, permission_classes, authentication_classes
 from rest_framework.response import Response
 from geopy.distance import great_circle
@@ -12,7 +9,6 @@ import requests
 from rest_framework import status
 from django.shortcuts import get_object_or_404
 from django.contrib.auth.hashers import check_password
-from utils.call_Operator import EmergencyHelplineBot
 from twilio.rest import Client
 import json
 from geopy.distance import great_circle
@@ -275,214 +271,6 @@ def get_coordinates(location, api_key):
     else:
         raise ValueError(f"Could not find coordinates for location: {location}")
     
-# views.py
-from rest_framework import generics, permissions
-from .models import Incidents, Comment
-from .serializers import IncidentSerializer, CommentSerializer
-
-class LatestIncidentsView(generics.ListAPIView):
-    serializer_class = IncidentSerializer
-    queryset = Incidents.objects.all().order_by('-reported_at')  # Get latest first
-    
-    def get_queryset(self):
-        return self.queryset.prefetch_related('comments')[:10]  # Get 10 latest with comments
-
-# views.py
-from rest_framework import generics, status
->>>>>>> Stashed changes
-from rest_framework.response import Response
-from .models import Incident, Subscription
-from .serializers import IncidentSerializer
-from webpush import send_user_notification
-
-from django.http import JsonResponse
-from django.views.decorators.csrf import csrf_exempt
-import json
-
-from django.views.decorators.csrf import csrf_exempt
-from pywebpush import webpush, WebPushException
-
-class ReportIncident(APIView):
-    def post(self, request):
-        serializer = IncidentSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            send_notification(
-                "New Incident Reported!",
-                f"Incident: {serializer.data['title']}"
-            )
-            return Response(serializer.data, status=201)
-        return Response(serializer.errors, status=400)
-
-@csrf_exempt
-def save_subscription(request):
-    if request.method == "POST":
-        try:
-            subscription_data = json.loads(request.body)
-            # Use the 'endpoint' field as a unique identifier
-            endpoint = subscription_data.get("endpoint")
-
-            if not endpoint:
-                return JsonResponse({"error": "Invalid subscription data"}, status=400)
-
-            # Check if the subscription already exists
-            existing_subscription = Subscription.objects.filter(endpoint=endpoint).first()
-
-            if not existing_subscription:
-                # Save the subscription if it doesn't exist
-                Subscription.objects.create(
-                    endpoint=subscription_data["endpoint"],
-                    keys=json.dumps(subscription_data["keys"]),
-                )
-                return JsonResponse({"success": "Subscription saved"}, status=201)
-
-            return JsonResponse({"message": "Subscription already exists"}, status=200)
-
-        except Exception as e:
-            return JsonResponse({"error": str(e)}, status=500)
-    else:
-        return JsonResponse({"error": "Invalid request method"}, status=405)
-
-
-def send_notification(title, message):
-    subscriptions = Subscription.objects.all()
-    payload = {"head": title, "body": message}
-    for sub in subscriptions:
-        send_user_notification(subscription_info={
-            "endpoint": sub.endpoint,
-            "keys": {"auth": sub.auth, "p256dh": sub.p256dh},
-        }, payload=payload, ttl=1000)
-
-@csrf_exempt
-def report_incident(request):
-    if request.method == 'POST':
-        data = json.loads(request.body)
-        # Process the incident data (e.g., save to database)
-        # Notify all subscribers
-        for subscription in Subscription.objects.all():
-            try:
-                webpush(
-                    subscription_info={
-                        "endpoint": subscription.endpoint,
-                        "keys": {
-                            "p256dh": subscription.p256dh,
-                            "auth": subscription.auth,
-                        }
-                    },
-                    data=json.dumps({
-                        "title": "New Incident Reported",
-                        "message": f"{data['incidentType']}: {data['description']}",
-                    }),
-                    vapid_private_key="bFhHq38UhmlZPJOVvFUycd1lsx3NNs8Ri_riFj_AhQk",
-                    vapid_claims={
-                        "sub": "mailto:admin@example.com"
-                    }
-                )
-            except WebPushException as ex:
-                print(f"Failed to send notification: {ex}")
-
-<<<<<<< Updated upstream
-        return JsonResponse({"message": "Incident reported and notifications sent"})
-=======
-class CustomChatMemoryHistory(BaseChatMessageHistory):
-    def __init__(self):
-        self.messages = []
-
-    def add_user_message(self, message: str) -> None:
-        """Add a user message to the memory."""
-        self.messages.append(HumanMessage(content=message))
-
-    def add_ai_message(self, message: str) -> None:
-        """Add an AI message to the memory."""
-        self.messages.append(AIMessage(content=message))
-
-    def clear(self) -> None:
-        """Clear the memory."""
-        self.messages = []
-
-    def to_dict(self) -> dict:
-        """Convert memory to a dictionary."""
-        return {"messages": [msg.dict() for msg in self.messages]}
-
-class ConversationViewSet(viewsets.ModelViewSet):
-    serializer_class = ConversationSerializer
-    permission_classes = [IsAuthenticated]
-
-    def get_queryset(self):
-        return Conversation.objects.filter(user=self.request.user)
-
-    def perform_create(self, serializer):
-        serializer.save(user=self.request.user)
-
-    def _validate_token(self, request):
-        auth_header = request.headers.get('Authorization', None)
-        if not auth_header or not auth_header.startswith('Bearer '):
-            raise ImproperlyConfigured("Authorization header missing or malformed")
-
-        token_str = auth_header.split(' ')[1]
-        try:
-            AccessToken(token_str)
-        except Exception as e:
-            raise ImproperlyConfigured(str(e))
-
-    @action(detail=True, methods=['post'])
-    def send_message(self, request, pk=None):
-        # Validate the token
-        self._validate_token(request)
-        
-        # Retrieve the conversation
-        conversation = self.get_object()
-        
-        # Extract user input from the request
-        user_input = request.data.get('message', '')
-        if not user_input:
-            return Response({'error': 'Message content is required'}, status=status.HTTP_400_BAD_REQUEST)
-        
-        # Save the user's message
-        Message.objects.create(conversation=conversation, is_user=True, content=user_input)
-        
-        # Initialize custom memory
-        memory = CustomChatMemoryHistory()
-        
-        # Load conversation history into memory
-        for msg in conversation.messages.all():
-            if msg.is_user:
-                memory.add_user_message(msg.content)
-            else:
-                memory.add_ai_message(msg.content)
-        
-        # Set up the AI chat model
-        chat = ChatGoogleGenerativeAI(
-            model="gemini-1.5-pro",
-            api_key="AIzaSyDv7RThoILjeXAryluncDRZ1QeFxAixR7Q"
-        )
-        
-        # Define the chat prompt template
-        prompt = ChatPromptTemplate.from_messages([
-            ("system", "You are a helpful AI assistant."),
-            MessagesPlaceholder(variable_name="chat_history"),
-            ("human", "{input}")
-        ])
-        
-        # Create the chain using LangChain Expression Language (LCEL)
-        chain = prompt | chat | StrOutputParser()
-        
-        try:
-            # Get AI response with chat history and input
-            response = chain.invoke({
-                "chat_history": [msg.dict() for msg in memory.messages],  # Convert messages to dict
-                "input": user_input
-            })
-            
-            # Save the AI's response
-            ai_message = Message.objects.create(
-                conversation=conversation,
-                is_user=False,
-                content=response
-            )
-<<<<<<< Updated upstream
-=======
-    
 
 @api_view(['GET'])
 def get_location(request):
@@ -593,7 +381,6 @@ class ConversationViewSet(viewsets.ModelViewSet):
                 is_user=False,
                 content=response
             )
->>>>>>> Stashed changes
             
             # Add the AI's response to memory
             memory.add_ai_message(response)
@@ -606,9 +393,9 @@ class ConversationViewSet(viewsets.ModelViewSet):
         
         except Exception as e:
             # Handle any exceptions that occur during the process
-<<<<<<< Updated upstream
+
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
->>>>>>> Stashed changes
-=======
+
+
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
->>>>>>> Stashed changes
+

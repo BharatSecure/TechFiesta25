@@ -1,20 +1,12 @@
 from rest_framework import serializers
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
 from .models import Incident
-=======
 from .models import Incidents, User, Comment, Conversation, Message
->>>>>>> Stashed changes
-=======
 from .models import Incidents, User, Comment, Conversation, Message
->>>>>>> Stashed changes
 
 class IncidentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Incident
         fields = '__all__'
-<<<<<<< Updated upstream
-=======
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -69,9 +61,4 @@ class ConversationSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = Conversation
-<<<<<<< Updated upstream
         fields = ['id', 'created_at', 'messages']
->>>>>>> Stashed changes
-=======
-        fields = ['id', 'created_at', 'messages']
->>>>>>> Stashed changes

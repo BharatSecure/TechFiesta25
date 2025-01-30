@@ -51,8 +51,6 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-<<<<<<< Updated upstream
-=======
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework.authentication.TokenAuthentication',
@@ -76,7 +74,6 @@ CORS_ALLOWED_ORIGINS = [
 CORS_ALLOW_ALL_ORIGINS = True
 
 
->>>>>>> Stashed changes
 WEBPUSH_SETTINGS = {
     "VAPID_PUBLIC_KEY": "BE38RCKNK0Ig5qBWT0SpZ4ya9OV05THWXOnGhselt3IWPWgN__M3lNHULW1PjXV2SuZz96dWuNNFFaB1jiGsPyc",
     "VAPID_PRIVATE_KEY": "bFhHq38UhmlZPJOVvFUycd1lsx3NNs8Ri_riFj_AhQk",
@@ -155,8 +152,6 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-<<<<<<< Updated upstream
-=======
 
 # Email settings.py set up
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
@@ -168,9 +163,5 @@ EMAIL_HOST_PASSWORD = 'djezbcquynkqypdd'
 
 ASGI_APPLICATION = 'backend.asgi.application'
 
-<<<<<<< Updated upstream
 AUTH_USER_MODEL = 'incidents.User'
->>>>>>> Stashed changes
-=======
-AUTH_USER_MODEL = 'incidents.User'
->>>>>>> Stashed changes
+

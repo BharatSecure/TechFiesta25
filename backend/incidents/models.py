@@ -1,9 +1,4 @@
 from django.db import models
-<<<<<<< Updated upstream
-
-class Incident(models.Model):
-    title = models.CharField(max_length=255)
-=======
 from django.conf import settings
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
@@ -54,7 +49,6 @@ class User(AbstractBaseUser):
     def is_authenticated(self):
         return True
 
-
 class Incidents(models.Model):
     INCIDENT_TYPES = [
         ('Fire', 'Fire'),
@@ -81,22 +75,12 @@ class Incidents(models.Model):
         default='Other'
     )
     location = models.JSONField()   
->>>>>>> Stashed changes
     description = models.TextField()
     reported_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return self.title
-
-<<<<<<< Updated upstream
-class Subscription(models.Model):
-    endpoint = models.TextField()
-    auth = models.TextField()
-    p256dh = models.TextField()
-=======
-    def __str__(self):
-        return f"Comment by {self.commented_by} on Incident {self.commented_on.id}"
-
+    
 class PoliceStations(models.Model):
     latitude = models.FloatField()
     longitude = models.FloatField()
@@ -170,6 +154,25 @@ class Admin(models.Model):
     def __str__(self):
         return f"Admin: (ID: {self.id})"
     
+
+class Comment(models.Model):
+    comment = models.TextField()
+    file = models.FileField(upload_to='comments_files/', blank=True, null=True)
+    commented_by = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='comments'
+    )
+    commented_at = models.DateTimeField(auto_now_add=True)
+    commented_on = models.ForeignKey(
+        Incidents,
+        on_delete=models.CASCADE,
+        related_name='comments'
+    )
+    useful = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f"Comment by {self.commented_by} on Incident {self.commented_on.id}"
 class Conversation(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -184,9 +187,4 @@ class Message(models.Model):
     timestamp = models.DateTimeField(auto_now_add=True)
     
     class Meta:
-<<<<<<< Updated upstream
         ordering = ['timestamp']
->>>>>>> Stashed changes
-=======
-        ordering = ['timestamp']
->>>>>>> Stashed changes

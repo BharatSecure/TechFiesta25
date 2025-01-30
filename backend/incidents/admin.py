@@ -1,11 +1,4 @@
 from django.contrib import admin
-
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-# Register your models here.
-=======
-=======
->>>>>>> Stashed changes
 from .models import Incidents, PoliceStations, FireStations, DisasterReliefStations, User, Comment, Admin, Hospital, NGO, Conversation, Message
 
 # Register your models here.
@@ -24,4 +17,3 @@ class CommentAdmin(admin.ModelAdmin):
     list_display = ('comment', 'commented_by', 'commented_at', 'commented_on', 'useful')
     list_filter = ('commented_at', 'useful')
     search_fields = ('comment', 'commented_by__username', 'commented_on__title')  # Adjust 'title' if Incident has a different descriptive field
->>>>>>> Stashed changes

@@ -3,23 +3,13 @@ import "./App.css";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Home from "./pages/Home";
 import IncidentReportForm from "./pages/IncidentReportForm";
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-import UserDashboard from "./pages/UserDashboard";
 import { IncidentsProvider } from "./context/IncidentsContext";
-import AdminDashboard from "./pages/AdminDashboard";
-import AboutUs from "../src/pages/AboutUs";
-=======
-=======
->>>>>>> Stashed changes
 import UserDashboard from "./pages/UserDashboard"; //lazy loaded
 // const UserDashboard = lazy(() => import("./pages/UserDashboard"));
 import AdminDashboard from "./pages/AdminDashboard"; //lazy loaded
 // const AdminDashboard = lazy(() => import("./pages/AdminDashboard"));
 import AboutUs from "./pages/AboutUs";
 // const AboutUs = lazy(() => import("./pages/AboutUs"));
->>>>>>> Stashed changes
-
 import HeatMap from "./components/Heatmap";
 import VoiceToText from "./components/VoiceToText";
 import SignUp from "./pages/SignUp";
@@ -29,18 +19,12 @@ import ScrollToTop from "./lib/ScrollToTop";
 import { AuthProvider } from "./context/AuthContext";
 import RecentIncidents from "./pages/RecentIncidents";
 import FeedbackForm from "./pages/FeedbackForm";
-<<<<<<< Updated upstream
-=======
-// import { IncidentsProvider } from "./context/IncidentsContext"; not in use anymore
-import chatbotTrial from "./pages/chatbotTrial";
+// import { IncidentsProvider } from "./context/IncidentsContext"; not in use anymor
 import ConversationsList from "./pages/chatbotTrial";
-<<<<<<< Updated upstream
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
 
 if ("serviceWorker" in navigator) {
-  navigator.serviceWorker.register("./sw.js")
+  navigator.serviceWorker
+    .register("./sw.js")
     .then((registration) => {
       console.log("Service Worker registered:", registration);
     })
@@ -53,8 +37,6 @@ const App = () => {
   return (
     <AuthProvider>
       <div>
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
         <IncidentsProvider>
           <BrowserRouter>
             <ScrollToTop />
@@ -74,9 +56,6 @@ const App = () => {
             </Routes>
           </BrowserRouter>
         </IncidentsProvider>
-=======
-=======
->>>>>>> Stashed changes
         <BrowserRouter>
           <ScrollToTop />
           <Navbar1 />
@@ -87,7 +66,7 @@ const App = () => {
             <Route path="/my-reports" element={<UserDashboard />} />
             <Route path="/admin" element={<AdminDashboard />} />
             <Route path="/about" element={<AboutUs />} />
-            <Route path="/heatmap" element={<HeatMap3 />} />
+            <Route path="/heatmap" element={<HeatMap />} />
             <Route path="/voice-report" element={<VoiceToText />} />
             <Route path="/signUp" element={<SignUp />} />
             <Route path="/login" element={<Login />} />
@@ -97,7 +76,6 @@ const App = () => {
           </Routes>
           {/* </Suspense> */}
         </BrowserRouter>
->>>>>>> Stashed changes
       </div>
     </AuthProvider>
   );

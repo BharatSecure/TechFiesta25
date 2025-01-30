@@ -4,7 +4,7 @@ import Navbar1 from "./components/Navbar1";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Home from "./pages/Home";
 import IncidentReportForm from "./pages/IncidentReportForm";
-import UserDashboard from "./pages/UserDashboard";//lazy loaded
+import UserDashboard from "./pages/UserDashboard"; //lazy loaded
 // const UserDashboard = lazy(() => import("./pages/UserDashboard"));
 import AdminDashboard from "./pages/AdminDashboard"; //lazy loaded
 // const AdminDashboard = lazy(() => import("./pages/AdminDashboard"));
@@ -24,6 +24,7 @@ import RecentIncidents from "./pages/RecentIncidents";
 // const RecentIncidents = lazy(() => import("./pages/RecentIncidents"));
 import FeedbackForm from "./pages/FeedbackForm";
 import ViewDetails from "./pages/ViewDetails";
+import Chatbot from "./pages/chatbotTrial";
 
 if ("serviceWorker" in navigator) {
   navigator.serviceWorker
@@ -54,8 +55,9 @@ const App = () => {
             <Route path="/signUp" element={<SignUp />} />
             <Route path="/login" element={<Login />} />
             <Route path="/blogs" element={<RecentIncidents />} />
-            <Route path="/view-details/:id" element={<ViewDetails/>}/>
+            <Route path="/view-details/:id" element={<ViewDetails />} />
             <Route path="/feedback" element={<FeedbackForm />} />
+            <Route path="chatbot" element={<Chatbot />} />
           </Routes>
         </BrowserRouter>
       </div>

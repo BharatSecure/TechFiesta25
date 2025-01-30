@@ -59,6 +59,7 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework.authentication.TokenAuthentication',
         'rest_framework.authentication.SessionAuthentication',
+        'rest_framework_simplejwt.authentication.JWTAuthentication'
     ]
 }
 
@@ -167,3 +168,5 @@ EMAIL_HOST_USER = 'mayankhmehta80@gmail.com'
 EMAIL_HOST_PASSWORD = 'djezbcquynkqypdd'
 
 ASGI_APPLICATION = 'backend.asgi.application'
+
+AUTH_USER_MODEL = 'incidents.User'

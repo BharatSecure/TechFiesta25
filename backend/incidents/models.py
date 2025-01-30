@@ -1,7 +1,24 @@
 from django.db import models
 from django.conf import settings
 from django.contrib.auth.hashers import make_password
-class User(models.Model):
+from django.contrib.auth.base_user import AbstractBaseUser, BaseUserManager
+from django.utils import timezone
+class CustomUserManager(BaseUserManager):
+    def create_user(self, email, password=None, **extra_fields):
+        if not email:
+            raise ValueError('The Email field must be set')
+        email = self.normalize_email(email)
+        user = self.model(email=email, **extra_fields)
+        user.set_password(password)
+        user.save(using=self._db)
+        return user
+
+    def create_superuser(self, email, password=None, **extra_fields):
+        extra_fields.setdefault('is_staff', True)
+        extra_fields.setdefault('is_superuser', True)
+
+        return self.create_user(email, password, **extra_fields)
+class User(AbstractBaseUser):
     first_name = models.CharField(max_length=50)
     last_name = models.CharField(max_length=50)
     email = models.EmailField(unique=True)
@@ -10,10 +27,26 @@ class User(models.Model):
     aadhar_number = models.CharField(max_length=12, unique=True)
     emergency_contact1 = models.CharField(max_length=10)
     emergency_contact2 = models.CharField(max_length=10)
-    password = models.CharField(max_length=128)  # Use hashed passwords in production
+    password = models.CharField(max_length=128)
+    date_joined = models.DateTimeField(default=timezone.now)
+    is_active = models.BooleanField(default=True)
+    is_staff = models.BooleanField(default=False)
+
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = ['first_name', 'last_name', 'phone_number', 'aadhar_number']
+
+    objects = CustomUserManager()
 
     def __str__(self):
         return self.email
+
+    @property
+    def is_anonymous(self):
+        return False
+
+    @property
+    def is_authenticated(self):
+        return True
 
 class Incidents(models.Model):
     INCIDENT_TYPES = [
@@ -152,3 +185,19 @@ class Admin(models.Model):
         super().save(*args, **kwargs)
     def __str__(self):
         return f"Admin: (ID: {self.id})"
+    
+class Conversation(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    def __str__(self):
+        return f"Conversation with {self.user.username} at {self.created_at}"
+
+class Message(models.Model):
+    conversation = models.ForeignKey(Conversation, on_delete=models.CASCADE, related_name='messages')
+    is_user = models.BooleanField(default=True)
+    content = models.TextField()
+    timestamp = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        ordering = ['timestamp']

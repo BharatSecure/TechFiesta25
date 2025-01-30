@@ -2,7 +2,7 @@ from rest_framework.decorators import api_view, permission_classes, authenticati
 from rest_framework.response import Response
 from geopy.distance import great_circle
 from incidents.models import DisasterReliefStations, FireStations, PoliceStations
-from .serializers import CommentSerializer, IncidentSerializer, UserSerializer
+from .serializers import CommentSerializer, IncidentSerializer, UserSerializer, MessageSerializer, ConversationSerializer
 from incidents.models import DisasterReliefStations, FireStations, PoliceStations, Admin
 from .serializers import IncidentSerializer, UserSerializer
 from django.core.mail import send_mail
@@ -14,18 +14,26 @@ from utils.call_Operator import EmergencyHelplineBot
 from twilio.rest import Client
 import json
 from geopy.distance import great_circle
-from .models import Incidents, FireStations, PoliceStations, User, Comment
+from .models import Incidents, FireStations, PoliceStations, User, Comment, Message, Conversation
 from .serializers import IncidentSerializer
 from rest_framework.views import APIView
-from rest_framework import status
 from django.contrib.auth.hashers import make_password
 from django.db import IntegrityError
 from rest_framework_simplejwt.tokens import RefreshToken, AccessToken
 from rest_framework.exceptions import AuthenticationFailed
 import logging
 logger = logging.getLogger(__name__)
-from .models import Incidents  # Replace with your actual model
-from .serializers import IncidentSerializer  # Create a serializer for your model
+from rest_framework import generics, status
+from langchain_core.chat_history import BaseChatMessageHistory
+from langchain.prompts import ChatPromptTemplate, MessagesPlaceholder
+from django.core.cache import cache
+from langchain_google_genai import ChatGoogleGenerativeAI
+from django.core.exceptions import ImproperlyConfigured
+from rest_framework import viewsets, status
+from rest_framework.decorators import action
+from rest_framework.permissions import IsAuthenticated
+from langchain.schema.output_parser import StrOutputParser
+from langchain.schema import HumanMessage, AIMessage
 
 @api_view(['GET'])
 def latest_incidents(request):
@@ -265,11 +273,6 @@ def get_coordinates(location, api_key):
     else:
         raise ValueError(f"Could not find coordinates for location: {location}")
     
-# views.py
-from rest_framework import generics, permissions
-from .models import Incidents, Comment
-from .serializers import IncidentSerializer, CommentSerializer
-
 class LatestIncidentsView(generics.ListAPIView):
     serializer_class = IncidentSerializer
     queryset = Incidents.objects.all().order_by('-reported_at')  # Get latest first
@@ -277,10 +280,7 @@ class LatestIncidentsView(generics.ListAPIView):
     def get_queryset(self):
         return self.queryset.prefetch_related('comments')[:10]  # Get 10 latest with comments
 
-# views.py
-from rest_framework import generics, status
-from rest_framework.response import Response
-from .models import Comment, User, Incidents
+
 
 class CommentCreateView(generics.CreateAPIView):
     serializer_class = CommentSerializer
@@ -435,3 +435,114 @@ def get_location(request):
 def get_google_maps_link(latitude, longitude):
     return f"https://www.google.com/maps?q={latitude},{longitude}"
 
+class CustomChatMemoryHistory(BaseChatMessageHistory):
+    def __init__(self):
+        self.messages = []
+
+    def add_user_message(self, message: str) -> None:
+        """Add a user message to the memory."""
+        self.messages.append(HumanMessage(content=message))
+
+    def add_ai_message(self, message: str) -> None:
+        """Add an AI message to the memory."""
+        self.messages.append(AIMessage(content=message))
+
+    def clear(self) -> None:
+        """Clear the memory."""
+        self.messages = []
+
+    def to_dict(self) -> dict:
+        """Convert memory to a dictionary."""
+        return {"messages": [msg.dict() for msg in self.messages]}
+
+class ConversationViewSet(viewsets.ModelViewSet):
+    serializer_class = ConversationSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return Conversation.objects.filter(user=self.request.user)
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+
+    def _validate_token(self, request):
+        auth_header = request.headers.get('Authorization', None)
+        if not auth_header or not auth_header.startswith('Bearer '):
+            raise ImproperlyConfigured("Authorization header missing or malformed")
+
+        token_str = auth_header.split(' ')[1]
+        try:
+            AccessToken(token_str)
+        except Exception as e:
+            raise ImproperlyConfigured(str(e))
+
+    @action(detail=True, methods=['post'])
+    def send_message(self, request, pk=None):
+        # Validate the token
+        self._validate_token(request)
+        
+        # Retrieve the conversation
+        conversation = self.get_object()
+        
+        # Extract user input from the request
+        user_input = request.data.get('message', '')
+        if not user_input:
+            return Response({'error': 'Message content is required'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Save the user's message
+        Message.objects.create(conversation=conversation, is_user=True, content=user_input)
+        
+        # Initialize custom memory
+        memory = CustomChatMemoryHistory()
+        
+        # Load conversation history into memory
+        for msg in conversation.messages.all():
+            if msg.is_user:
+                memory.add_user_message(msg.content)
+            else:
+                memory.add_ai_message(msg.content)
+        
+        # Set up the AI chat model
+        chat = ChatGoogleGenerativeAI(
+            model="gemini-1.5-pro",
+            api_key="AIzaSyDv7RThoILjeXAryluncDRZ1QeFxAixR7Q"
+        )
+        
+        # Define the chat prompt template
+        prompt = ChatPromptTemplate.from_messages([
+            ("system", "You are a helpful AI assistant."),
+            MessagesPlaceholder(variable_name="chat_history"),
+            ("human", "{input}")
+        ])
+        
+        # Create the chain using LangChain Expression Language (LCEL)
+        chain = prompt | chat | StrOutputParser()
+        
+        try:
+            # Get AI response with chat history and input
+            response = chain.invoke({
+                "chat_history": [msg.dict() for msg in memory.messages],  # Convert messages to dict
+                "input": user_input
+            })
+            
+            # Save the AI's response
+            ai_message = Message.objects.create(
+                conversation=conversation,
+                is_user=False,
+                content=response
+            )
+            
+            # Add the AI's response to memory
+            memory.add_ai_message(response)
+            
+            # Return the AI's message and updated conversation
+            return Response({
+                'message': MessageSerializer(ai_message).data,
+                'conversation': self.get_serializer(conversation).data
+            })
+        
+        except Exception as e:
+            # Handle any exceptions that occur during the process
+
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+      

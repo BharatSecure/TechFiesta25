@@ -5,8 +5,6 @@ import L from "leaflet";
 import "leaflet.heat";
 import Legend from "./Legend";
 
-// https://tse1.mm.bing.net/th?id=OIP.mK4UTLLTl9D2i8HOVQBaMAHaHa&pid=Api&P=0&h=180
-
 // Custom marker icon for police stations
 const policeStationIcon = new L.Icon({
   iconUrl:

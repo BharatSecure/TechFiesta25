@@ -41,7 +41,7 @@ export const AuthProvider = ({ children }) => {
 
   // Log the login state when it changes
   useEffect(() => {
-    console.log("Login State after Signup:", isLoggedIn);
+    console.log("Login State:", isLoggedIn);
   }, [isLoggedIn]);
 
   return (

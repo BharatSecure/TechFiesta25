@@ -1,7 +1,8 @@
 // import React, { Suspense, lazy } from "react";
+import React, { useState, useEffect} from "react";
 import "./App.css";
 import Navbar1 from "./components/Navbar1";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Home from "./pages/Home";
 import IncidentReportForm from "./pages/IncidentReportForm";
 import UserDashboard from "./pages/UserDashboard"; //lazy loaded
@@ -19,7 +20,7 @@ import SignUp from "./pages/SignUp";
 import Login from "./pages/Login";
 // import Blogs from "./pages/Blog"; not in use anymore  //lazy loaded
 import ScrollToTop from "./lib/ScrollToTop";
-import { AuthProvider } from "./context/AuthContext";
+import { AuthProvider, useAuth } from "./context/AuthContext";
 import RecentIncidents from "./pages/RecentIncidents";
 // const RecentIncidents = lazy(() => import("./pages/RecentIncidents"));
 import FeedbackForm from "./pages/FeedbackForm";
@@ -37,6 +38,34 @@ if ("serviceWorker" in navigator) {
     });
 }
 
+const ProtectedRoute = ({ element, adminOnly = false }) => {
+  const { isLoggedIn } = useAuth();
+  // const { isLoggedIn, isAdmin } = useAuth();
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setLoading(false);
+    }, 1000); // 2-second delay
+
+    return () => clearTimeout(timer);
+  }, []);
+
+  if (loading) {
+    return <div className="loader"></div>; // Show loading indicator
+  }
+
+  if (!isLoggedIn) {
+    return <Navigate to="/login" replace />;
+  }
+
+  if (adminOnly && true) {
+    //!isAdmin
+    return <Navigate to="/" replace />;
+  }
+  return element;
+};
+
 const App = () => {
   return (
     <AuthProvider>
@@ -47,8 +76,17 @@ const App = () => {
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/report-incident" element={<IncidentReportForm />} />
-            <Route path="/my-reports" element={<UserDashboard />} />
-            <Route path="/admin" element={<AdminDashboard />} />
+            <Route
+              path="/my-reports"
+              element={<ProtectedRoute element={<UserDashboard />} />}
+            />
+            <Route
+              path="/admin"
+              element={
+                <ProtectedRoute element={<AdminDashboard />} adminOnly />
+              }
+            />
+
             <Route path="/about" element={<AboutUs />} />
             <Route path="/heatmap" element={<HeatMap2 />} />
             <Route path="/voice-report" element={<VoiceToText />} />
@@ -58,6 +96,8 @@ const App = () => {
             <Route path="/view-details/:id" element={<ViewDetails />} />
             <Route path="/feedback" element={<FeedbackForm />} />
             <Route path="chatbot" element={<Chatbot />} />
+            {/* Redirect all unknown routes to Home */}
+            <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </BrowserRouter>
       </div>

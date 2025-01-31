@@ -31,6 +31,7 @@ class User(AbstractBaseUser):
     date_joined = models.DateTimeField(default=timezone.now)
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
+    is_superuser = models.BooleanField(default=False)
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['first_name', 'last_name', 'phone_number', 'aadhar_number']
@@ -47,6 +48,15 @@ class User(AbstractBaseUser):
     @property
     def is_authenticated(self):
         return True
+
+    # Add these methods for Django admin compatibility
+    def has_perm(self, perm, obj=None):
+        # Superusers have all permissions
+        return self.is_superuser
+
+    def has_module_perms(self, app_label):
+        # Superusers have access to all modules
+        return self.is_superuser
 
 class Incidents(models.Model):
     INCIDENT_TYPES = [

@@ -31,5 +31,7 @@ urlpatterns = [
         views.ConversationViewSet.as_view({
             'post': 'send_message'
         }), name='conversation-send-message'),
+
+    path("trial/", views.trial, name='trial')
 ]
 

@@ -13,25 +13,6 @@ urlpatterns = [
     path('get_location/', views.get_location, name='get-location'),
     path('api/latest-incidents/', views.LatestIncidentsView.as_view(), name='latest-incidents'),
     path('all_incidents/', views.all_incidents, name='all-incidents'),
-    path('conversations/', views.ConversationViewSet.as_view({
-        'get': 'list',
-        'post': 'create'
-    }), name='conversation-list'),
-
-    # Retrieve, update, and delete specific conversation
-    path('conversations/<int:pk>/', views.ConversationViewSet.as_view({
-        'get': 'retrieve',
-        'put': 'update',
-        'patch': 'partial_update',
-        'delete': 'destroy'
-    }), name='conversation-detail'),
-
-    # Send message to specific conversation
-    path('conversations/<int:pk>/send_message/', 
-        views.ConversationViewSet.as_view({
-            'post': 'send_message'
-        }), name='conversation-send-message'),
-
-    path("trial/", views.trial, name='trial')
+    path('chat/', views.ChatbotView.as_view(), name='chatbot'),
 ]
 

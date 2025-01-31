@@ -1,143 +1,65 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
+import axios from "axios";
 
-// Fetch conversations from the API
-const fetchConversations = async (token) => {
-  try {
-    const response = await fetch("http://localhost:8000/api/conversations/", {
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
-    });
+export default function Chat() {
+  const [messages, setMessages] = useState([]);
+  const [input, setInput] = useState("");
+  const [sessionId] = useState("test_session");
 
-    if (!response.ok) {
-      throw new Error("Failed to fetch conversations");
+  const sendMessage = async () => {
+    if (!input.trim()) return;
+
+    const userMessage = { role: "user", content: input };
+    setMessages((prev) => [...prev, userMessage]);
+
+    try {
+      const response = await axios.post("http://localhost:8000/api/chat/", {
+        user_input: input,
+        session_id: sessionId,
+      });
+
+      const botMessage = { role: "bot", content: response.data.bot_response };
+      setMessages((prev) => [...prev, botMessage]);
+    } catch (error) {
+      console.error("Error sending message:", error);
     }
 
-    const data = await response.json();
-    return data;
-  } catch (error) {
-    console.error("Error fetching conversations:", error);
-  }
-};
-
-// Create a new conversation if one doesn't exist
-const createConversation = async (token) => {
-  try {
-    const response = await fetch("http://localhost:8000/api/conversations/", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({}),
-    });
-
-    if (!response.ok) {
-      throw new Error("Failed to create conversation");
-    }
-
-    return await response.json();
-  } catch (error) {
-    console.error("Error creating conversation:", error);
-  }
-};
-
-// Send message to the API
-const sendMessage = async (conversationId, message, token) => {
-  try {
-    const response = await fetch(
-      `http://localhost:8000/api/conversations/${conversationId}/send_message/`,
-      {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ message }),
-      }
-    );
-
-    if (!response.ok) {
-      throw new Error("Failed to send message");
-    }
-
-    return await response.json();
-  } catch (error) {
-    console.error("Error sending message:", error);
-  }
-};
-
-const Chatbot = () => {
-  const [conversations, setConversations] = useState([]);
-  const [currentMessage, setCurrentMessage] = useState("");
-  const [token, setToken] = useState(localStorage.getItem("accessToken"));
-  const [conversationId, setConversationId] = useState(null);
-
-  useEffect(() => {
-    const loadConversations = async () => {
-      if (!token) return;
-
-      // Fetch existing conversations
-      const data = await fetchConversations(token);
-      if (data && data.length > 0) {
-        setConversations(data);
-        setConversationId(data[0].id); // Set the first conversation by default
-      } else {
-        // If no conversations exist, create a new one
-        const newConversation = await createConversation(token);
-        setConversations([newConversation]);
-        setConversationId(newConversation.id); // Set the new conversation
-      }
-    };
-    loadConversations();
-  }, [token]);
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!currentMessage.trim()) return; // Prevent sending empty messages
-
-    // Send the message to the backend
-    const newMessage = await sendMessage(conversationId, currentMessage, token);
-    setConversations((prevConversations) => [
-      ...prevConversations,
-      newMessage, // Append the new message
-    ]);
-    setCurrentMessage(""); // Clear the input field
+    setInput("");
   };
 
   return (
-    <div>
-      <h2>Chatbot</h2>
-      <div>
-        {conversations.length === 0 ? (
-          <p>No conversations available</p>
-        ) : (
-          <div>
-            <h3>Conversation ID: {conversationId}</h3>
-            <div>
-              {conversations.map((msg, index) => (
-                <div key={index}>
-                  <p>{msg.message}</p>
-                </div>
-              ))}
-            </div>
+    <div className="max-w-lg mx-auto mt-10 p-4 border rounded shadow-lg bg-white">
+      <h1 className="text-xl font-bold mb-4 text-center">Chat with AI</h1>
+      <div className="h-64 overflow-y-auto border p-2 mb-4 bg-gray-100 rounded">
+        {messages.map((msg, index) => (
+          <div
+            key={index}
+            className={`p-2 my-1 rounded ${
+              msg.role === "user"
+                ? "bg-blue-500 text-white self-end"
+                : "bg-gray-300 text-black"
+            }`}
+          >
+            {msg.content}
           </div>
-        )}
+        ))}
       </div>
-
-      {/* Input for sending messages */}
-      <form onSubmit={handleSubmit}>
-        <textarea
-          value={currentMessage}
-          onChange={(e) => setCurrentMessage(e.target.value)}
-          placeholder="Type your message"
+      <div className="flex">
+        <input
+          type="text"
+          className="flex-grow p-2 border rounded"
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
+          placeholder="Type a message..."
+          onKeyDown={(e) => e.key === "Enter" && sendMessage()}
         />
-        <button type="submit">Send</button>
-      </form>
+        <button
+          onClick={sendMessage}
+          className="ml-2 px-4 py-2 bg-blue-600 text-white rounded"
+        >
+          Send
+        </button>
+      </div>
     </div>
   );
-};
-
-export default Chatbot;
+}

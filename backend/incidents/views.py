@@ -2,7 +2,7 @@ from rest_framework.decorators import api_view, permission_classes, authenticati
 from rest_framework.response import Response
 from geopy.distance import great_circle
 from incidents.models import DisasterReliefStations, FireStations, PoliceStations
-from .serializers import CommentSerializer, IncidentSerializer, UserSerializer, MessageSerializer, ConversationSerializer
+from .serializers import CommentSerializer, IncidentSerializer, UserSerializer, ConversationSerializer
 from incidents.models import DisasterReliefStations, FireStations, PoliceStations, Admin
 from .serializers import IncidentSerializer, UserSerializer
 from django.core.mail import send_mail
@@ -14,24 +14,21 @@ from utils.call_Operator import EmergencyHelplineBot
 from twilio.rest import Client
 import json
 from geopy.distance import great_circle
-from .models import Incidents, FireStations, PoliceStations, User, Comment, Message, Conversation
+from .models import Incidents, FireStations, PoliceStations, User, Comment, Conversation
 from .serializers import IncidentSerializer
 from rest_framework.views import APIView
 from django.contrib.auth.hashers import make_password
 from django.db import IntegrityError
 from rest_framework_simplejwt.tokens import RefreshToken, AccessToken
-from rest_framework.exceptions import AuthenticationFailed
 import logging
 logger = logging.getLogger(__name__)
 from rest_framework import generics, status
 from langchain_core.chat_history import BaseChatMessageHistory
 from langchain.prompts import ChatPromptTemplate, MessagesPlaceholder
-from django.core.cache import cache
 from langchain_google_genai import ChatGoogleGenerativeAI
 from django.core.exceptions import ImproperlyConfigured
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
-from rest_framework.permissions import IsAuthenticated
 from langchain.schema.output_parser import StrOutputParser
 from langchain.schema import HumanMessage, AIMessage
 
@@ -455,138 +452,95 @@ class CustomChatMemoryHistory(BaseChatMessageHistory):
         """Convert memory to a dictionary."""
         return {"messages": [msg.as_dict() for msg in self.messages]}
 
-from django.contrib.auth import get_user_model
-import jwt
-from django.conf import settings
-from django.views.decorators.csrf import csrf_exempt
-from django.utils.decorators import method_decorator
+from langgraph.store.memory import InMemoryStore
+from langchain_core.runnables import RunnablePassthrough
+import uuid
+from rest_framework.parsers import JSONParser
+from tenacity import retry, stop_after_attempt, wait_exponential
 
-@method_decorator(csrf_exempt, name='dispatch')
-class ConversationViewSet(viewsets.ModelViewSet):
-    serializer_class = ConversationSerializer
-    def get_authenticated_user(self, request):
-        auth_header = request.META.get('HTTP_AUTHORIZATION', '')
-        if not auth_header.startswith('Bearer '):
-            return None
-        
-        token = auth_header.split(' ')[1]
-        
-        try:
-            payload = jwt.decode(
-                token,
-                settings.SECRET_KEY,
-                algorithms=['HS256']
+class ChatbotView(APIView):
+    parser_classes=[JSONParser]
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.in_memory_store = InMemoryStore()
+        # Initialize the LLM
+        self.llm = ChatGoogleGenerativeAI(
+                model="gemini-1.5-flash",
+                api_key="AIzaSyDv7RThoILjeXAryluncDRZ1QeFxAixR7Q",
+                max_retries=3,
+                retry_wait_strategy=wait_exponential(multiplier=1, min=4, max=10)
             )
-            print("Decoded Payload: ", payload)
-            User = get_user_model()
-            user_id = payload.get('user_id')
-            return User.objects.get(id=user_id)
-            
-        except (jwt.ExpiredSignatureError, jwt.InvalidTokenError, User.DoesNotExist) as e:
-            print("Authentication error:", str(e)) 
-            return None
+        # Define the prompt template with a placeholder for chat history
+        self.prompt = ChatPromptTemplate.from_messages([
+            ("system", "You are a helpful assistant."),
+            MessagesPlaceholder(variable_name="chat_history"),
+            ("human", "{user_input}"),
+        ])
+        # Define the chain using LCEL
+        self.chain = (
+            RunnablePassthrough.assign(
+                chat_history=lambda x: x.get("chat_history", [])
+            )
+            | self.prompt
+            | self.llm
+        )
 
-    def dispatch(self, request, *args, **kwargs):
-        user = self.get_authenticated_user(request)
-        if not user:
+    def post(self, request, *args, **kwargs):
+        user_input = request.data.get('user_input', '')
+        session_id = str(request.data.get('session_id', str(uuid.uuid4())))
+
+        # Debug: Print session_id and its type
+        print(f"session_id: {session_id}, type: {type(session_id)}")
+
+        # Validate session_id
+        if not isinstance(session_id, str):
             return Response(
-                {'error': 'Authentication failed'}, 
-                status=status.HTTP_401_UNAUTHORIZED
+                {"error": "session_id must be a string"},
+                status=status.HTTP_400_BAD_REQUEST,
             )
-        request.user = user
-        return super().dispatch(request, *args, **kwargs)
 
-    def get_queryset(self):
-        return Conversation.objects.filter(user=self.request.user)
-
-    def perform_create(self, serializer):
-        serializer.save(user=self.request.user)
-
-    @action(detail=True, methods=['post'])
-    def send_message(self, request, pk=None):
-        try:
-            conversation = self.get_object()
-            print(f"Conversation user_id: {conversation.user.id}")  # Debug line
-            print(f"Request user_id: {request.user.id}")
-            
-            if conversation.user.id != request.user.id:
-                return Response(
-                {'error': f'You do not have permission to access this conversation. Owner: {conversation.user.id}, Requester: {request.user.id}'}, 
-                status=status.HTTP_403_FORBIDDEN
-            )
-            
-            # Extract user input from the request
-            user_input = request.data.get('message', '')
-            if not user_input:
-                return Response({'error': 'Message content is required'}, status=status.HTTP_400_BAD_REQUEST)
-        
-            # Save the user's message
-            Message.objects.create(conversation=conversation, is_user=True, content=user_input)
-            
-            # Initialize custom memory
-            memory = CustomChatMemoryHistory()
-            
-            # Load conversation history into memory
-            for msg in conversation.messages.all():
-                if msg.is_user:
-                    memory.add_user_message(msg.content)
-                else:
-                    memory.add_ai_message(msg.content)
-            
-            # Set up the AI chat model
-            chat = ChatGoogleGenerativeAI(
-                model="gemini-1.5-pro",
-                api_key="AIzaSyDv7RThoILjeXAryluncDRZ1QeFxAixR7Q"
-            )
-            
-            # Define the chat prompt template
-            prompt = ChatPromptTemplate.from_messages([
-                ("system", "You are a helpful AI assistant."),
-                MessagesPlaceholder(variable_name="chat_history"),
-                ("human", "{input}")
-            ])
-            
-            # Create the chain using LangChain Expression Language (LCEL)
-            chain = prompt | chat | StrOutputParser()
-            
-            try:
-                # Get AI response with chat history and input
-                response = chain.invoke({
-                    "chat_history": [msg.as_dict() for msg in memory.messages],  # Convert messages to dict
-                    "input": user_input
-                })
-                
-                # Save the AI's response
-                ai_message = Message.objects.create(
-                    conversation=conversation,
-                    is_user=False,
-                    content=response
-                )
-                
-                # Add the AI's response to memory
-                memory.add_ai_message(response)
-                
-                # Return the AI's message and updated conversation
-                return Response({
-                    'message': MessageSerializer(ai_message).data,
-                    'conversation': self.get_serializegithubr(conversation).data
-                })
-            
-            except Exception as e:
-                # Handle any exceptions that occur during the process
-
-                return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        except Conversation.DoesNotExist:
+        if not user_input:
             return Response(
-                {'error': 'Conversation not found'}, 
-                status=status.HTTP_404_NOT_FOUND
+                {"error": "user_input is required"},
+                status=status.HTTP_400_BAD_REQUEST,
             )
-      
-@api_view(['GET'])
-def trial(request):
-    for record in Conversation.objects.all():
-        if not User.objects.filter(id=record.user.id):
-            print(f"Invalid reference: {record.id} references non-existent User {record.user.id}")
-        else:
-            print("all good")
-    return Response({}, status=200)
+
+        # Retrieve or initialize chat history for the session
+        try:
+            chat_history = list(self.in_memory_store[session_id])
+        except KeyError:
+            chat_history = []
+        except Exception as e:
+            print(f"Error retrieving chat history: {e}")
+            chat_history = []
+
+        # Prepare the input for the chain
+        chain_input = {
+            "user_input": user_input,
+            "chat_history": chat_history,
+        }
+
+        # Invoke the chain
+        response = self.chain.invoke(chain_input)
+
+        # Append the new messages to the chat history
+        chat_history.extend([
+            HumanMessage(content=user_input),
+            AIMessage(content=response.content),
+        ])
+
+        # Save the updated chat history back to the in-memory store
+        try:
+            self.in_memory_store[session_id] = tuple(chat_history)
+        except Exception as e:
+            print(f"Error saving chat history: {e}")
+
+        # Store the conversation in the database (optional)
+        Conversation.objects.create(user_message=user_input, bot_response=response.content)
+
+        # Return the response
+        return Response({
+            "user_input": user_input,
+            "bot_response": response.content,
+            "chat_history": [msg.content for msg in chat_history],
+        }, status=status.HTTP_200_OK)

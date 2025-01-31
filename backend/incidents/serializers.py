@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Incidents, User, Comment, Message, Conversation
+from .models import Incidents, User, Comment, Conversation
 
 class IncidentSerializer(serializers.ModelSerializer):
     class Meta:
@@ -49,14 +49,7 @@ class IncidentSerializer(serializers.ModelSerializer):
         fields = '__all__'
         read_only_fields = ['reported_at', 'status', 'remarks', 'true_or_false']
 
-class MessageSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Message
-        fields = ['id', 'is_user', 'content', 'timestamp']
-
 class ConversationSerializer(serializers.ModelSerializer):
-    messages = MessageSerializer(many=True, read_only=True)
-    
     class Meta:
         model = Conversation
-        fields = ['id', 'created_at', 'messages']
+        fields = ['user_message', 'bot_response', 'timestamp']

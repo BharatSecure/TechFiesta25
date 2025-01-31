@@ -197,17 +197,9 @@ class Admin(models.Model):
         return f"Admin: (ID: {self.id})"
     
 class Conversation(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    created_at = models.DateTimeField(auto_now_add=True)
-    
-    def __str__(self):
-        return f"Conversation with {self.user.username} at {self.created_at}"
-
-class Message(models.Model):
-    conversation = models.ForeignKey(Conversation, on_delete=models.CASCADE, related_name='messages')
-    is_user = models.BooleanField(default=True)
-    content = models.TextField()
+    user_message = models.TextField(default="None")
+    bot_response = models.TextField(default="None")
     timestamp = models.DateTimeField(auto_now_add=True)
-    
-    class Meta:
-        ordering = ['timestamp']
+
+    def __str__(self):
+        return f"User: {self.user_message} | Bot: {self.bot_response}"

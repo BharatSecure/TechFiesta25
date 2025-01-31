@@ -1,30 +1,35 @@
-// import React, { Suspense, lazy } from "react";
+import React, { Suspense, lazy } from "react";
+import { useState, useEffect } from "react";
 import "./App.css";
 import Navbar1 from "./components/Navbar1";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Home from "./pages/Home";
-import IncidentReportForm from "./pages/IncidentReportForm";
-import UserDashboard from "./pages/UserDashboard"; //lazy loaded
-// const UserDashboard = lazy(() => import("./pages/UserDashboard"));
-import AdminDashboard from "./pages/AdminDashboard"; //lazy loaded
-// const AdminDashboard = lazy(() => import("./pages/AdminDashboard"));
-import AboutUs from "./pages/AboutUs";
-// const AboutUs = lazy(() => import("./pages/AboutUs"));
+// import IncidentReportForm from "./pages/IncidentReportForm";
+// import UserDashboard from "./pages/UserDashboard"; //lazy loaded
+// import AdminDashboard from "./pages/AdminDashboard"; //lazy loaded
+// import AboutUs from "./pages/AboutUs"; //lazy loaded
 
 // import HeatMap from "./components/Heatmap"; //static heatmap
-import HeatMap2 from "./components/Heatmap2"; //testing heatmap
-// import HeatMap3 from "./components/Heatmap3"; //heatmap to be conncted to backend
+// import HeatMap2 from "./components/Heatmap2"; //testing heatmap-now final
+// import HeatMap3 from "./components/Heatmap3"; //not in use
 import VoiceToText from "./components/VoiceToText";
 import SignUp from "./pages/SignUp";
 import Login from "./pages/Login";
-// import Blogs from "./pages/Blog"; not in use anymore  //lazy loaded
+// import Blogs from "./pages/Blog"; not in use anymore
 import ScrollToTop from "./lib/ScrollToTop";
-import { AuthProvider } from "./context/AuthContext";
-import RecentIncidents from "./pages/RecentIncidents";
-// const RecentIncidents = lazy(() => import("./pages/RecentIncidents"));
-import FeedbackForm from "./pages/FeedbackForm";
+import { AuthProvider, useAuth } from "./context/AuthContext";
+// import RecentIncidents from "./pages/RecentIncidents";
+// import FeedbackForm from "./pages/FeedbackForm";
 import ViewDetails from "./pages/ViewDetails";
 import Chatbot from "./pages/chatbotTrial";
+
+const UserDashboard = lazy(() => import("./pages/UserDashboard"));
+const AdminDashboard = lazy(() => import("./pages/AdminDashboard"));
+const AboutUs = lazy(() => import("./pages/AboutUs"));
+const RecentIncidents = lazy(() => import("./pages/RecentIncidents"));
+const HeatMap2 = lazy(() => import("./components/Heatmap2"));
+const IncidentReportForm = lazy(() => import("./pages/IncidentReportForm"));
+const FeedbackForm = lazy(() => import("./pages/FeedbackForm"));
 
 if ("serviceWorker" in navigator) {
   navigator.serviceWorker
@@ -37,28 +42,69 @@ if ("serviceWorker" in navigator) {
     });
 }
 
+const ProtectedRoute = ({ element, adminOnly = false }) => {
+  const { isLoggedIn } = useAuth();
+  // const { isLoggedIn, isAdmin } = useAuth();
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setLoading(false);
+    }, 100); //
+
+    return () => clearTimeout(timer);
+  }, []);
+
+  if (loading) {
+    return <div className="loader"></div>; // Show loading indicator
+  }
+
+  if (!isLoggedIn) {
+    return <Navigate to="/login" replace />;
+  }
+
+  // if (adminOnly && true) {
+  //   //!isAdmin
+  //   return <Navigate to="/" replace />;
+  // }
+  return element;
+};
+
 const App = () => {
   return (
     <AuthProvider>
       <div>
         <BrowserRouter>
-          <ScrollToTop />
-          <Navbar1 />
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/report-incident" element={<IncidentReportForm />} />
-            <Route path="/my-reports" element={<UserDashboard />} />
-            <Route path="/admin" element={<AdminDashboard />} />
-            <Route path="/about" element={<AboutUs />} />
-            <Route path="/heatmap" element={<HeatMap2 />} />
-            <Route path="/voice-report" element={<VoiceToText />} />
-            <Route path="/signUp" element={<SignUp />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/blogs" element={<RecentIncidents />} />
-            <Route path="/view-details/:id" element={<ViewDetails />} />
-            <Route path="/feedback" element={<FeedbackForm />} />
-            <Route path="chatbot" element={<Chatbot />} />
-          </Routes>
+          <Suspense fallback={<div>Loading...</div>}>
+            <ScrollToTop />
+            <Navbar1 />
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route path="/report-incident" element={<IncidentReportForm />} />
+              <Route
+                path="/my-reports"
+                element={<ProtectedRoute element={<UserDashboard />} />}
+              />
+              {/* <Route
+              path="/admin"
+              element={
+                <ProtectedRoute element={<AdminDashboard />} adminOnly />
+                }
+                /> */}
+              <Route path="/admin" element={<AdminDashboard />} />
+              <Route path="/about" element={<AboutUs />} />
+              <Route path="/heatmap" element={<HeatMap2 />} />
+              <Route path="/voice-report" element={<VoiceToText />} />
+              <Route path="/signUp" element={<SignUp />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/blogs" element={<RecentIncidents />} />
+              <Route path="/view-details/:id" element={<ViewDetails />} />
+              <Route path="/feedback" element={<FeedbackForm />} />
+              <Route path="chatbot" element={<Chatbot />} />
+              {/* Redirect all unknown routes to Home */}
+              <Route path="*" element={<Navigate to="/" replace />} />
+            </Routes>
+          </Suspense>
         </BrowserRouter>
       </div>
     </AuthProvider>

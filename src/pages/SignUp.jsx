@@ -12,7 +12,7 @@ import {
 import Footer from "../components/Footer";
 import { useNavigate, Link } from "react-router-dom";
 import ScaleInComponent from "@/lib/ScaleInComponent";
-import { useAuth } from "../context/AuthContext";
+// import { useAuth } from "../context/AuthContext";
 
 const SignUp = () => {
   const navigate = useNavigate();
@@ -125,7 +125,6 @@ const SignUp = () => {
               sx={{ mb: 4, borderColor: "#003366", width: "50px", mx: "auto" }}
             />
             {message && <p className="success-message">{message}</p>}
-            {error && <p className="error-message">{error}</p>}
 
             <form onSubmit={handleSubmit}>
               <Grid container spacing={3}>
@@ -197,6 +196,12 @@ const SignUp = () => {
                   >
                     Sign Up
                   </Button>
+                  {error && (
+                    <p className="error-message" style={{ color: "red" }}>
+                      {error}
+                    </p>
+                  )}
+
                   <Typography
                     variant="body2"
                     sx={{

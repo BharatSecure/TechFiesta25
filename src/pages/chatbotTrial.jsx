@@ -8,15 +8,23 @@ export default function Chat() {
 
   const sendMessage = async () => {
     if (!input.trim()) return;
-
+    const token = localStorage.getItem("accessToken");
     const userMessage = { role: "user", content: input };
     setMessages((prev) => [...prev, userMessage]);
 
     try {
-      const response = await axios.post("http://localhost:8000/api/chat/", {
-        user_input: input,
-        session_id: sessionId,
-      });
+      const response = await axios.post(
+        "http://localhost:8000/api/chat/",
+        {
+          user_input: input,
+          session_id: sessionId,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
       const botMessage = { role: "bot", content: response.data.bot_response };
       setMessages((prev) => [...prev, botMessage]);

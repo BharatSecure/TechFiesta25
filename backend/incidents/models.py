@@ -197,6 +197,7 @@ class Admin(models.Model):
         return f"Admin: (ID: {self.id})"
     
 class Conversation(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
     user_message = models.TextField(default="None")
     bot_response = models.TextField(default="None")
     timestamp = models.DateTimeField(auto_now_add=True)

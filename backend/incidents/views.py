@@ -462,7 +462,6 @@ class ChatbotView(APIView):
     parser_classes=[JSONParser]
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.in_memory_store = InMemoryStore()
         # Initialize the LLM
         self.llm = ChatGoogleGenerativeAI(
                 model="gemini-1.5-flash",
@@ -486,59 +485,37 @@ class ChatbotView(APIView):
         )
 
     def post(self, request, *args, **kwargs):
-        user_input = request.data.get('user_input', '')
-        session_id = str(request.data.get('session_id', str(uuid.uuid4())))
+        user_input = request.data.get("user_input", "").strip()
+        auth_header = request.headers.get("Authorization", "")
 
-        # Debug: Print session_id and its type
-        print(f"session_id: {session_id}, type: {type(session_id)}")
+        if not auth_header.startswith("Bearer "):
+            return Response({"error": "Authorization header missing or malformed"}, status=status.HTTP_401_UNAUTHORIZED)
 
-        # Validate session_id
-        if not isinstance(session_id, str):
-            return Response(
-                {"error": "session_id must be a string"},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
+        token_str = auth_header.split(" ")[1]
+        try:
+            token = AccessToken(token_str)
+            user = User.objects.get(id=token["user_id"])
+        except User.DoesNotExist:
+            return Response({"error": "Invalid user"}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
         if not user_input:
-            return Response(
-                {"error": "user_input is required"},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
+            return Response({"error": "user_input is required"}, status=status.HTTP_400_BAD_REQUEST)
 
-        # Retrieve or initialize chat history for the session
-        try:
-            chat_history = list(self.in_memory_store[session_id])
-        except KeyError:
-            chat_history = []
-        except Exception as e:
-            print(f"Error retrieving chat history: {e}")
-            chat_history = []
+        conversation, _ = Conversation.objects.get_or_create(user=user)
+        chat_history = conversation.messages or []
 
-        # Prepare the input for the chain
-        chain_input = {
-            "user_input": user_input,
-            "chat_history": chat_history,
-        }
-
-        # Invoke the chain
+        chain_input = {"user_input": user_input, "chat_history": chat_history}
         response = self.chain.invoke(chain_input)
 
-        # Append the new messages to the chat history
         chat_history.extend([
             HumanMessage(content=user_input),
             AIMessage(content=response.content),
         ])
+        conversation.messages = chat_history
+        conversation.save()
 
-        # Save the updated chat history back to the in-memory store
-        try:
-            self.in_memory_store[session_id] = tuple(chat_history)
-        except Exception as e:
-            print(f"Error saving chat history: {e}")
-
-        # Store the conversation in the database (optional)
-        Conversation.objects.create(user_message=user_input, bot_response=response.content)
-
-        # Return the response
         return Response({
             "user_input": user_input,
             "bot_response": response.content,

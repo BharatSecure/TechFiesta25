@@ -1,3 +1,4 @@
+import Footer from "@/components/Footer";
 import React, { useState } from "react";
 
 const Chatbot = () => {
@@ -38,37 +39,58 @@ const Chatbot = () => {
   };
 
   return (
-    <div className="max-w-lg mx-auto p-4 border rounded-lg shadow-md">
-      <h2 className="text-xl font-bold mb-3">Chatbot</h2>
-      <div className="h-60 overflow-y-auto border p-3 rounded bg-gray-100">
-        {chatHistory.map((message, index) => (
-          <p
-            key={index}
-            className={
-              message.startsWith("User:") ? "text-blue-600" : "text-green-600"
-            }
-          >
-            {message}
-          </p>
-        ))}
+    <>
+   <div className="text-center my-8 flex justify-center items-center flex-col px-4">
+  <h1 className="text-3xl sm:text-4xl font-bold text-gray-800">🗣️ Safety & Support Chatbot</h1>
+  <p className="text-base sm:text-lg text-gray-600 mt-2 max-w-4xl text-center">
+    This chatbot provides guidance, emotional support, and safety advice  
+    for women and children. Ask questions, seek counseling, or get help  
+    with incident reporting and legal rights.
+  </p>
+</div>
+
+<div className="w-full max-w-lg sm:max-w-xl md:max-w-2xl mx-auto p-6 border rounded-xl shadow-xl bg-gradient-to-r from-sky-200 to-sky-300 dark:bg-gray-900 transition-all duration-300 mt-6 mb-7">
+  <h2 className="text-xl sm:text-2xl font-bold text-gray-800 dark:text-gray-100 mb-4 text-center">
+    💬 Chatbot
+  </h2>
+
+  {/* Chat Display */}
+  <div className="h-72 sm:h-80 overflow-y-auto border rounded-lg p-4 bg-gray-50 dark:bg-gray-800 transition-all duration-300 shadow-inner">
+    {chatHistory.map((message, index) => (
+      <div
+        key={index}
+        className={`p-3 my-2 rounded-lg max-w-[80%] sm:max-w-[75%] text-sm sm:text-base ${
+          message.startsWith("User:")
+            ? "bg-blue-500 text-white ml-auto"
+            : "bg-green-500 text-white mr-auto"
+        }`}
+      >
+        {message.replace(/^(User:|Bot:)/, "")}
       </div>
-      <div className="mt-3 flex">
-        <input
-          type="text"
-          value={userInput}
-          onChange={(e) => setUserInput(e.target.value)}
-          placeholder="Type your message..."
-          className="border p-2 flex-1 rounded-l"
-        />
-        <button
-          onClick={sendMessage}
-          className="bg-blue-500 text-white px-4 py-2 rounded-r disabled:bg-gray-400"
-          disabled={loading}
-        >
-          {loading ? "Sending..." : "Send"}
-        </button>
-      </div>
-    </div>
+    ))}
+  </div>
+
+  {/* Input Field */}
+  <div className="mt-4 flex flex-col sm:flex-row gap-3">
+    <input
+      type="text"
+      value={userInput}
+      onChange={(e) => setUserInput(e.target.value)}
+      placeholder="Type your message..."
+      className="border p-3 flex-1 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white w-full sm:w-auto"
+    />
+    <button
+      onClick={sendMessage}
+      className="bg-blue-500 text-white px-5 py-3 rounded-lg font-medium hover:bg-blue-600 active:scale-95 transition-all duration-200 disabled:bg-gray-400 w-full sm:w-auto"
+      disabled={loading}
+    >
+      {loading ? "Sending..." : "Send"}
+    </button>
+  </div>
+</div>
+
+<Footer/>
+  </>
   );
 };
 

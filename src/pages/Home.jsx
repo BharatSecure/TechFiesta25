@@ -3,6 +3,7 @@ import { useLocation } from "react-router-dom";
 import Sos from "../components/Sos";
 import OurFeatures from "../components/OurFeatures";
 import FadeInComponent from "../lib/FadeInComponent";
+import FloatingChatbot from "@/components/FloatingChatbot";
 
 // Lazy load non-critical components
 const Analytics = lazy(() => import("../components/Analytics"));
@@ -57,6 +58,8 @@ const Home = () => {
       <Suspense fallback={<div className="loader"></div>}>
         <Footer />
       </Suspense>
+
+      <FloatingChatbot/>
     </div>
   );
 };

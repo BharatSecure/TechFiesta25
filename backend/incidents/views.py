@@ -456,9 +456,48 @@ from langgraph.store.memory import InMemoryStore
 from langchain_core.runnables import RunnablePassthrough
 import uuid
 from rest_framework.parsers import JSONParser
-from tenacity import retry, stop_after_attempt, wait_exponential
+from tenacity import wait_exponential
 
-class ChatbotView(APIView):
+class ChatbotView_Therapist(APIView):
+    parser_classes=[JSONParser]
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.llm = ChatGoogleGenerativeAI(
+                model="gemini-1.5-flash",
+                api_key="AIzaSyDv7RThoILjeXAryluncDRZ1QeFxAixR7Q",
+                max_retries=3,
+                retry_wait_strategy=wait_exponential(multiplier=1, min=4, max=10)
+            )
+        self.prompt = ChatPromptTemplate.from_messages([
+            ("system", "You are a therapist. The user has gone through a traumatic incident and your job is to guide them and comfort them any way possible"),
+            MessagesPlaceholder(variable_name="chat_history"),
+            ("human", "{user_input}"),
+        ])
+        self.chain = self.prompt | self.llm | StrOutputParser()
+
+    def post(self, request, *args, **kwargs):
+        user_input = request.data.get("user_input", "").strip()
+        chat_history = request.data.get("chat_history")
+
+        if not isinstance(chat_history, list):  # Ensure chat_history is a list
+            chat_history = []
+
+        if not user_input:
+            return Response({"error": "user_input is required"}, status=status.HTTP_400_BAD_REQUEST)
+
+        chain_input = {"user_input": user_input, "chat_history": chat_history}
+        response = self.chain.invoke(chain_input)
+
+        chat_history.append(f"User: {user_input}")
+        chat_history.append(f"Bot: {response}")
+
+        return Response({
+            "user_input": user_input,
+            "bot_response": response,
+            "chat_history": chat_history,
+        }, status=status.HTTP_200_OK)
+
+class ChatbotView_Legal(APIView):
     parser_classes=[JSONParser]
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -471,53 +510,33 @@ class ChatbotView(APIView):
             )
         # Define the prompt template with a placeholder for chat history
         self.prompt = ChatPromptTemplate.from_messages([
-            ("system", "You are a helpful assistant."),
+            ("system", "You are a Legal guidance officer in India. The user has gone through a traumatic incident and wants some help in the legal section. Help them by solving their queries"),
             MessagesPlaceholder(variable_name="chat_history"),
             ("human", "{user_input}"),
         ])
         # Define the chain using LCEL
-        self.chain = (
-            RunnablePassthrough.assign(
-                chat_history=lambda x: x.get("chat_history", [])
-            )
-            | self.prompt
-            | self.llm
-        )
+        self.chain = self.prompt | self.llm | StrOutputParser()
 
     def post(self, request, *args, **kwargs):
         user_input = request.data.get("user_input", "").strip()
-        auth_header = request.headers.get("Authorization", "")
+        chat_history = request.data.get("chat_history")
 
-        if not auth_header.startswith("Bearer "):
-            return Response({"error": "Authorization header missing or malformed"}, status=status.HTTP_401_UNAUTHORIZED)
-
-        token_str = auth_header.split(" ")[1]
-        try:
-            token = AccessToken(token_str)
-            user = User.objects.get(id=token["user_id"])
-        except User.DoesNotExist:
-            return Response({"error": "Invalid user"}, status=status.HTTP_404_NOT_FOUND)
-        except Exception as e:
-            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        if not isinstance(chat_history, list):  # Ensure chat_history is a list
+            chat_history = []
 
         if not user_input:
             return Response({"error": "user_input is required"}, status=status.HTTP_400_BAD_REQUEST)
 
-        conversation, _ = Conversation.objects.get_or_create(user=user)
-        chat_history = conversation.messages or []
-
         chain_input = {"user_input": user_input, "chat_history": chat_history}
         response = self.chain.invoke(chain_input)
 
-        chat_history.extend([
-            HumanMessage(content=user_input),
-            AIMessage(content=response.content),
-        ])
-        conversation.messages = chat_history
-        conversation.save()
+        # Append new messages as strings (not `HumanMessage` or `AIMessage` objects)
+        chat_history.append(f"User: {user_input}")
+        chat_history.append(f"Bot: {response}")
+
 
         return Response({
             "user_input": user_input,
-            "bot_response": response.content,
-            "chat_history": [msg.content for msg in chat_history],
+            "bot_response": response,
+            "chat_history": chat_history,
         }, status=status.HTTP_200_OK)

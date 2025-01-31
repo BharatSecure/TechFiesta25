@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/popover";
 import Footer from "@/components/Footer";
 import { useAuth } from "@/context/AuthContext";
+import FloatingChatbot from "@/components/FloatingChatbot";
 
 const UserDashboard = () => {
   const navigate = useNavigate();
@@ -253,6 +254,7 @@ const UserDashboard = () => {
       </div>
 
       <Footer />
+      <FloatingChatbot/>
     </>
   );
 };

@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import Footer from "@/components/Footer";
+import FloatingChatbot from "@/components/FloatingChatbot";
 
 const FeedbackForm = () => {
   const [name, setName] = useState("");
@@ -50,6 +51,7 @@ const FeedbackForm = () => {
   };
 
   return (
+    <>
     <div className="bg-blue-200 min-h-screen">
       <div className="max-w-3xl mx-auto p-8 py-8 lg:bg-white rounded-lg shadow-xl sm:bg-blue-200 ">
         <h1 className="text-4xl font-bold text-center text-sky-700 lg:mb-6 mb-2">
@@ -143,6 +145,8 @@ const FeedbackForm = () => {
       </div>
       <Footer />
     </div>
+<FloatingChatbot/>
+    </>
   );
 };
 

@@ -469,7 +469,7 @@ class ChatbotView_Therapist(APIView):
                 retry_wait_strategy=wait_exponential(multiplier=1, min=4, max=10)
             )
         self.prompt = ChatPromptTemplate.from_messages([
-            ("system", "You are a therapist. The user has gone through a traumatic incident and your job is to guide them and comfort them any way possible"),
+            ("system", "You are a therapist. The user has gone through a traumatic incident and your job is to guide them and comfort them any way possible. Make your answers brief but considerate"),
             MessagesPlaceholder(variable_name="chat_history"),
             ("human", "{user_input}"),
         ])

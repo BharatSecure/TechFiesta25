@@ -1,10 +1,16 @@
-import React, { createContext, useContext, useState, useEffect } from "react";
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  useRef,
+} from "react";
 
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  let logoutTimer;
+  const logoutTimer = useRef(null);
 
   // Check if user is logged in on component mount
   useEffect(() => {
@@ -20,9 +26,11 @@ export const AuthProvider = ({ children }) => {
   const login = (email, password, rememberMe) => {
     // Basic login validation for the frontend
     const storage = rememberMe ? localStorage : sessionStorage;
-    // storage.setItem("token", "mock_token_123");
+    // const mockToken = "mock_token_123"; // Replace with actual token after successful authentication
+
+    // storage.setItem("accessToken", mockToken);
     setIsLoggedIn(true);
-    resetTimer(); // Start auto-logout timer on mount
+    resetTimer(); // Start auto-logout timer on login
   };
 
   const logout = () => {
@@ -32,13 +40,13 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem("refreshToken");
     sessionStorage.removeItem("refreshToken");
     setIsLoggedIn(false);
-    clearTimeout(logoutTimer);
+    clearTimeout(logoutTimer.current);
   };
 
   // Function to reset the auto-logout timer
   const resetTimer = () => {
-    clearTimeout(logoutTimer);
-    logoutTimer = setTimeout(() => {
+    clearTimeout(logoutTimer.current);
+    logoutTimer.current = setTimeout(() => {
       logout();
       console.log("User logged out due to inactivity");
     }, 3600000); // 1 hour
@@ -51,7 +59,7 @@ export const AuthProvider = ({ children }) => {
 
     return () => {
       events.forEach((event) => window.removeEventListener(event, resetTimer));
-      clearTimeout(logoutTimer);
+      clearTimeout(logoutTimer.current);
     };
   }, []);
 

@@ -1,73 +1,75 @@
-import { useState } from "react";
-import axios from "axios";
+import React, { useState } from "react";
 
-export default function Chat() {
-  const [messages, setMessages] = useState([]);
-  const [input, setInput] = useState("");
-  const [sessionId] = useState("test_session");
+const Chatbot = () => {
+  const [userInput, setUserInput] = useState("");
+  const [chatHistory, setChatHistory] = useState([]);
+  const [loading, setLoading] = useState(false);
 
   const sendMessage = async () => {
-    if (!input.trim()) return;
-    const token = localStorage.getItem("accessToken");
-    const userMessage = { role: "user", content: input };
-    setMessages((prev) => [...prev, userMessage]);
+    if (!userInput.trim()) return; // Prevent empty messages
+
+    setLoading(true);
 
     try {
-      const response = await axios.post(
-        "http://localhost:8000/api/chat/",
-        {
-          user_input: input,
-          session_id: sessionId,
+      const response = await fetch("http://127.0.0.1:8000/api/chat-t/", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
         },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+        body: JSON.stringify({
+          user_input: userInput,
+          chat_history: chatHistory,
+        }),
+      });
 
-      const botMessage = { role: "bot", content: response.data.bot_response };
-      setMessages((prev) => [...prev, botMessage]);
+      const data = await response.json();
+
+      if (response.ok) {
+        setChatHistory(data.chat_history); // Update chat history from API response
+      } else {
+        console.error("Error:", data.error);
+      }
     } catch (error) {
-      console.error("Error sending message:", error);
+      console.error("Request failed:", error);
     }
 
-    setInput("");
+    setUserInput(""); // Clear input field
+    setLoading(false);
   };
 
   return (
-    <div className="max-w-lg mx-auto mt-10 p-4 border rounded shadow-lg bg-white">
-      <h1 className="text-xl font-bold mb-4 text-center">Chat with AI</h1>
-      <div className="h-64 overflow-y-auto border p-2 mb-4 bg-gray-100 rounded">
-        {messages.map((msg, index) => (
-          <div
+    <div className="max-w-lg mx-auto p-4 border rounded-lg shadow-md">
+      <h2 className="text-xl font-bold mb-3">Chatbot</h2>
+      <div className="h-60 overflow-y-auto border p-3 rounded bg-gray-100">
+        {chatHistory.map((message, index) => (
+          <p
             key={index}
-            className={`p-2 my-1 rounded ${
-              msg.role === "user"
-                ? "bg-blue-500 text-white self-end"
-                : "bg-gray-300 text-black"
-            }`}
+            className={
+              message.startsWith("User:") ? "text-blue-600" : "text-green-600"
+            }
           >
-            {msg.content}
-          </div>
+            {message}
+          </p>
         ))}
       </div>
-      <div className="flex">
+      <div className="mt-3 flex">
         <input
           type="text"
-          className="flex-grow p-2 border rounded"
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          placeholder="Type a message..."
-          onKeyDown={(e) => e.key === "Enter" && sendMessage()}
+          value={userInput}
+          onChange={(e) => setUserInput(e.target.value)}
+          placeholder="Type your message..."
+          className="border p-2 flex-1 rounded-l"
         />
         <button
           onClick={sendMessage}
-          className="ml-2 px-4 py-2 bg-blue-600 text-white rounded"
+          className="bg-blue-500 text-white px-4 py-2 rounded-r disabled:bg-gray-400"
+          disabled={loading}
         >
-          Send
+          {loading ? "Sending..." : "Send"}
         </button>
       </div>
     </div>
   );
-}
+};
+
+export default Chatbot;

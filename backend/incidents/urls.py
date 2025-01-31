@@ -13,6 +13,7 @@ urlpatterns = [
     path('get_location/', views.get_location, name='get-location'),
     path('api/latest-incidents/', views.LatestIncidentsView.as_view(), name='latest-incidents'),
     path('all_incidents/', views.all_incidents, name='all-incidents'),
-    path('chat/', views.ChatbotView.as_view(), name='chatbot'),
+    path('chat-t/', views.ChatbotView_Therapist.as_view(), name='chatbot'),
+    path('chat-l/', views.ChatbotView_Legal.as_view(), name='chatbot'),
 ]
 

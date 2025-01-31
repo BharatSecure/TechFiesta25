@@ -3,6 +3,7 @@ import Footer from "../components/Footer";
 import axios from "axios";
 import { Modal, Box, Button, Typography } from "@mui/material";
 import { BarLoader } from "react-spinners";
+import FloatingChatbot from "@/components/FloatingChatbot";
 
 const SimpleModal = ({ open, handleClose, message }) => {
   return (
@@ -534,6 +535,7 @@ const IncidentReportForm = () => {
         </div>
       </div>
       <Footer />
+      <FloatingChatbot/>
     </>
   );
 };

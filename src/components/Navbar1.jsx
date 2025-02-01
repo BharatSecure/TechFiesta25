@@ -349,19 +349,24 @@ const Navbar = () => {
               </Button>
             </Link>
           ) : (
-            <Link to={"/my-reports"}>
-              <Button
-                sx={{
-                  color: "#003366",
-                  fontWeight: "bold",
-                  border: "2px solid #003366",
-                  borderRadius: 3,
-                }}
-                onClick={() => handleNavigation("/my-reports")}
-              >
-                Dash Board
-              </Button>
-            </Link>
+            <Button
+              sx={{
+                color: "#003366",
+                fontWeight: "bold",
+                border: "2px solid #003366",
+                borderRadius: 3,
+              }}
+              onClick={() => {
+                const user_type = localStorage.getItem("userType");
+                if (user_type == "user") {
+                  handleNavigation("/my-reports");
+                } else {
+                  handleNavigation("/admin");
+                }
+              }}
+            >
+              Dash Board
+            </Button>
           )}
 
           {/* Mobile Drawer Icon */}

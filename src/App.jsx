@@ -21,7 +21,7 @@ import { AuthProvider, useAuth } from "./context/AuthContext";
 // import RecentIncidents from "./pages/RecentIncidents";
 // import FeedbackForm from "./pages/FeedbackForm";
 import ViewDetails from "./pages/ViewDetails";
-import Chatbot from "./pages/chatbotTrial";
+// import Chatbot from "./pages/chatbotTrial";
 import UserRoute from "./protected-routes/UserRoute";
 import AdminRoute from "./protected-routes/AdminRoute";
 
@@ -32,6 +32,7 @@ const RecentIncidents = lazy(() => import("./pages/RecentIncidents"));
 const HeatMap2 = lazy(() => import("./components/Heatmap2"));
 const IncidentReportForm = lazy(() => import("./pages/IncidentReportForm"));
 const FeedbackForm = lazy(() => import("./pages/FeedbackForm"));
+const Chatbot = lazy(() => import("./pages/chatbotTrial"));
 
 if ("serviceWorker" in navigator) {
   navigator.serviceWorker

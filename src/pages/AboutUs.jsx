@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, Suspense, lazy } from "react";
 import { useLocation } from "react-router-dom";
 import Hero from "../components/about-components/Hero.jsx"; // Keep this loaded for instant render
+import FloatingChatbot from "@/components/FloatingChatbot.jsx";
 
 // Lazy load non-critical components
 const Features = lazy(() =>
@@ -87,6 +88,7 @@ const AboutUs = () => {
       >
         <Footer />
       </Suspense>
+      <FloatingChatbot/>
     </div>
   );
 };

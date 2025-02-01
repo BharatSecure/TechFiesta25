@@ -1,6 +1,7 @@
-from rest_framework.decorators import api_view, permission_classes, authentication_classes
+from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from geopy.distance import great_circle
+from utils.comments import contains_cuss_words, is_spam
 from incidents.models import DisasterReliefStations, FireStations, PoliceStations
 from .serializers import CommentSerializer, IncidentSerializer, UserSerializer, ConversationSerializer
 from incidents.models import DisasterReliefStations, FireStations, PoliceStations, Admin
@@ -381,7 +382,7 @@ class CommentListCreateView(APIView):
         return Response(serializer.data)
 
     def post(self, request, incident_id):
-    # Extract the Authorization header
+        # Extract the Authorization header
         auth_header = request.headers.get('Authorization', None)
         if not auth_header or not auth_header.startswith('Bearer '):
             return Response({"error": "Authorization header missing or malformed"}, status=status.HTTP_400_BAD_REQUEST)
@@ -390,33 +391,43 @@ class CommentListCreateView(APIView):
         token_str = auth_header.split(' ')[1]
         try:
             token = AccessToken(token_str)
-            print("Done successfully")
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
         try:
             # Verify the incident exists
-            incident = Incidents.objects.get(id=incident_id)
-            
+            incident = get_object_or_404(Incidents, id=incident_id)
+
+            # Get the comment text
+            comment_text = request.data.get('comment', "").strip()
+
+            # Check for spam or cuss words
+            if contains_cuss_words(comment_text) or is_spam(comment_text):
+                return Response(
+                    {"error": "Your comment contains inappropriate content or spam."},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+
             # Prepare the data
             serializer_data = {
-                'comment': request.data.get('comment'),
-                'commented_on': incident.id 
+                'comment': comment_text,
+                'commented_on': incident.id
             }
-            
+
             serializer = CommentSerializer(data=serializer_data)
             if serializer.is_valid():
-                # Pass the user when saving
                 serializer.save(commented_by_id=token['user_id'])
                 return Response(serializer.data, status=status.HTTP_201_CREATED)
-            
+
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-            
+
         except Incidents.DoesNotExist:
             return Response(
                 {"error": "Incident not found"}, 
                 status=status.HTTP_404_NOT_FOUND
             )
+        
+        
     
 
 @api_view(['GET'])
@@ -469,7 +480,7 @@ class ChatbotView_Therapist(APIView):
                 retry_wait_strategy=wait_exponential(multiplier=1, min=4, max=10)
             )
         self.prompt = ChatPromptTemplate.from_messages([
-            ("system", "You are a therapist. The user has gone through a traumatic incident and your job is to guide them and comfort them any way possible"),
+            ("system", "You are both a therapist and a legal guidance officer based in India. As a therapist, your role is to provide emotional support, comfort, and guidance to the user, especially after a traumatic incident. As a legal guidance officer, you will provide advice on legal matters specific to Indian law, ensuring your answers are clear and based on the legal framework in India. Balance both roles carefully, making your responses brief but considerate and accurate."),
             MessagesPlaceholder(variable_name="chat_history"),
             ("human", "{user_input}"),
         ])

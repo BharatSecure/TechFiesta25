@@ -8,6 +8,7 @@ import {
   CardContent,
   CardMedia,
 } from "@mui/material";
+import FloatingChatbot from "@/components/FloatingChatbot";
 
 function IncidentList() {
   const [incidents, setIncidents] = useState([]);
@@ -27,6 +28,7 @@ function IncidentList() {
   }, []);
 
   return (
+    <>
     <Container sx={{ py: 4 }}>
       <Typography
         variant="h4"
@@ -80,6 +82,8 @@ function IncidentList() {
         ))}
       </Grid>
     </Container>
+    <FloatingChatbot/>
+    </>
   );
 }
 

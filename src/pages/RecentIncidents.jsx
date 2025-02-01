@@ -3,6 +3,7 @@ import axios from "axios";
 import { FaCommentDots } from "react-icons/fa";
 import Footer from "@/components/Footer";
 import { useAuth } from "@/context/AuthContext";
+import FloatingChatbot from "@/components/FloatingChatbot";
 const AddCommentForm = lazy(() => import("../components/AddCommentForm"));
 
 const RecentIncidents = () => {
@@ -129,6 +130,7 @@ const RecentIncidents = () => {
         </div>
       </div>
       <Footer />
+      <FloatingChatbot/>
     </>
   );
 };

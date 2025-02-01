@@ -330,6 +330,14 @@ const Navbar = () => {
               >
                 Voice Report
               </MenuItem>
+              <MenuItem
+                onClick={() => {
+                  handleNavigation("/chatbot");
+                  handleMenuClose();
+                }}
+              >
+                Saathi AI
+              </MenuItem>
             </Menu>
           </Box>
 

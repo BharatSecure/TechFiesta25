@@ -45,7 +45,7 @@ const teamMembers = [
     role: "Backend Developer",
     imageUrl: dummy_address,
     github: "https://github.com/code-runner1306",
-    linkedin: "https://www.linkedin.com/in/mayank-mehta-4b8b01208/",
+    linkedin: "https://www.linkedin.com/in/mayank-mehta-4b94312a0/",
   },
   {
     id: 5,

@@ -79,7 +79,7 @@ const Chatbot = () => {
         {/* Chat Display */}
         <div
           ref={chatContainerRef}
-          className="h-72 sm:h-96 overflow-y-auto border rounded-lg p-4 bg-white dark:bg-gray-700 transition-all duration-300 shadow-inner"
+          className="h-72 sm:h-96 overflow-y-auto border rounded-lg p-4 bg-slate-100 dark:bg-gray-700 transition-all duration-300 shadow-inner"
         >
           {chatHistory.map((message, index) => (
             <div

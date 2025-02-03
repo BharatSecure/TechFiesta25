@@ -23,14 +23,19 @@ const AdminDashboard = () => {
   const [filternew, setFilterNew] = useState([]);
   const [incidents, setIncidents] = useState([]);
 
+  const token = localStorage.getItem("accessToken");
   const getincidents = async () => {
     try {
-      const response = await fetch("http://127.0.0.1:8000/api/all_incidents/", {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
+      const response = await fetch(
+        "http://127.0.0.1:8000/api/all_station_incidents/",
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
 
       if (response.ok) {
         const incidentData = await response.json();

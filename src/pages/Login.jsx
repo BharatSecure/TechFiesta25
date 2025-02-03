@@ -63,10 +63,15 @@ const Login = () => {
         localStorage.setItem("accessToken", access);
         localStorage.setItem("refreshToken", refresh);
         console.log("Login successful:", response.data.message);
-        console.log(response.data.user_type);
-        console.log(`Access Token: ${access}`);
-        login();
-        navigate("/my-reports"); // Redirect to the dashboard
+        console.log(response);
+        localStorage.setItem("userType", response.data.user_type);
+        if (response.data.user_type == "user") {
+          login();
+          navigate("/my-reports"); // Redirect to the dashboard
+        } else {
+          login();
+          navigate("/admin")
+        }
       } catch (error) {
         // Handle errors
         console.error(error.response?.data || error.message);

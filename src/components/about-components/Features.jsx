@@ -45,6 +45,15 @@ const features = [
   },
   {
     id: 2,
+    title: "Saathi AI",
+    description:
+      "Saathi AI is your trusted AI-powered companion, dedicated to providing real-time support for medical emergencies, safety concerns, emotional well-being, and legal guidance. Designed to be a safe space, Saathi AI encourages women and children to speak up without fear, ensuring they receive the right help at the right time. Whether you need immediate assistance, mental health support, or legal advice, Saathi AI listens, understands, and guides you with empathy and accuracy. In times of uncertainty, you're never alone—Saathi AI is here to support, empower, and protect you.",
+    imageUrl:
+      "https://botnation.ai/site/wp-content/uploads/2022/02/meilleur-chatbot.jpg",
+    linkTo: "/chatbot",
+  },
+  {
+    id: 3,
     title: "Heatmaps",
     description:
       "Our Heatmap feature is a powerful visualization tool that dynamically represents data, providing users with an intuitive and interactive way to understand incident trends and safety levels across various locations. By aggregating real-time data from reported incidents, the Heatmap displays these events geographically, using color gradients to indicate the density and frequency of occurrences. Areas with higher concentrations of incidents are highlighted in warmer colors (such as red or orange), while areas with fewer reports appear in cooler tones (like green or blue).This visual representation allows users to quickly identify hotspots of activity, assess the relative safety of different regions, and make informed decisions based on current data. For authorities and emergency responders, the Heatmap serves as a critical tool for situational awareness, enabling them to prioritize resources and respond more efficiently to areas with higher incident rates.The feature is interactive, allowing users to zoom in and out, filter data by specific time frames or types of incidents, and click on specific locations to view detailed reports. This functionality not only enhances user engagement but also empowers individuals and organizations to proactively address safety concerns, improving community well-being and responsiveness",
@@ -52,7 +61,7 @@ const features = [
     linkTo: "/heatmap",
   },
   {
-    id: 3,
+    id: 4,
     title: "Voice Report",
     description:
       "The Voice Report feature allows users to report incidents hands-free using voice commands, making it ideal for situations where typing isn't possible, such as during emergencies or when the user is physically unable to type. By utilizing advanced voice recognition, the system captures and transcribes spoken details like the nature of the incident and location. This information is then forwarded to the appropriate authorities. The feature enhances accessibility, speeds up reporting, and can be used with smart devices for added convenience.",

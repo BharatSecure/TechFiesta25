@@ -18,7 +18,7 @@ const teamMembers = [
     id: 1,
     name: "Jacell Jamble",
     role: "Team Lead",
-    imageUrl: "https://avatars.githubusercontent.com/u/160160322?v=4",
+    imageUrl: `https://avatars.githubusercontent.com/u/160160322?v=4`,
     github: "https://github.com/JACELL100",
     linkedin: "https://linkedin.com/in/jacell-jamble-8236ba286",
   },
@@ -45,15 +45,16 @@ const teamMembers = [
     role: "Backend Developer",
     imageUrl: dummy_address,
     github: "https://github.com/code-runner1306",
-    linkedin: "https://linkedin.com/in/mayankmethta",
+    linkedin: "https://www.linkedin.com/in/mayank-mehta-4b94312a0/",
   },
   {
     id: 5,
     name: "Mayank Bhuvad",
     role: "Backend Developer",
-    imageUrl: dummy_address,
+    imageUrl:
+      "https://media.licdn.com/dms/image/v2/D4D03AQE_yJscow4VgQ/profile-displayphoto-shrink_400_400/profile-displayphoto-shrink_400_400/0/1723180346508?e=1743638400&v=beta&t=jLvwhOlX9YK42kZ4mhe85gnmHue0VQVouJ3zeryWb-A",
     github: "https://github.com/ImpactG1",
-    linkedin: "https://linkedin.com/in/mayankbhuvad",
+    linkedin: "https://www.linkedin.com/in/mayank-bhuvad-29b808296/",
   },
 ];
 
@@ -93,6 +94,10 @@ const MeetTheTeam = () => {
                 }}
                 image={member.imageUrl}
                 alt={member.name}
+                onError={(e) => {
+                  e.target.onerror = null; // Prevent infinite loop
+                  e.target.src = dummy_address; // Set the fallback image
+                }}
               />
               <CardContent>
                 <Typography variant="h6" sx={{ fontWeight: "bold" }}>

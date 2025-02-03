@@ -21,7 +21,9 @@ import { AuthProvider, useAuth } from "./context/AuthContext";
 // import RecentIncidents from "./pages/RecentIncidents";
 // import FeedbackForm from "./pages/FeedbackForm";
 import ViewDetails from "./pages/ViewDetails";
-import Chatbot from "./pages/chatbotTrial";
+// import Chatbot from "./pages/chatbotTrial";
+import UserRoute from "./protected-routes/UserRoute";
+import AdminRoute from "./protected-routes/AdminRoute";
 
 const UserDashboard = lazy(() => import("./pages/UserDashboard"));
 const AdminDashboard = lazy(() => import("./pages/AdminDashboard"));
@@ -30,6 +32,7 @@ const RecentIncidents = lazy(() => import("./pages/RecentIncidents"));
 const HeatMap2 = lazy(() => import("./components/Heatmap2"));
 const IncidentReportForm = lazy(() => import("./pages/IncidentReportForm"));
 const FeedbackForm = lazy(() => import("./pages/FeedbackForm"));
+const Chatbot = lazy(() => import("./pages/chatbotTrial"));
 
 if ("serviceWorker" in navigator) {
   navigator.serviceWorker
@@ -42,34 +45,6 @@ if ("serviceWorker" in navigator) {
     });
 }
 
-const ProtectedRoute = ({ element, adminOnly = false }) => {
-  const { isLoggedIn } = useAuth();
-  // const { isLoggedIn, isAdmin } = useAuth();
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setLoading(false);
-    }, 100); //
-
-    return () => clearTimeout(timer);
-  }, []);
-
-  if (loading) {
-    return <div className="loader"></div>; // Show loading indicator
-  }
-
-  if (!isLoggedIn) {
-    return <Navigate to="/login" replace />;
-  }
-
-  // if (adminOnly && true) {
-  //   //!isAdmin
-  //   return <Navigate to="/" replace />;
-  // }
-  return element;
-};
-
 const App = () => {
   return (
     <AuthProvider>
@@ -81,16 +56,15 @@ const App = () => {
             <Routes>
               <Route path="/" element={<Home />} />
               <Route path="/report-incident" element={<IncidentReportForm />} />
-              <Route
-                path="/my-reports"
-                element={<ProtectedRoute element={<UserDashboard />} />}
-              />
-              {/* <Route
-              path="/admin"
-              element={
-                <ProtectedRoute element={<AdminDashboard />} adminOnly />
-                }
-                /> */}
+              {/* Protected Admin Route */}
+              <Route element={<AdminRoute />}>
+                <Route path="/admin" element={<AdminDashboard />} />
+              </Route>
+              {/* Protected User Route */}
+              <Route element={<UserRoute />}>
+                <Route path="/my-reports" element={<UserDashboard />} />
+              </Route>
+              <Route path="/my-reports" element={<UserDashboard />} />
               <Route path="/admin" element={<AdminDashboard />} />
               <Route path="/about" element={<AboutUs />} />
               <Route path="/heatmap" element={<HeatMap2 />} />

@@ -11,7 +11,7 @@ const Footer = () => {
   };
 
   return (
-    <footer className="bg-sky-100 text-gray-800 py-8">
+    <footer className="bg-sky-100 text-gray-800 py-8  shadow-[0_-4px_10px_rgba(0,0,0,0.1)]">
       <div className="container mx-auto flex flex-col lg:flex-row justify-between items-center px-6">
         <div className="mb-6 lg:mb-0 flex">
           <IconButton onClick={() => navigate("/")}>

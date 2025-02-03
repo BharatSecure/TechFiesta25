@@ -50,6 +50,7 @@ const Login = () => {
 
   const handleLogin = async () => {
     if (validate()) {
+      console.log(formData.password, formData.email);
       try {
         const response = await axios.post("http://127.0.0.1:8000/api/login/", {
           email: formData.email,
@@ -70,7 +71,7 @@ const Login = () => {
           navigate("/my-reports"); // Redirect to the dashboard
         } else {
           login();
-          navigate("/admin")
+          navigate("/admin");
         }
       } catch (error) {
         // Handle errors

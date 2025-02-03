@@ -3,9 +3,9 @@ from rest_framework.response import Response
 from geopy.distance import great_circle
 from utils.comments import contains_cuss_words, is_spam
 from incidents.models import DisasterReliefStations, FireStations, PoliceStations
-from .serializers import CommentSerializer, IncidentSerializer, UserSerializer, ConversationSerializer
+from .serializers import CommentSerializer, IncidentSerializer, UserSerializer
 from incidents.models import DisasterReliefStations, FireStations, PoliceStations, Admin
-from .serializers import IncidentSerializer, UserSerializer
+from .serializers import IncidentSerializer
 from django.core.mail import send_mail
 import requests
 from rest_framework import status
@@ -15,7 +15,7 @@ from utils.call_Operator import EmergencyHelplineBot
 from twilio.rest import Client
 import json
 from geopy.distance import great_circle
-from .models import Incidents, FireStations, PoliceStations, User, Comment, Conversation
+from .models import Incidents, FireStations, PoliceStations, User, Comment
 from .serializers import IncidentSerializer
 from rest_framework.views import APIView
 from django.contrib.auth.hashers import make_password
@@ -235,6 +235,18 @@ def report_incident(request):
 
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+@api_view(['PATCH'])
+def update_incident(request, id):
+    status = request.data.get("status")
+    try:
+        incident = get_object_or_404(Incidents, id=id)
+        incident.status = status
+        incident.save()
+        serializer = IncidentSerializer(incident)
+        return Response(serializer.data, status=200)
+    except Exception as e:
+        return Response({"message": f"Error Occurred: {e}"}, status=400)      
+
 def send_sms(message, number):
     account_sid = 'ACa342288beff5795775a39a8ba798b51b'
     auth_token = 'f35864d84f9fd0b14453405c8168d76d'
@@ -438,6 +450,14 @@ def get_location(request):
         "link": get_google_maps_link(incident.location['latitude'], incident.location['longitude'])
     })
 
+@api_view(['GET'])
+def view_incident(request, id):
+   try:
+       incident = get_object_or_404(Incidents, id=id)
+       serializer = IncidentSerializer(incident, context={'request': request})
+       return Response(serializer.data, status=200)
+   except Exception as e:
+       return Response({'error': str(e)}, status=400)
 
 
 def get_google_maps_link(latitude, longitude):

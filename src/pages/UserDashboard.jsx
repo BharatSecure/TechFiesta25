@@ -69,7 +69,7 @@ const UserDashboard = () => {
       try {
         // console.log(`Access Token: ${token}`);
         const response = await fetch(
-          "http://127.0.0.1:8000/api/all_user_incidents/",
+          "http://127.0.0.1:8000/api/all_incidents/",
           {
             method: "GET",
             headers: {
@@ -108,7 +108,7 @@ const UserDashboard = () => {
     fetchIncidents();
   }, []); // Empty dependency array ensures this runs only once
 
-  console.log('user data dashboard',incidents)
+  console.log("user data dashboard", incidents);
   return (
     <>
       <div className="h-full bg-gradient-to-r from-green-100 to-green-200">
@@ -198,9 +198,8 @@ const UserDashboard = () => {
                           incident.severity
                         )}`}
                       >
-                     {incident.severity?.charAt(0).toUpperCase() + incident.severity?.slice(1)}
-
-                        
+                        {incident.severity?.charAt(0).toUpperCase() +
+                          incident.severity?.slice(1)}
                       </button>
                     </td>
                     <td className="p-4">
@@ -209,8 +208,8 @@ const UserDashboard = () => {
                           incident.status
                         )}`}
                       >
-                        {incident.status?.charAt(0).toUpperCase() + incident.status?.slice(1)}
-
+                        {incident.status?.charAt(0).toUpperCase() +
+                          incident.status?.slice(1)}
                       </button>
                     </td>
                     {/* <td className="p-4 text-gray-600">{incident.location}</td> */}
@@ -254,7 +253,7 @@ const UserDashboard = () => {
       </div>
 
       <Footer />
-      <FloatingChatbot/>
+      <FloatingChatbot />
     </>
   );
 };

@@ -63,6 +63,9 @@ class Incidents(models.Model):
         ('Fire', 'Fire'),
         ('Theft', 'Theft'),
         ('Accident', 'Accident'),
+        ("Injury", "Injury"),
+        ("Missing Persons", "Missing Persons"),
+        ("Natural Disaster", "Natural Disaster"),
         ('Other', 'Other'),
     ]
     
@@ -74,8 +77,8 @@ class Incidents(models.Model):
 
     STATUS_CHOICES = [
         ("submitted", "Submitted"),
-        ("processing", "Processing"),
-        ("completed", "Completed")
+        ("under investigation", "Under Investigation"),
+        ("resolved", "Resolved")
     ]
 
     incidentType = models.CharField(
@@ -196,11 +199,3 @@ class Admin(models.Model):
     def __str__(self):
         return f"Admin: (ID: {self.id})"
     
-class Conversation(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
-    user_message = models.TextField(default="None")
-    bot_response = models.TextField(default="None")
-    timestamp = models.DateTimeField(auto_now_add=True)
-
-    def __str__(self):
-        return f"User: {self.user_message} | Bot: {self.bot_response}"

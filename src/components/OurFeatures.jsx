@@ -13,30 +13,30 @@ const OurFeatures = () => {
         </h1>
 
         {/* Grid Section */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 mt-12 p-6 sm:p-4 md:p-6 rounded-lg">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mt-12 p-6 sm:p-4 md:p-6 rounded-lg">
           {/* Card 1 */}
-          <Link to={"/voice-report"}>
-            <div className="flex flex-col bg-gradient-to-r from-blue-50 to-blue-100 shadow-lg hover:shadow-2xl transition-all transform hover:scale-105 border border-slate-300 rounded-lg overflow-hidden cursor-pointer">
+          <Link to={"/chatbot"}>
+            <div className="flex flex-col bg-gradient-to-r from-purple-50 to-purple-100 shadow-lg hover:shadow-2xl transition-all transform hover:scale-105 border border-slate-300 rounded-lg overflow-hidden cursor-pointer">
               <div className="m-4 overflow-hidden rounded-md h-48 sm:h-60 flex justify-center items-center">
                 <img
                   className="w-full h-full object-cover"
-                  src="https://play-lh.googleusercontent.com/pzAgoUBDDetHSQpPp29Z0wkMQNyBvQIXXpNSnO5_yS8IJFs2dIVUaGEqOJDPYW1I9vE"
-                  alt="Voice to Text"
+                  src="https://img.freepik.com/free-vector/chat-bot-concept-illustration_114360-5522.jpg"
+                  alt="Saathi AI"
                 />
               </div>
               <div className="p-6 text-center">
                 <h4 className="mb-2 text-xl sm:text-2xl font-bold text-slate-800">
-                  Voice to Text
+                  Saathi AI
                 </h4>
                 <p className="text-base text-slate-600 mt-3 leading-relaxed">
-                  A voice-to-text feature that allows users to verbally report
-                  incidents, making it accessible for individuals with
-                  disabilities who may have difficulty typing.
+                  Your AI-powered assistant for medical, safety, and emotional
+                  support, along with legal guidance. Saathi AI ensures you get
+                  the right help when you need it the most.
                 </p>
               </div>
               <div className="flex justify-center p-6 pt-2 gap-4">
                 <button
-                  className="rounded-md bg-gradient-to-r from-sky-500 to-sky-700 py-2 px-6 text-white text-sm font-semibold shadow-md hover:shadow-lg hover:from-sky-700 hover:to-sky-900 transition-all"
+                  className="rounded-md bg-gradient-to-r from-purple-500 to-purple-700 py-2 px-6 text-white text-sm font-semibold shadow-md hover:shadow-lg hover:from-purple-700 hover:to-purple-900 transition-all"
                   type="button"
                 >
                   Try Now
@@ -99,6 +99,37 @@ const OurFeatures = () => {
               <div className="flex justify-center p-6 pt-2 gap-4">
                 <button
                   className="rounded-md bg-gradient-to-r from-green-500 to-green-700 py-2 px-6 text-white text-sm font-semibold shadow-md hover:shadow-lg hover:from-green-700 hover:to-green-900 transition-all"
+                  type="button"
+                >
+                  Try Now
+                </button>
+              </div>
+            </div>
+          </Link>
+
+          {/*Card 4 */}
+          <Link to={"/voice-report"}>
+            <div className="flex flex-col bg-gradient-to-r from-blue-50 to-blue-100 shadow-lg hover:shadow-2xl transition-all transform hover:scale-105 border border-slate-300 rounded-lg overflow-hidden cursor-pointer">
+              <div className="m-4 overflow-hidden rounded-md h-48 sm:h-60 flex justify-center items-center">
+                <img
+                  className="w-full h-full object-cover"
+                  src="https://play-lh.googleusercontent.com/pzAgoUBDDetHSQpPp29Z0wkMQNyBvQIXXpNSnO5_yS8IJFs2dIVUaGEqOJDPYW1I9vE"
+                  alt="Voice to Text"
+                />
+              </div>
+              <div className="p-6 text-center">
+                <h4 className="mb-2 text-xl sm:text-2xl font-bold text-slate-800">
+                  Voice to Text
+                </h4>
+                <p className="text-base text-slate-600 mt-3 leading-relaxed">
+                  A voice-to-text feature that allows users to verbally report
+                  incidents, making it accessible for individuals with
+                  disabilities who may have difficulty typing.
+                </p>
+              </div>
+              <div className="flex justify-center p-6 pt-2 gap-4">
+                <button
+                  className="rounded-md bg-gradient-to-r from-sky-500 to-sky-700 py-2 px-6 text-white text-sm font-semibold shadow-md hover:shadow-lg hover:from-sky-700 hover:to-sky-900 transition-all"
                   type="button"
                 >
                   Try Now

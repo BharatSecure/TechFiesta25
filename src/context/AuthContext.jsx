@@ -4,16 +4,20 @@ const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  let logoutTimer;
 
   // Check if user is logged in on component mount
   useEffect(() => {
     const storedToken =
       localStorage.getItem("accessToken") ||
       sessionStorage.getItem("accessToken");
+    const lastLoginTime = localStorage.getItem("lastLoginTime");
+
     if (storedToken) {
-      setIsLoggedIn(true);
-      resetTimer(); // Reset timer on login
+      if (lastLoginTime && Date.now() - lastLoginTime > 3600000) {
+        logout(); // Auto logout if more than 1 hour has passed
+      } else {
+        setIsLoggedIn(true);
+      }
     }
   }, []);
 
@@ -21,8 +25,8 @@ export const AuthProvider = ({ children }) => {
     // Basic login validation for the frontend
     const storage = rememberMe ? localStorage : sessionStorage;
     // storage.setItem("token", "mock_token_123");
+    localStorage.setItem("lastLoginTime", Date.now()); // Store login time
     setIsLoggedIn(true);
-    resetTimer(); // Start auto-logout timer on mount
   };
 
   const logout = () => {
@@ -31,33 +35,13 @@ export const AuthProvider = ({ children }) => {
     sessionStorage.removeItem("accessToken");
     localStorage.removeItem("refreshToken");
     sessionStorage.removeItem("refreshToken");
+    localStorage.removeItem("lastLoginTime");
     setIsLoggedIn(false);
-    clearTimeout(logoutTimer);
   };
-
-  // Function to reset the auto-logout timer
-  const resetTimer = () => {
-    clearTimeout(logoutTimer);
-    logoutTimer = setTimeout(() => {
-      logout();
-      console.log("User logged out due to inactivity");
-    }, 3600000); // 1 hour
-  };
-
-  // Detect user activity and reset the timer
-  useEffect(() => {
-    const events = ["mousemove", "keydown", "click"];
-    events.forEach((event) => window.addEventListener(event, resetTimer));
-
-    return () => {
-      events.forEach((event) => window.removeEventListener(event, resetTimer));
-      clearTimeout(logoutTimer);
-    };
-  }, []);
 
   // Log the login state when it changes
   useEffect(() => {
-    console.log("Login State:", isLoggedIn);
+    console.log("Login State after Signup:", isLoggedIn);
   }, [isLoggedIn]);
 
   return (

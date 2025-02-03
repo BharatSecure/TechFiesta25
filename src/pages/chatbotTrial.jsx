@@ -84,11 +84,13 @@ const Chatbot = () => {
         >
           {chatHistory.map((message, index) => (
            <div
+           key={index}
            className={`relative p-3 my-2 max-w-[80%] sm:max-w-[75%] text-sm sm:text-base break-words mt-4 shadow-md ${
              message.startsWith("User:")
                ? "bg-blue-500 text-white ml-auto rounded-3xl rounded-br-sm"
                : "bg-green-500 text-white mr-auto rounded-3xl rounded-bl-sm"
-           }`}
+           }`
+          }
          >
            {/* Chat Message */}
            {message.replace(/^(User:|Bot:)/, "")}
@@ -107,14 +109,14 @@ const Chatbot = () => {
           ))}
           {loading && (
            
-            <div class="relative p-3 my-2 max-w-[80%] sm:max-w-[75%] text-sm sm:text-base break-words shadow-md 
+            <div className="relative p-3 my-2 max-w-[80%] sm:max-w-[75%] text-sm sm:text-base break-words shadow-md 
                         bg-green-400 dark:bg-green-700 mr-auto rounded-3xl rounded-bl-sm animate-pulse">
               
               
-              <div class="h-4 w-28 bg-white dark:bg-gray-600 rounded"></div>
-              <div class="h-4 w-20 bg-white dark:bg-gray-600 rounded mt-2"></div>
+              <div className="h-4 w-28 bg-white dark:bg-gray-600 rounded"></div>
+              <div className="h-4 w-20 bg-white dark:bg-gray-600 rounded mt-2"></div>
             
-              <div class="absolute bottom-0 w-3 h-3 bg-green-400 dark:bg-gray-700 -left-1 transform rotate-45"></div>
+              <div className="absolute bottom-0 w-3 h-3 bg-green-400 dark:bg-gray-700 -left-1 transform rotate-45"></div>
             </div>
           )}
         </div>

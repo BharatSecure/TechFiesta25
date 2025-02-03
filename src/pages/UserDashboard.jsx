@@ -41,6 +41,7 @@ const UserDashboard = () => {
   };
 
   const handleLogout = () => {
+    localStorage.removeItem("userType")
     logout();
     navigate("/login");
   };

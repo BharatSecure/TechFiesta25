@@ -60,6 +60,7 @@ const Chatbot = () => {
 
   return (
     <>
+    <div className="bg-gradient-to-b from-gray-100 via-gray-200 to-gray-300 min-h-screen -mt-6">
       <div className="text-center my-8 flex justify-center items-center flex-col px-4">
         <h1 className="text-3xl sm:text-4xl font-bold text-gray-800 dark:text-gray-100">
           🗣️ Safety & Support Chatbot
@@ -82,20 +83,40 @@ const Chatbot = () => {
           className="h-72 sm:h-96 overflow-y-auto border rounded-lg p-4 bg-slate-100 dark:bg-gray-700 transition-all duration-300 shadow-inner"
         >
           {chatHistory.map((message, index) => (
-            <div
-              key={index}
-              className={`p-3 my-2 rounded-lg max-w-[80%] sm:max-w-[75%] text-sm sm:text-base ${
-                message.startsWith("User:")
-                  ? "bg-blue-500 text-white ml-auto"
-                  : "bg-green-500 text-white mr-auto"
-              }`}
-            >
-              {message.replace(/^(User:|Saathi AI:)/, "")}
-            </div>
+           <div
+           key={index}
+           className={`relative p-3 my-2 max-w-[80%] sm:max-w-[75%] text-sm sm:text-base break-words mt-4 shadow-md ${
+             message.startsWith("User:")
+               ? "bg-blue-500 text-white ml-auto rounded-3xl rounded-br-sm"
+               : "bg-green-500 text-white mr-auto rounded-3xl rounded-bl-sm"
+           }`
+          }
+         >
+           {/* Chat Message */}
+           {message.replace(/^(User:|Bot:)/, "")}
+         
+           {/* Tail for Message Bubble */}
+           <div
+             className={`absolute bottom-0 w-3 h-3 ${
+               message.startsWith("User:")
+                 ? "bg-blue-500 -right-1 transform rotate-45"
+                 : "bg-green-500 -left-1 transform rotate-45"
+             }`}
+           />
+         </div>
+         
+         
           ))}
           {loading && (
-            <div className="flex justify-center">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 dark:border-gray-100"></div>
+           
+            <div className="relative p-3 my-2 max-w-[80%] sm:max-w-[75%] text-sm sm:text-base break-words shadow-md 
+                        bg-green-400 dark:bg-green-700 mr-auto rounded-3xl rounded-bl-sm animate-pulse">
+              
+              
+              <div className="h-4 w-28 bg-white dark:bg-gray-600 rounded"></div>
+              <div className="h-4 w-20 bg-white dark:bg-gray-600 rounded mt-2"></div>
+            
+              <div className="absolute bottom-0 w-3 h-3 bg-green-400 dark:bg-gray-700 -left-1 transform rotate-45"></div>
             </div>
           )}
         </div>
@@ -127,7 +148,7 @@ const Chatbot = () => {
           </button>
         </div>
       </div>
-
+      </div>
       <Footer />
     </>
   );

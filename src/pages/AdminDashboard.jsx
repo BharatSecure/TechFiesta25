@@ -65,6 +65,7 @@ const AdminDashboard = () => {
 
   const handleLogout = () => {
     window.location.href = "/";
+    localStorage.removeItem("userType")
     logout();
   };
 

@@ -11,5 +11,6 @@ export default defineConfig({
   },
   server: {
     host: true, // Binds to all interfaces
+    allowedHosts: [".ngrok-free.app"], // Allow Ngrok subdomains
   },
 });

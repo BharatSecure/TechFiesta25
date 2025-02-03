@@ -1,5 +1,52 @@
 import React, { useState } from "react";
 import Footer from "../components/Footer";
+import axios from "axios";
+import { Modal, Box, Button, Typography } from "@mui/material";
+import { BarLoader } from "react-spinners";
+import FloatingChatbot from "@/components/FloatingChatbot";
+
+const SimpleModal = ({ open, handleClose, message }) => {
+  return (
+    <Modal
+      open={open}
+      onClose={handleClose}
+      aria-labelledby="simple-modal-title"
+      aria-describedby="simple-modal-description"
+    >
+      <Box
+        sx={{
+          position: "absolute",
+          top: "50%",
+          left: "50%",
+          transform: "translate(-50%, -50%)",
+          width: 400,
+          bgcolor: "background.paper",
+          borderRadius: 2,
+          boxShadow: 24,
+          p: 4,
+        }}
+      >
+        <Typography variant="h6" component="h2" id="simple-modal-title">
+          Notification
+        </Typography>
+        <Typography
+          variant="body2"
+          id="simple-modal-description"
+          sx={{ mt: 2 }}
+        >
+          {message}
+        </Typography>
+        <Button
+          onClick={handleClose}
+          variant="contained"
+          sx={{ mt: 3, display: "block", marginLeft: "auto" }}
+        >
+          Close
+        </Button>
+      </Box>
+    </Modal>
+  );
+};
 
 const IncidentReportForm = () => {
   const [formData, setFormData] = useState({
@@ -10,13 +57,14 @@ const IncidentReportForm = () => {
       longitude: "",
     },
     description: "",
-    severity: "Low", // Default severity
+    severity: "low", // Default severity
     reportAnonymously: false, // Initial checkbox value
   });
 
   const [file, setFile] = useState(null);
   const [loadingLocation, setLoadingLocation] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
+  const [offlineModalOpen, setOfflineModalOpen] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -62,45 +110,224 @@ const IncidentReportForm = () => {
     );
   };
 
-  const handleSubmit = (e) => {
+  // Utility to save form data in IndexedDB
+  // const saveOffline = (data) => {
+  //   if (!("indexedDB" in window)) {
+  //     console.warn("IndexedDB is not supported in your browser.");
+  //     return;
+  //   }
+
+  //   const request = indexedDB.open("IncidentReportsDB", 1);
+
+  //   request.onupgradeneeded = (event) => {
+  //     const db = event.target.result;
+  //     if (!db.objectStoreNames.contains("pendingReports")) {
+  //       db.createObjectStore("pendingReports", {
+  //         keyPath: "id",
+  //         autoIncrement: true,
+  //       });
+  //     }
+  //   };
+
+  //   request.onsuccess = (event) => {
+  //     const db = event.target.result;
+  //     const transaction = db.transaction("pendingReports", "readwrite");
+  //     const store = transaction.objectStore("pendingReports");
+  //     store.add(data);
+  //     console.log("Saved offline:", data);
+  //   };
+
+  //   request.onerror = (event) => {
+  //     console.error("IndexedDB error:", event.target.error);
+  //   };
+  // };
+
+  // // Listen for network changes
+  // window.addEventListener("online", async () => {
+  //   console.log("Back online, attempting to submit offline data...");
+  //   await submitPendingReports();
+  // });
+
+  // const submitPendingReports = () => {
+  //   return new Promise((resolve, reject) => {
+  //     if (!("indexedDB" in window)) {
+  //       console.warn("IndexedDB is not supported in your browser.");
+  //       resolve();
+  //       return;
+  //     }
+
+  //     const request = indexedDB.open("IncidentReportsDB", 1);
+
+  //     request.onsuccess = (event) => {
+  //       const db = event.target.result;
+  //       const transaction = db.transaction("pendingReports", "readwrite");
+  //       const store = transaction.objectStore("pendingReports");
+
+  //       const getAll = store.getAll();
+  //       getAll.onsuccess = async () => {
+  //         const pendingReports = getAll.result;
+
+  //         for (const report of pendingReports) {
+  //           try {
+  //             // Resubmit each report
+  //             const formDataToSend = new FormData();
+  //             for (const [key, value] of Object.entries(report)) {
+  //               formDataToSend.append(key, value);
+  //             }
+
+  //             const token = localStorage.getItem("accessToken");
+  //             if (!token) {
+  //               console.error("Authorization token is missing.");
+  //               reject();
+  //               return;
+  //             }
+
+  //             await axios.post(
+  //               "http://127.0.0.1:8000/api/report-incident/",
+  //               formDataToSend,
+  //               {
+  //                 headers: {
+  //                   Authorization: `Bearer ${token}`,
+  //                 },
+  //               }
+  //             );
+
+  //             console.log("Successfully submitted offline report:", report);
+  //             // Remove successfully submitted report from IndexedDB
+  //             store.delete(report.id);
+  //           } catch (error) {
+  //             console.error(
+  //               "Failed to resubmit offline report:",
+  //               error.response?.data || error.message
+  //             );
+  //           }
+  //         }
+  //         resolve();
+  //       };
+
+  //       getAll.onerror = (event) => {
+  //         console.error("Failed to retrieve offline data:", event.target.error);
+  //         reject();
+  //       };
+  //     };
+
+  //     request.onerror = (event) => {
+  //       console.error("IndexedDB error:", event.target.error);
+  //       reject();
+  //     };
+  //   });
+  // };
+
+  const [loadingSpinner, setLoadingSpinner] = useState(false);
+
+  const handleSubmit = async (e) => {
+    setLoadingSpinner(true);
     e.preventDefault();
 
+    // Use custom incident type if selected
     const incidentType =
       formData.incidentType === "Other"
         ? formData.customIncidentType
         : formData.incidentType;
 
+    // Map severity levels to numeric values
     const severityMap = {
-      Low: 0.2,
-      Medium: 0.6,
-      High: 0.8,
+      Low: "low",
+      Medium: "medium",
+      High: "high",
     };
 
+    // Serialize location properly before sending
+    let locationToSend;
+    if (Array.isArray(formData.location)) {
+      locationToSend = JSON.stringify(formData.location); // Serialize the location array
+    } else if (typeof formData.location === "object") {
+      locationToSend = JSON.stringify(formData.location); // Serialize location object
+    } else {
+      locationToSend = formData.location; // If already a string
+    }
+
+    // Prepare data with mapped severity and file handling
     const submittedData = {
-      ...formData,
-      incidentType,
-      severity: severityMap[formData.severity],
-      file: file ? file.name : "No file uploaded",
+      incidentType: incidentType,
+      location: locationToSend, // Serialized location
+      description: formData.description,
+      severity: severityMap[formData.severity] || "low", // Default to 'low' if undefined
+      // reportAnonymously: formData.reportAnonymously,
+      file: file ? file.name : null,
     };
+    // console.log("Submitted Data:", submittedData);
 
-    console.log("Reported Incident:", submittedData);
-    setModalOpen(true);
+    // If offline, save form data locally
+    // if (!navigator.onLine) {
+    //   saveOffline(submittedData);
+    //   setOfflineModalOpen(true); // Show the modal when offline
+    //   return;
+    // }
 
-    setFormData({
-      incidentType: "",
-      customIncidentType: "",
-      location: { latitude: "", longitude: "" }, 
-      description: "",
-      severity: "Low",
-      reportAnonymously: false,
-    });
-    setFile(null);
+    const formDataToSend = new FormData();
+    formDataToSend.append("incidentType", submittedData.incidentType);
+    formDataToSend.append("location", submittedData.location);
+    formDataToSend.append("description", submittedData.description);
+    formDataToSend.append("severity", submittedData.severity);
+    // formDataToSend.append("reportAnonymously", submittedData.reportAnonymously);
+
+    if (file) {
+      formDataToSend.append("file", file);
+    }
+
+    try {
+      const token = localStorage.getItem("accessToken"); // Retrieve token from storage or context
+
+      const response = await axios.post(
+        "http://127.0.0.1:8000/api/report-incident/",
+        formDataToSend,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`, // Include token in the Authorization header
+          },
+        }
+      );
+
+      console.log("Server response:", response.data);
+      console.log("Reported Incident:", submittedData);
+      setLoadingSpinner(false);
+      alert("Incident reported successfully!");
+
+      // Reset form after successful submission
+      setFormData({
+        incidentType: "",
+        customIncidentType: "",
+        location: "",
+        description: "",
+        severity: "Low",
+      });
+      setFile(null);
+      // Try submitting any pending offline data
+      // await submitPendingReports();
+    } catch (error) {
+      console.error(
+        "Error reporting incident:",
+        error.response?.data || error.message
+      );
+      setLoadingSpinner(false);
+      alert("Failed to report incident");
+    }
+  };
+
+  const handleModalClose = () => {
+    setOfflineModalOpen(false); // Close the modal
   };
 
   return (
     <>
       <div className="min-h-screen bg-gradient-to-b from-gray-100 via-gray-200 to-gray-300 flex flex-col items-center py-10 px-4">
         {/* Heading and Description */}
+        <SimpleModal
+          open={offlineModalOpen}
+          handleClose={handleModalClose}
+          message="You are offline. Your report has been saved and will be submitted automatically when you are back online."
+        />
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold text-sky-600 mb-2">
             Report an Incident
@@ -112,7 +339,7 @@ const IncidentReportForm = () => {
         </div>
 
         {/* Form */}
-        <div className="w-full max-w-lg bg-red-300 p-8 shadow-lg rounded-lg">
+        <div className="w-full max-w-lg bg-cyan-200 p-8 shadow-lg rounded-lg">
           <form onSubmit={handleSubmit}>
             {/* Incident Type */}
             <div className="mb-6">
@@ -238,7 +465,7 @@ const IncidentReportForm = () => {
             </div>
 
             {/* Report Anonymously */}
-            <div className="mb-6">
+            {/* <div className="mb-6">
               <label className="inline-flex items-center">
                 <input
                   type="checkbox"
@@ -249,7 +476,7 @@ const IncidentReportForm = () => {
                 />
                 <span className="ml-2 text-gray-600">Report Anonymously</span>
               </label>
-            </div>
+            </div> */}
 
             {/* File Upload */}
             <div className="mb-6">
@@ -275,6 +502,18 @@ const IncidentReportForm = () => {
             >
               Submit
             </button>
+            {loadingSpinner && (
+              <div
+                style={{
+                  margin: "auto",
+                  marginTop: "5px",
+                  display: "flex",
+                  justifyContent: "center",
+                }}
+              >
+                <BarLoader />
+              </div>
+            )}
           </form>
           {/* Modal */}
           {modalOpen && (
@@ -296,6 +535,7 @@ const IncidentReportForm = () => {
         </div>
       </div>
       <Footer />
+      <FloatingChatbot/>
     </>
   );
 };

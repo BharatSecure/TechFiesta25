@@ -1,0 +1,4 @@
+token1 = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzM3OTE3ODY3LCJpYXQiOjE3Mzc5MTY5NjcsImp0aSI6IjA1MzljYzY3MWUzZjQwODE5N2NiZjYzMzE4NWQ0MzcwIiwidXNlcl9pZCI6NX0.pbzU4sZxUjTbmDSRcCbm8tV6slnLqukrQu5YY-BjtTM'
+from rest_framework_simplejwt.tokens import AccessToken
+token = AccessToken(token1)
+print(token)

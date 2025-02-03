@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import axios from "axios";
 import {
   Container,
   Box,
@@ -47,15 +48,39 @@ const Login = () => {
     return Object.keys(tempErrors).length === 0;
   };
 
-  const handleLogin = () => {
+  const handleLogin = async () => {
     if (validate()) {
       try {
-        login(formData.email, formData.password, formData.rememberMe);
-        console.log("Login State after Signup:", isLoggedIn); // Log the login state
-        navigate("/my-reports"); // Redirect to the dashboard after successful login
+        const response = await axios.post("http://127.0.0.1:8000/api/login/", {
+          email: formData.email,
+          password: formData.password,
+        });
+
+        // Handle success
+        const {
+          tokens: { access, refresh },
+        } = response.data;
+        localStorage.setItem("accessToken", access);
+        localStorage.setItem("refreshToken", refresh);
+        console.log("Login successful:", response.data.message);
+        console.log(response);
+        localStorage.setItem("userType", response.data.user_type);
+        if (response.data.user_type == "user") {
+          login();
+          navigate("/my-reports"); // Redirect to the dashboard
+        } else {
+          login();
+          navigate("/admin")
+        }
       } catch (error) {
-        console.error(error);
-        setErrors({ ...errors, general: error.message });
+        // Handle errors
+        console.error(error.response?.data || error.message);
+        setErrors({
+          ...errors,
+          general:
+            error.response?.data?.error ||
+            "Something went wrong! Please try again later.",
+        });
       }
     }
   };

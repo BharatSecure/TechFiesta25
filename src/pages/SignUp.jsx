@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import axios from "axios";
 import {
   Container,
   Box,
@@ -7,13 +8,11 @@ import {
   Button,
   Grid,
   Divider,
-  Checkbox,
-  FormControlLabel,
 } from "@mui/material";
 import Footer from "../components/Footer";
-import { useAuth } from "@/context/AuthContext";
 import { useNavigate, Link } from "react-router-dom";
 import ScaleInComponent from "@/lib/ScaleInComponent";
+// import { useAuth } from "../context/AuthContext";
 
 const SignUp = () => {
   const navigate = useNavigate();
@@ -27,67 +26,70 @@ const SignUp = () => {
     emergencyContact1: "",
     emergencyContact2: "",
     password: "",
-    rememberMe: false,
   });
 
   const [errors, setErrors] = useState({});
-  const { isLoggedIn, login } = useAuth(); // Extract login state
+  const [message, setMessage] = useState("");
+  const [error, setError] = useState("");
+  // const { isLoggedIn, login, logout } = useAuth();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
   };
 
-  const handleCheckboxChange = (e) => {
-    setFormData({ ...formData, rememberMe: e.target.checked });
-  };
-
   const validate = () => {
-    let tempErrors = {};
-
+    const tempErrors = {};
     if (!formData.firstName) tempErrors.firstName = "First Name is required";
     if (!formData.lastName) tempErrors.lastName = "Last Name is required";
     if (!formData.email || !/\S+@\S+\.\S+/.test(formData.email))
       tempErrors.email = "Valid Email is required";
     if (!formData.phoneNumber || !/^\d{10}$/.test(formData.phoneNumber))
       tempErrors.phoneNumber = "Valid 10-digit Phone Number is required";
-    if (!formData.address) tempErrors.address = "Address is required";
     if (!formData.aadharNumber || !/^\d{12}$/.test(formData.aadharNumber))
       tempErrors.aadharNumber = "Valid 12-digit Aadhar Number is required";
-    if (
-      !formData.emergencyContact1 ||
-      !/^\d{10}$/.test(formData.emergencyContact1)
-    )
-      tempErrors.emergencyContact1 =
-        "Valid 10-digit Emergency Contact 1 is required";
-    if (
-      !formData.emergencyContact2 ||
-      !/^\d{10}$/.test(formData.emergencyContact2)
-    )
-      tempErrors.emergencyContact2 =
-        "Valid 10-digit Emergency Contact 2 is required";
     if (!formData.password || formData.password.length < 6)
       tempErrors.password = "Password must be at least 6 characters long";
 
     setErrors(tempErrors);
-
     return Object.keys(tempErrors).length === 0;
   };
 
-  const handleSignup = () => {
-    if (validate()) {
-      // Logic to handle signup (e.g., API call)
-      console.log("Signup Data:", formData);
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!validate()) return;
 
-      // Simulate successful login after signup
-      login(); // Perform login after successful signup
+    setMessage("");
+    setError("");
 
-      // Log the current login state
-      console.log("Login State after Signup:", isLoggedIn); // Log the login state
-
-      // Navigate to the dashboard ("/my-reports") if login is successful
-      if (isLoggedIn) {
-        navigate("/my-reports");
+    try {
+      const response = await axios.post(
+        "http://127.0.0.1:8000/api/signup/",
+        formData
+      );
+      if (response.status === 201) {
+        setMessage("User created successfully!");
+        setFormData({
+          firstName: "",
+          lastName: "",
+          email: "",
+          phoneNumber: "",
+          address: "",
+          aadharNumber: "",
+          emergencyContact1: "",
+          emergencyContact2: "",
+          password: "",
+        });
+        // login();
+        navigate("/login");
+      }
+    } catch (err) {
+      if (err.response) {
+        setError(
+          err.response.data.detail || "Error occurred while signing up."
+        );
+      } else {
+        setError("An unexpected error occurred.");
       }
     }
   };
@@ -122,99 +124,101 @@ const SignUp = () => {
             <Divider
               sx={{ mb: 4, borderColor: "#003366", width: "50px", mx: "auto" }}
             />
-            <Grid container spacing={3}>
-              {[
-                { label: "First Name", name: "firstName" },
-                { label: "Last Name", name: "lastName" },
-                { label: "Email", name: "email", type: "email" },
-                { label: "Phone Number", name: "phoneNumber", type: "tel" },
-                { label: "Address", name: "address", multiline: true, rows: 3 },
-                { label: "Aadhar Number", name: "aadharNumber" },
-                {
-                  label: "Emergency Contact 1",
-                  name: "emergencyContact1",
-                  type: "tel",
-                },
-                {
-                  label: "Emergency Contact 2",
-                  name: "emergencyContact2",
-                  type: "tel",
-                },
-                {
-                  label: "Create Password",
-                  name: "password",
-                  type: "password",
-                },
-              ].map((field, index) => (
-                <Grid
-                  item
-                  xs={12}
-                  sm={field.name.includes("Name") ? 6 : 12}
-                  key={index}
-                >
-                  <TextField
-                    {...field}
-                    variant="outlined"
-                    fullWidth
-                    value={formData[field.name]}
-                    onChange={handleChange}
-                    required
-                    error={!!errors[field.name]}
-                    helperText={errors[field.name]}
-                    sx={{
-                      "& .MuiOutlinedInput-root": {
-                        borderRadius: 2,
-                      },
-                    }}
-                  />
-                </Grid>
-              ))}
-              <Grid item xs={12}>
-                <FormControlLabel
-                  control={
-                    <Checkbox
-                      checked={formData.rememberMe}
-                      onChange={handleCheckboxChange}
-                      color="primary"
+            {message && <p className="success-message">{message}</p>}
+
+            <form onSubmit={handleSubmit}>
+              <Grid container spacing={3}>
+                {[
+                  { label: "First Name", name: "firstName" },
+                  { label: "Last Name", name: "lastName" },
+                  { label: "Email", name: "email", type: "email" },
+                  { label: "Phone Number", name: "phoneNumber", type: "tel" },
+                  {
+                    label: "Address",
+                    name: "address",
+                    multiline: true,
+                    rows: 3,
+                  },
+                  { label: "Aadhar Number", name: "aadharNumber" },
+                  {
+                    label: "Emergency Contact 1",
+                    name: "emergencyContact1",
+                    type: "tel",
+                  },
+                  {
+                    label: "Emergency Contact 2",
+                    name: "emergencyContact2",
+                    type: "tel",
+                  },
+                  {
+                    label: "Create Password",
+                    name: "password",
+                    type: "password",
+                  },
+                ].map((field, index) => (
+                  <Grid
+                    item
+                    xs={12}
+                    sm={field.name.includes("Name") ? 6 : 12}
+                    key={index}
+                  >
+                    <TextField
+                      {...field}
+                      variant="outlined"
+                      fullWidth
+                      value={formData[field.name]}
+                      onChange={handleChange}
+                      error={!!errors[field.name]}
+                      helperText={errors[field.name]}
+                      sx={{
+                        "& .MuiOutlinedInput-root": {
+                          borderRadius: 2,
+                        },
+                      }}
                     />
-                  }
-                  label="Remember Me"
-                />
+                  </Grid>
+                ))}
+                <Grid item xs={12}>
+                  <Button
+                    type="submit"
+                    variant="contained"
+                    fullWidth
+                    sx={{
+                      backgroundColor: "#003366",
+                      color: "#fff",
+                      padding: "12px 20px",
+                      borderRadius: "4px",
+                      "&:hover": {
+                        backgroundColor: "#00509e",
+                      },
+                      boxShadow: "0 4px 10px rgba(0, 0, 0, 0.2)",
+                    }}
+                  >
+                    Sign Up
+                  </Button>
+                  {error && (
+                    <p className="error-message" style={{ color: "red" }}>
+                      {error}
+                    </p>
+                  )}
+
+                  <Typography
+                    variant="body2"
+                    sx={{
+                      mt: 2,
+                      color: "#003366",
+                      fontFamily: "'Ubuntu', 'Smooch Sans', sans-serif",
+                      fontSize: "1.2rem",
+                    }}
+                  >
+                    Already have an account?{" "}
+                    <Link to={"/login"} style={{ color: "#00509e" }}>
+                      Log in
+                    </Link>
+                  </Typography>
+                </Grid>
               </Grid>
-              <Grid item xs={12}>
-                <Button
-                  variant="contained"
-                  fullWidth
-                  sx={{
-                    backgroundColor: "#003366",
-                    color: "#fff",
-                    padding: "12px 20px",
-                    borderRadius: "4px",
-                    "&:hover": {
-                      backgroundColor: "#00509e",
-                    },
-                    boxShadow: "0 4px 10px rgba(0, 0, 0, 0.2)",
-                  }}
-                  onClick={handleSignup}
-                >
-                  Sign Up
-                </Button>
-                <Typography
-                  variant="body2"
-                  sx={{
-                    mt: 2,
-                    color: "#003366",
-                    fontFamily: "'Ubuntu', 'Smooch Sans', sans-serif",
-                    fontSize: "1.2rem",
-                  }}
-                >
-                  Already have an account?{" "}
-                  <Link to={"/login"} style={{ color: "#00509e" }}>
-                    Log in
-                  </Link>
-                </Typography>
-              </Grid>
-            </Grid>
+            </form>
           </Box>
         </Container>
       </ScaleInComponent>

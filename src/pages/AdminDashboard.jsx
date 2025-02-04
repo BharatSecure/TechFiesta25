@@ -65,7 +65,7 @@ const AdminDashboard = () => {
 
   const handleLogout = () => {
     window.location.href = "/";
-    localStorage.removeItem("userType")
+    localStorage.removeItem("userType");
     logout();
   };
 
@@ -244,7 +244,8 @@ const AdminDashboard = () => {
                     {incident.description}
                   </p>
                   <p className="text-gray-600 text-sm mb-2">
-                    Reported By: {incident.reported_by?.username || "Unknown"}
+                    Reported By: {incident.reported_by?.first_name || "Unknown"}{" "}
+                    {incident.reported_by?.last_name}
                   </p>
                   <p className="text-gray-600 text-sm mb-4">
                     {incident.location

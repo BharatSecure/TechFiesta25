@@ -15,7 +15,7 @@ from utils.call_Operator import EmergencyHelplineBot
 from twilio.rest import Client
 import json
 from geopy.distance import great_circle
-from .models import Incidents, FireStations, PoliceStations, User, Comment
+from .models import Incidents, FireStations, PoliceStations, User, Comment, Hospital, NGO
 from .serializers import IncidentSerializer
 from rest_framework.views import APIView
 from django.contrib.auth.hashers import make_password
@@ -24,14 +24,21 @@ from rest_framework_simplejwt.tokens import RefreshToken, AccessToken
 import logging
 logger = logging.getLogger(__name__)
 from rest_framework import generics, status
-from langchain_core.chat_history import BaseChatMessageHistory
 from langchain.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_google_genai import ChatGoogleGenerativeAI
-from django.core.exceptions import ImproperlyConfigured
 from rest_framework import viewsets, status
-from rest_framework.decorators import action
+from langchain.schema.messages import SystemMessage
 from langchain.schema.output_parser import StrOutputParser
-from langchain.schema import HumanMessage, AIMessage
+from rest_framework.parsers import JSONParser
+from tenacity import wait_exponential
+import re
+
+model = ChatGoogleGenerativeAI(
+                model="gemini-1.5-flash",
+                api_key="AIzaSyDv7RThoILjeXAryluncDRZ1QeFxAixR7Q",
+                max_retries=3,
+                retry_wait_strategy=wait_exponential(multiplier=1, min=4, max=10)
+            )
 
 @api_view(['GET'])
 def latest_incidents(request):
@@ -123,6 +130,7 @@ class LoginView(APIView):
                 "error": "Invalid credentials"
             }, status=status.HTTP_401_UNAUTHORIZED)
         
+        
 @api_view(['POST'])
 def report_incident(request):
     user = None
@@ -136,6 +144,7 @@ def report_incident(request):
             token = AccessToken(token_str)
             user = User.objects.get(id=token['user_id'])
         except Exception:
+            print("User not found")
             # If token validation fails, we'll fall back to anonymous user
             pass
     
@@ -155,7 +164,16 @@ def report_incident(request):
                 'password': 'anonymous'
             }
         )
-
+    
+    # Map incident types to appropriate station models
+    station_map = {
+        'Fire': [FireStations, PoliceStations, Hospital],
+        'Theft': [PoliceStations],
+        'Accident': [PoliceStations, Hospital],
+        'Missing Persons': [PoliceStations],
+        'Other': [None]
+    }
+    
     serializer = IncidentSerializer(data=request.data)
 
     if serializer.is_valid():
@@ -181,48 +199,60 @@ def report_incident(request):
                 "error": "Location must include valid latitude and longitude"
             }, status=status.HTTP_400_BAD_REQUEST)
 
-        # Map incident types to appropriate station models
-        station_map = {
-            'Fire': FireStations,
-            'Theft': PoliceStations,
-            'Accident': PoliceStations,
-            'Other': None
-        }
+        # Get the station models for the incident type
+        station_models = station_map.get(incident.incidentType, [])
 
-        station_model = station_map.get(incident.incidentType)
-
-        if station_model:
+        if station_models:
             try:
-                # Find nearest station
-                stations = station_model.objects.all()
-                if stations.exists():
-                    nearest_station = min(
-                        stations,
-                        key=lambda station: great_circle(
-                            (user_lat, user_lon),
-                            (station.latitude, station.longitude)
-                        ).km
-                    )
+                # Initialize variables to store the nearest stations
+                nearest_police_station = None
+                nearest_fire_station = None
+                nearest_hospital = None
 
-                    # Send notifications
-                    try:
-                        number = '+91' + str(nearest_station.number)
-                        message = (
-                            f"New {incident.incidentType} reported!\n"
-                            f"Location: ({user_lat}, {user_lon})\n"
-                            f"Description: {incident.description}"
+                # Find nearest stations and send notifications
+                for station_model in station_models:
+                    stations = station_model.objects.all()
+                    if stations.exists():
+                        nearest_station = min(
+                            stations,
+                            key=lambda station: great_circle(
+                                (user_lat, user_lon),
+                                (station.latitude, station.longitude)
+                            ).km
                         )
-                        
-                        send_sms(message, number)
-                        send_email_example(
-                            "New Incident Alert",
-                            message,
-                            nearest_station.email
-                        )
-                    except Exception as e:
-                        # Log notification error but don't fail the request
-                        print(f"Notification error: {str(e)}")
 
+                        # Save the nearest station based on its type
+                        if station_model == PoliceStations:
+                            nearest_police_station = nearest_station
+                        elif station_model == FireStations:
+                            nearest_fire_station = nearest_station
+                        elif station_model == Hospital:
+                            nearest_hospital = nearest_station
+
+                        # Send notifications
+                        try:
+                            number = '+91' + str(nearest_station.number)
+                            message = (
+                                f"New {incident.incidentType} reported!\n"
+                                f"Location: ({user_lat}, {user_lon})\n"
+                                f"Description: {incident.description}"
+                            )
+                            
+                            send_sms(message, number)
+                            send_email_example(
+                                "New Incident Alert",
+                                message,
+                                nearest_station.email
+                            )
+                        except Exception as e:
+                            # Log notification error but don't fail the request
+                            print(f"Notification error: {str(e)}")
+
+                # Update the incident with the nearest stations
+                incident.police_station = nearest_police_station
+                incident.fire_station = nearest_fire_station
+                incident.hospital_station = nearest_hospital
+                incident.save()
             except Exception as e:
                 return Response({
                     "error": f"Error processing station data: {str(e)}"
@@ -234,6 +264,154 @@ def report_incident(request):
         }, status=status.HTTP_201_CREATED)
 
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class voicereport(APIView):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.llm = model  # Ensure `model` is defined
+        self.prompt = ChatPromptTemplate.from_messages([
+            ('system', "Analyze the provided incident report and return a structured JSON response in the exact same format as the given example. Preserve all field names and ensure values are correctly formatted. Based on the input, choose the value of severity can be either high, medium or low. Do not add or remove any fields. Ensure the response is a valid JSON object."),
+            ('human',"{json_format}"),
+            ('human', "description: {user_input}, Location = {location}")
+        ])
+        self.chain = self.prompt | self.llm | StrOutputParser()
+
+    def post(self, request, *args, **kwargs):
+        user = None
+        auth_header = request.META.get('HTTP_AUTHORIZATION')
+        if auth_header and auth_header.startswith('Bearer '):
+            try:
+                token_str = auth_header.split(' ')[1]
+                token = AccessToken(token_str)
+                user = User.objects.get(id=token['user_id'])
+            except Exception as e:
+                print(f"Token validation failed: {str(e)}")
+                return Response({"error": "Invalid or expired token"}, status=status.HTTP_401_UNAUTHORIZED)
+
+        if not user:
+            user, _ = User.objects.get_or_create(
+                email='anonymous@example.com',
+                defaults={
+                    'first_name': 'Anonymous',
+                    'last_name': 'User',
+                    'phone_number': '0000000000',
+                    'address': 'Anonymous',
+                    'aadhar_number': '000000000000',
+                    'emergency_contact1': '0000000000',
+                    'emergency_contact2': '0000000000',
+                    'password': 'anonymous'
+                }
+            )
+
+        json_format = """{
+        "incidentType": "Accident",
+        "location": {"latitude": 19.1234048, "longitude": 72.8563712},
+        "description": "I've been in a terrible accident",
+        "severity": "high"
+    }"""
+
+        user_input = request.data.get("user_input", "").strip()
+        user_lat = request.data.get('latitude')
+        user_lon = request.data.get('longitude')
+        if not user_input:
+            return Response({"error": "user_input is required"}, status=status.HTTP_400_BAD_REQUEST)
+
+        chain_input = {"user_input": user_input, "json_format":json_format, "location": {"latitude": user_lat, "longitude": user_lon}}
+        incident = self.chain.invoke(chain_input)
+        
+        # Regular expression to extract JSON block
+        json_pattern = re.search(r"\{[\s\S]*\}", incident)
+
+        if json_pattern:
+            json_text = json_pattern.group()  # Extract JSON string
+            try:
+                incident = json.loads(json_text)  # Convert to dictionary
+                print(incident)
+            except json.JSONDecodeError as e:
+                print("Invalid JSON:", e)
+        else:
+            print("No JSON found in the log.")
+
+        serializer = IncidentSerializer(data=incident)
+
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        incident_obj = serializer.save()
+        incident_obj.reported_by = user
+
+        if not (-90 <= user_lat <= 90) or not (-180 <= user_lon <= 180):
+            return Response({"error": "Invalid latitude or longitude values"}, status=status.HTTP_400_BAD_REQUEST)
+
+        station_map = {
+            'Fire': [FireStations, PoliceStations, Hospital],
+            'Theft': [PoliceStations],
+            'Accident': [PoliceStations, Hospital],
+            'Missing Persons': [PoliceStations],
+            'Other': [None]
+        }
+
+        station_models = station_map.get(incident.get('incidentType'), [])
+        nearest_stations = {
+            'police_station': None,
+            'fire_station': None,
+            'hospital_station': None
+        }
+
+        if station_models:
+            try:
+                for station_model in station_models:
+                    if station_model is None:
+                        continue
+                    
+                    stations = station_model.objects.all()
+                    if stations.exists():
+                        nearest_station = min(
+                            stations,
+                            key=lambda station: great_circle(
+                                (user_lat, user_lon),
+                                (station.latitude, station.longitude)
+                            ).km
+                        )
+
+                        if station_model == PoliceStations:
+                            nearest_stations['police_station'] = nearest_station
+                        elif station_model == FireStations:
+                            nearest_stations['fire_station'] = nearest_station
+                        elif station_model == Hospital:
+                            nearest_stations['hospital_station'] = nearest_station
+
+                        try:
+                            number = '+91' + str(nearest_station.number)
+                            message = (
+                                f"New {incident['incidentType']} reported!\n"
+                                f"Location: ({user_lat}, {user_lon})\n"
+                                f"Description: {incident['description']}"
+                            )
+                            send_sms(message, number)
+                            send_email_example(
+                                "New Incident Alert",
+                                message,
+                                nearest_station.email
+                            )
+                        except Exception as e:
+                            print(f"Notification error: {str(e)}")
+                
+                incident_obj.police_station = nearest_stations['police_station']
+                incident_obj.fire_station = nearest_stations['fire_station']
+                incident_obj.hospital_station = nearest_stations['hospital_station']
+                incident_obj.save()
+            
+            except Exception as e:
+                return Response({"error": f"Error processing station data: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+        return Response({
+            "message": "Incident reported successfully!",
+            "incident_id": incident_obj.id
+        }, status=status.HTTP_201_CREATED)
+
+        
+
+
 
 @api_view(['PATCH'])
 def update_incident(request, id):
@@ -323,34 +501,6 @@ class CommentCreateView(generics.CreateAPIView):
         serializer.save(commented_by=user, commented_on=incident)
         
         return Response(serializer.data, status=status.HTTP_201_CREATED)
-    
-# class EmergencyHelplineAPIView(APIView):
-#     """
-#     API View for the Emergency Helpline Bot.
-#     """
-
-#     def __init__(self, **kwargs):
-#         super().__init__(**kwargs)
-#         self.bot = EmergencyHelplineBot()
-
-#     async def post(self, request):
-#         try:
-#             user_input = request.data.get("user_input", "")
-#             if not user_input:
-#                 return Response({"error": "No user input provided."}, status=status.HTTP_400_BAD_REQUEST)
-
-#             # Directly await handle_conversation if it's an async method
-#             response_data = await self.bot.handle_conversation(user_input)
-
-#             return Response({
-#                 "response": response_data["response"],
-#                 "chat_history": [
-#                     {"type": "human" if isinstance(msg, dict) and msg.get('is_human', False) else "bot", "content": msg}
-#                     for msg in response_data["chat_history"]
-#                 ]
-#             }, status=status.HTTP_200_OK)
-#         except Exception as e:
-#             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 @api_view(['GET'])
 def all_user_incidents(request):
@@ -369,6 +519,7 @@ def all_user_incidents(request):
 
         # Fetch incidents for the user
         incidents = Incidents.objects.filter(reported_by=user).values()
+        print(incidents)
         return Response({"incidents": list(incidents)}, status=200)
     except User.DoesNotExist:
         return Response({"error": "User not found"}, status=404)
@@ -385,6 +536,46 @@ def all_incidents(request):
     incidents = Incidents.objects.all()
     serializer = IncidentSerializer(incidents, many=True)
     return Response(serializer.data, status=201)
+
+@api_view(['GET'])
+def all_station_incidents(request):
+    # Check for the presence and validity of the authorization header
+    auth_header = request.headers.get('Authorization')
+    if not auth_header or not auth_header.startswith('Bearer '):
+        return Response(
+            {"error": "Authorization header missing or malformed"},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
+    try:
+        # Extract and validate the token
+        token_str = auth_header.split(' ')[1]
+        token = AccessToken(token_str)
+        admin = get_object_or_404(Admin, id=token['user_id'])
+    except Exception as e:
+        return Response(
+            {"error": "Invalid or expired token"},
+            status=status.HTTP_401_UNAUTHORIZED
+        )
+
+    # Determine which station the admin belongs to and filter incidents accordingly
+    if admin.police_station is not None:
+        incidents = Incidents.objects.filter(police_station=admin.police_station)
+    elif admin.fire_station is not None:
+        incidents = Incidents.objects.filter(fire_station=admin.fire_station)
+    elif admin.hospital is not None:
+        incidents = Incidents.objects.filter(hospital_station=admin.hospital)
+    else:
+        return Response(
+            {"error": "Admin is not associated with any station"},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
+    # Serialize the incidents and return the response
+    serializer = IncidentSerializer(incidents, many=True)
+    return Response(serializer.data, status=status.HTTP_200_OK)
+    
+
 
 class CommentListCreateView(APIView):
 
@@ -463,42 +654,11 @@ def view_incident(request, id):
 def get_google_maps_link(latitude, longitude):
     return f"https://www.google.com/maps?q={latitude},{longitude}"
 
-class CustomChatMemoryHistory(BaseChatMessageHistory):
-    def __init__(self):
-        self.messages = []
-
-    def add_user_message(self, message: str) -> None:
-        """Add a user message to the memory."""
-        self.messages.append(HumanMessage(content=message))
-
-    def add_ai_message(self, message: str) -> None:
-        """Add an AI message to the memory."""
-        self.messages.append(AIMessage(content=message))
-
-    def clear(self) -> None:
-        """Clear the memory."""
-        self.messages = []
-
-    def to_dict(self) -> dict:
-        """Convert memory to a dictionary."""
-        return {"messages": [msg.as_dict() for msg in self.messages]}
-
-from langgraph.store.memory import InMemoryStore
-from langchain_core.runnables import RunnablePassthrough
-import uuid
-from rest_framework.parsers import JSONParser
-from tenacity import wait_exponential
-
 class ChatbotView_Therapist(APIView):
     parser_classes=[JSONParser]
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.llm = ChatGoogleGenerativeAI(
-                model="gemini-1.5-flash",
-                api_key="AIzaSyDv7RThoILjeXAryluncDRZ1QeFxAixR7Q",
-                max_retries=3,
-                retry_wait_strategy=wait_exponential(multiplier=1, min=4, max=10)
-            )
+        self.llm = model
         self.prompt = ChatPromptTemplate.from_messages([
             ("system", "You are both a therapist and a legal guidance officer based in India. As a therapist, your role is to provide emotional support, comfort, and guidance to the user, especially after a traumatic incident. As a legal guidance officer, you will provide advice on legal matters specific to Indian law, ensuring your answers are clear and based on the legal framework in India. Balance both roles carefully, making your responses brief but considerate and accurate."),
             MessagesPlaceholder(variable_name="chat_history"),
@@ -528,46 +688,3 @@ class ChatbotView_Therapist(APIView):
             "chat_history": chat_history,
         }, status=status.HTTP_200_OK)
 
-class ChatbotView_Legal(APIView):
-    parser_classes=[JSONParser]
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        # Initialize the LLM
-        self.llm = ChatGoogleGenerativeAI(
-                model="gemini-1.5-flash",
-                api_key="AIzaSyDv7RThoILjeXAryluncDRZ1QeFxAixR7Q",
-                max_retries=3,
-                retry_wait_strategy=wait_exponential(multiplier=1, min=4, max=10)
-            )
-        # Define the prompt template with a placeholder for chat history
-        self.prompt = ChatPromptTemplate.from_messages([
-            ("system", "You are a Legal guidance officer in India. The user has gone through a traumatic incident and wants some help in the legal section. Help them by solving their queries"),
-            MessagesPlaceholder(variable_name="chat_history"),
-            ("human", "{user_input}"),
-        ])
-        # Define the chain using LCEL
-        self.chain = self.prompt | self.llm | StrOutputParser()
-
-    def post(self, request, *args, **kwargs):
-        user_input = request.data.get("user_input", "").strip()
-        chat_history = request.data.get("chat_history")
-
-        if not isinstance(chat_history, list):  # Ensure chat_history is a list
-            chat_history = []
-
-        if not user_input:
-            return Response({"error": "user_input is required"}, status=status.HTTP_400_BAD_REQUEST)
-
-        chain_input = {"user_input": user_input, "chat_history": chat_history}
-        response = self.chain.invoke(chain_input)
-
-        # Append new messages as strings (not `HumanMessage` or `AIMessage` objects)
-        chat_history.append(f"User: {user_input}")
-        chat_history.append(f"Bot: {response}")
-
-
-        return Response({
-            "user_input": user_input,
-            "bot_response": response,
-            "chat_history": chat_history,
-        }, status=status.HTTP_200_OK)

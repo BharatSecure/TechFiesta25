@@ -24,14 +24,19 @@ const AdminDashboard = () => {
   const [incidents, setIncidents] = useState([]);
 const [completedId,setCompletedId]=useState([])
 
+  const token = localStorage.getItem("accessToken");
   const getincidents = async () => {
     try {
-      const response = await fetch("http://127.0.0.1:8000/api/all_incidents/", {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
+      const response = await fetch(
+        "http://127.0.0.1:8000/api/all_station_incidents/",
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
 
       if (response.ok) {
         const incidentData = await response.json();
@@ -66,6 +71,7 @@ const [completedId,setCompletedId]=useState([])
 
   const handleLogout = () => {
     window.location.href = "/";
+    localStorage.removeItem("userType");
     logout();
   };
 
@@ -264,6 +270,8 @@ useEffect(() => {
                   </p>
                   <p className="text-gray-600 text-sm mb-2">
                   Reported By:  <span className="font-semibold text-black">{incident.reported_by?.first_name|| "Unknown"} </span>  <span className="font-semibold text-black">{incident.reported_by?.last_name|| ""}</span>
+                    Reported By: {incident.reported_by?.first_name || "Unknown"}{" "}
+                    {incident.reported_by?.last_name}
                   </p>
                   <p className="text-gray-600 text-sm mb-4">
                   Location: <span className="font-semibold text-black">{incident.location

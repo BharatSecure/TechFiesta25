@@ -41,6 +41,7 @@ const UserDashboard = () => {
   };
 
   const handleLogout = () => {
+    localStorage.removeItem("userType")
     logout();
     navigate("/login");
   };
@@ -69,7 +70,7 @@ const UserDashboard = () => {
       try {
         // console.log(`Access Token: ${token}`);
         const response = await fetch(
-          "http://127.0.0.1:8000/api/all_incidents/",
+          "http://127.0.0.1:8000/api/all_user_incidents/",
           {
             method: "GET",
             headers: {

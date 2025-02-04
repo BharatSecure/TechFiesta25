@@ -180,7 +180,10 @@ const UserDashboard = () => {
                 </tr>
               </thead>
               <tbody>
-                {incidents.map((incident) => (
+
+               
+                {
+                incidents.map((incident) => (
                   <tr
                     key={incident.id}
                     className="hover:bg-gray-50 transition-all cursor-pointer"
@@ -189,7 +192,7 @@ const UserDashboard = () => {
                     <td className="p-4 font-semibold">
                       {incident.incidentType}
                     </td>
-                    <td className="p-4 truncate max-w-[150px] sm:max-w-none">
+                    <td className="p-4 truncate max-w-[150px] sm:max-w-none overflow-x-auto overflow-y-auto">
                       {incident.description}
                     </td>
                     <td className="p-4 items-center">

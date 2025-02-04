@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import  { useState, useEffect } from "react";
 import {
   MdReportProblem,
   MdCheckCircle,
@@ -22,6 +22,7 @@ const AdminDashboard = () => {
   const [filter, setFilter] = useState("All");
   const [filternew, setFilterNew] = useState([]);
   const [incidents, setIncidents] = useState([]);
+const [completedId,setCompletedId]=useState([])
 
   const getincidents = async () => {
     try {
@@ -35,6 +36,10 @@ const AdminDashboard = () => {
       if (response.ok) {
         const incidentData = await response.json();
         setIncidents(incidentData);
+        console.log('all incidents admin',incidents);
+      
+       
+        
       } else {
         console.error("Failed to fetch incidents");
       }
@@ -53,6 +58,7 @@ const AdminDashboard = () => {
       return "text-yellow-700 border-yellow-600 bg-yellow-200";
     if (severity === "high") return "text-red-700 border-red-600 bg-red-200";
     return "text-gray-700 border-gray-600 bg-gray-200";
+ 
   };
 
   const { logout } = useAuth();
@@ -92,11 +98,11 @@ const AdminDashboard = () => {
   useEffect(() => {
     const filteredIncidents = incidents.filter((incident) => {
       if (filter === "All") {
-        return incident.status !== "submitted";
+        return incident.status !== "submitted"&&incident.status !== "Resolved" ;
       }
       return (
         incident.severity === filter.toLowerCase() &&
-        incident.status !== "submitted"
+        incident.status !== "submitted"&&incident.status !== "Resolved" 
       );
     });
 
@@ -118,6 +124,8 @@ const AdminDashboard = () => {
           },
           body: JSON.stringify({ status: "processing" }),
         }
+        
+        
       );
 
       if (response.ok) {
@@ -152,6 +160,22 @@ const AdminDashboard = () => {
       console.error("Error marking incident as completed:", error);
     }
   };
+
+useEffect(() => {
+  const completedmarked = incidents.filter((incident)=> incident.status==="Resolved"
+
+  )
+
+  setCompletedId(completedmarked)
+  console.log('completed ids:' , completedId)
+ 
+}, )
+
+
+
+
+
+
 
   return (
     <div className="h-full bg-gradient-to-r from-green-100 to-green-200">
@@ -223,7 +247,8 @@ const AdminDashboard = () => {
                         incident.severity
                       )}`}
                     >
-                      {incident.severity}
+                      {incident.severity?.charAt(0).toUpperCase() +
+                          incident.severity?.slice(1)}
                     </span>
                   </div>
                   <div className="flex justify-between items-center mb-2">
@@ -238,12 +263,12 @@ const AdminDashboard = () => {
                     {incident.description}
                   </p>
                   <p className="text-gray-600 text-sm mb-2">
-                    Reported By: {incident.reported_by?.username || "Unknown"}
+                  Reported By:  <span className="font-semibold text-black">{incident.reported_by?.first_name|| "Unknown"} </span>  <span className="font-semibold text-black">{incident.reported_by?.last_name|| ""}</span>
                   </p>
                   <p className="text-gray-600 text-sm mb-4">
-                    {incident.location
-                      ? `${incident.location.latitude}, ${incident.location.longitude}`
-                      : "No location"}
+                  Location: <span className="font-semibold text-black">{incident.location
+                  ? `${incident.location.latitude}, ${incident.location.longitude}`
+                  : "No location"}</span> 
                   </p>
                   <button
                     className="bg-purple-400 hover:bg-purple-600 px-5 py-2 rounded-lg text-black"
@@ -262,6 +287,9 @@ const AdminDashboard = () => {
             </div>
           </div>
         )}
+
+
+            {/*ACEPPTED INCIDENTS*/}
 
         <h1 className="text-4xl font-semibold mb-5">Accepted Incidents</h1>
         <form className="mb-6 flex flex-row items-center justify-start gap-4 space-y-2">
@@ -298,7 +326,8 @@ const AdminDashboard = () => {
                     incident.severity
                   )}`}
                 >
-                  {incident.severity}
+                   {incident.severity?.charAt(0).toUpperCase() +
+                          incident.severity?.slice(1)}
                 </span>
               </div>
               <div className="flex justify-between items-center mb-2">
@@ -313,12 +342,108 @@ const AdminDashboard = () => {
                 {incident.description}
               </p>
               <p className="text-gray-600 text-sm mb-2">
-                Reported By: {incident.reported_by?.username || "Unknown"}
+                Reported By:  <span className="font-semibold text-black">{incident.reported_by?.first_name|| "Unknown"} </span>  <span className="font-semibold text-black">{incident.reported_by?.last_name|| ""}</span>
               </p>
               <p className="text-gray-600 text-sm mb-4">
-                {incident.location
+
+               Location: <span className="font-semibold text-black">{incident.location
                   ? `${incident.location.latitude}, ${incident.location.longitude}`
-                  : "No location"}
+                  : "No location"}</span> 
+              </p>
+
+              <div className="flex gap-4 items-center">
+                <Popover>
+                  <PopoverTrigger>
+                    <MdChat
+                      title="Contact Authorities"
+                      className="text-black cursor-pointer hover:text-black hover:scale-105 transition-transform text-3xl"
+                    />
+                  </PopoverTrigger>
+                  <PopoverContent>
+                    <div className="p-4 bg-white w-full h-full">
+                      <h3 className="text-lg font-bold text-gray-800 mb-2">
+                        Chat with {incident.reported_by?.username || "User"}
+                      </h3>
+                      <p className="text-gray-600 mb-4">
+                        Start a conversation to discuss this incident.
+                      </p>
+                      <div className="flex justify-end gap-2">
+                        <button className="px-4 py-2 bg-sky-500 text-white rounded hover:bg-sky-600 transition">
+                          Start Chat
+                        </button>
+                      </div>
+                    </div>
+                  </PopoverContent>
+                </Popover>
+
+                {incident.status !== "Resolved" && (
+                  <button
+                    onClick={() => handleMarkAsCompleted(incident.id)}
+                    
+                    className="bg-green-500 text-white px-5 py-2 rounded hover:bg-green-600"
+                  >
+                    Mark as Completed
+                  </button>
+                )}
+
+                {incident.status === "Resolved" && (
+                  <span className="text-green-700 font-bold border border-green-500 px-2 py-1 rounded">
+                    Completed
+                  </span>
+                )}
+              </div>
+
+              <button
+                className="bg-gray-800 hover:bg-gray-950 text-white px-4 py-2 rounded-lg mt-4 relative bottom-0 right-0 w-full"
+                onClick={() => navigate(`/view-details/${incident.id}`)}
+              >
+                View Details
+              </button>
+            </div>
+          ))}
+        </div>
+
+        {/*COmpleted Incidentss */}
+        <h1 className="text-4xl font-semibold mb-5 mt-12">Completed Incidents</h1>
+        
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-12 from-green-100 to-green-200">
+          {completedId.map((incident) => (
+            <div
+              key={incident.id}
+              className={`p-6 rounded-lg shadow-lg border-2 border-black bg-green-300`}
+            >
+              <div className="flex justify-between items-center mb-4">
+                <span
+                  className={`px-3 py-1 rounded border font-bold text-lg bg-green-300`}
+                >
+                   {incident.severity?.charAt(0).toUpperCase() +
+                          incident.severity?.slice(1)}
+                </span>
+
+                <span className="text-green-800 font-bold border border-green-700 px-2 py-1 rounded text-2xl">
+                    Completed
+                  </span>
+              </div>
+              <div className="flex justify-between items-center mb-2">
+                <h3 className="text-lg font-semibold text-gray-800">
+                  {incident.incidentType}
+                </h3>
+                <p className="text-gray-800 font-bold text-xl">
+                  ID: {incident.id}
+                </p>
+              </div>
+              <p className="text-gray-600 text-sm mb-2">
+                {incident.description}
+              </p>
+              <p className="text-gray-600 text-sm mb-2">
+                Reported By:  <span className="font-semibold text-black">{incident.reported_by?.first_name|| "Unknown"} </span>  <span className="font-semibold text-black">{incident.reported_by?.last_name|| ""}</span>
+              </p>
+              <p className="text-gray-600 text-sm mb-4">
+
+               Location: <span className="font-semibold text-black">{incident.location
+                  ? `${incident.location.latitude}, ${incident.location.longitude}`
+                  : "No location"}</span> 
               </p>
 
               <div className="flex gap-4 items-center">
@@ -355,11 +480,9 @@ const AdminDashboard = () => {
                   </button>
                 )}
 
-                {incident.status === "Resolved" && (
-                  <span className="text-green-700 font-bold border border-green-500 px-2 py-1 rounded">
-                    Completed
-                  </span>
-                )}
+              
+                  
+              
               </div>
 
               <button
@@ -371,6 +494,12 @@ const AdminDashboard = () => {
             </div>
           ))}
         </div>
+
+
+
+
+
+
       </div>
       <Footer />
     </div>

@@ -16,6 +16,5 @@ urlpatterns = [
     path('update_incident/<int:id>/', views.update_incident, name='update-incident'),
     path("incident/<int:id>/", views.view_incident, name="view-incident"),
     path("all_station_incidents/", views.all_station_incidents, name="station-incident"),
-    path("voicereport/", views.voicereport.as_view(), name="voice-report"),
 ]
 

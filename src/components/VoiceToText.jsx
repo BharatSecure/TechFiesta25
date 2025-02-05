@@ -1,4 +1,4 @@
-import React, { useState, useRef, useCallback } from "react";
+import React, { useState, useRef } from "react";
 import { FaMicrophone } from "react-icons/fa";
 import Footer from "./Footer";
 
@@ -6,102 +6,62 @@ const VoiceInput = () => {
   const [text, setText] = useState("");
   const [isListening, setIsListening] = useState(false);
   const [isStopped, setIsStopped] = useState(false);
-  const [language, setLanguage] = useState("hi-IN");
-  const [token] = useState(localStorage.getItem("accessToken") || "");
+  const [language, setLanguage] = useState("hi-IN"); // Default to Hindi
 
+  // Store recognition instance in useRef
   const recognitionRef = useRef(null);
 
-  const initializeSpeechRecognition = useCallback(() => {
-    const SpeechRecognition =
-      window.SpeechRecognition || window.webkitSpeechRecognition;
+  // Initialize SpeechRecognition
+  if (!recognitionRef.current) {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     recognitionRef.current = new SpeechRecognition();
-    recognitionRef.current.continuous = false;
-    recognitionRef.current.interimResults = false;
-    recognitionRef.current.lang = language;
+    recognitionRef.current.continuous = false; // Ensure recording stops when stopped
+    recognitionRef.current.interimResults = false; // Only get final results
+  }
 
-    recognitionRef.current.onresult = (event) => {
-      const transcript = Array.from(event.results)
-        .map((result) => result[0].transcript)
-        .join("");
-      setText(transcript);
-    };
+  // Update language dynamically
+  recognitionRef.current.lang = language;
 
-    recognitionRef.current.onerror = (event) => {
-      console.error("Speech recognition error:", event.error);
-    };
-  }, [language]);
-
-  const getUserLocation = () => {
-    return new Promise((resolve, reject) => {
-      if ("geolocation" in navigator) {
-        navigator.geolocation.getCurrentPosition(
-          (position) =>
-            resolve({
-              latitude: position.coords.latitude,
-              longitude: position.coords.longitude,
-            }),
-          (error) => {
-            console.error("Location error:", error);
-            reject(error);
-          }
-        );
-      } else {
-        reject(new Error("Geolocation not supported"));
-      }
-    });
-  };
-
-  const voicereport = async () => {
-    try {
-      if (!text.trim()) {
-        alert("Please record a voice report first.");
-        return;
-      }
-
-      const { latitude, longitude } = await getUserLocation();
-
-      const response = await fetch("http://127.0.0.1:8000/api/voicereport/", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          user_input: text,
-          latitude: latitude,
-          longitude: longitude,
-        }),
-      });
-
-      if (!response.ok) throw new Error("Report submission failed");
-
-      alert("Report submitted successfully!");
-      setText("");
-      setIsStopped(false);
-    } catch (error) {
-      console.error("Submission error:", error);
-      alert("Failed to submit report.");
-    }
-  };
-
+  // Start Listening
   const startListening = () => {
-    initializeSpeechRecognition();
     setIsListening(true);
     setIsStopped(false);
     recognitionRef.current.start();
   };
 
+  // Stop Listening Completely
   const stopListening = () => {
     setIsListening(false);
     setIsStopped(true);
     recognitionRef.current.stop();
-    recognitionRef.current.abort();
+    recognitionRef.current.abort(); // Fully stop speech recognition
   };
 
-  const reRecord = () => {
-    setText("");
+  // Handle Results
+  recognitionRef.current.onresult = (event) => {
+    const transcript = Array.from(event.results)
+      .map((result) => result[0].transcript)
+      .join(""); // Combine results
+    setText(transcript);
+  };
+
+  recognitionRef.current.onerror = (event) => {
+    console.error("Speech recognition error:", event.error);
+  };
+
+  // Handle Send Report
+  const sendReport = () => {
+    console.log("Report Sent:", text);
+    alert("Your report has been submitted!");
+    setText(""); // Clear the text
     setIsStopped(false);
-    startListening();
+  };
+
+  // Handle Re-record
+  const reRecord = () => {
+    setText(""); // Clear the text
+    setIsStopped(false);
+    startListening(); // Restart listening
   };
 
   return (
@@ -112,12 +72,12 @@ const VoiceInput = () => {
             Voice Incident Reporting
             <FaMicrophone />
           </h1>
+          <p className="text-center text-gray-600 mb-6">
+            Use this form to report incidents using your voice. Choose your preferred language, start recording, and submit your report once you're done.
+          </p>
 
           <div className="mb-4">
-            <label
-              htmlFor="language"
-              className="block font-bold text-gray-600 mb-2"
-            >
+            <label htmlFor="language" className="block font-bold text-gray-600 mb-2">
               Select Language:
             </label>
             <select
@@ -165,7 +125,7 @@ const VoiceInput = () => {
               <div className="flex gap-4 w-full">
                 <button
                   className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition w-1/2"
-                  onClick={voicereport}
+                  onClick={sendReport}
                 >
                   Send Report
                 </button>
@@ -180,6 +140,7 @@ const VoiceInput = () => {
           </div>
         </div>
       </div>
+
       <Footer />
     </>
   );

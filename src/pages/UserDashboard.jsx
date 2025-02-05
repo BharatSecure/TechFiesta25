@@ -130,7 +130,7 @@ const UserDashboard = () => {
           {/* Dashboard Stats Cards */}
           <div className="flex flex-wrap gap-6 mb-6 justify-center mt-16 ml-8 sm:ml-0">
             {/* Total Incidents Card */}
-            <div className="bg-white p-6 rounded-2xl shadow-soft hover:shadow-soft-hover transition-all transform hover:scale-105 flex items-center justify-between w-full sm:w-80 border-2 border-gray-100 cursor-pointer">
+            <div className="bg-red-200 border-red-800 p-6 rounded-2xl shadow-soft hover:shadow-soft-hover transition-all transform hover:scale-105 flex items-center justify-between w-full sm:w-80 border-2 cursor-pointer">
               <div>
                 <h3 className="text-xl font-semibold text-gray-700">
                   Total Incidents
@@ -141,7 +141,7 @@ const UserDashboard = () => {
             </div>
 
             {/* Resolved Incidents Card */}
-            <div className="bg-white p-6 rounded-2xl shadow-soft hover:shadow-soft-hover transition-all transform hover:scale-105 flex items-center justify-between w-full sm:w-80 border-2 border-gray-100 cursor-pointer">
+            <div className="bg-green-200 border-green-700 p-6 rounded-2xl shadow-soft hover:shadow-soft-hover transition-all transform hover:scale-105 flex items-center justify-between w-full sm:w-80 border-2  cursor-pointer">
               <div>
                 <h3 className="text-xl font-semibold text-gray-700">
                   Resolved Incidents
@@ -152,7 +152,7 @@ const UserDashboard = () => {
             </div>
 
             {/* Unresolved Incidents Card */}
-            <div className="bg-white p-6 rounded-2xl shadow-soft hover:shadow-soft-hover transition-all transform hover:scale-105 flex items-center justify-between w-full sm:w-80 border-2 border-gray-100 cursor-pointer">
+            <div className="bg-yellow-200 border-yellow-800 p-6 rounded-2xl shadow-soft hover:shadow-soft-hover transition-all transform hover:scale-105 flex items-center justify-between w-full sm:w-80 border-2 cursor-pointer">
               <div>
                 <h3 className="text-xl font-semibold text-gray-700">
                   Unresolved Incidents

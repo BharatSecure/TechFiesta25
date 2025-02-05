@@ -35,7 +35,8 @@ const RecentIncidents = () => {
   };
   return (
     <>
-    <div className="bg-gray-100 min-h-screen flex flex-col items-center py-10">
+    <div className="bg-gradient-to-br from-blue-50 to-blue-200
+ min-h-screen flex flex-col items-center py-10">
       <h1 className="text-center text-sky-600 font-extrabold text-3xl sm:text-4xl lg:text-5xl mb-8 drop-shadow-lg">
         Recently Reported Incidents
       </h1>
@@ -51,7 +52,7 @@ const RecentIncidents = () => {
             case "Resolved":
               statusTag = "Resolved";
               tagStyles = "bg-green-400 text-green-800 shadow-inner";
-              bgColor='bg-green-200';
+              bgColor='bg-green-300';
               break;
             case "processing":
               statusTag = "Ongoing";
@@ -136,7 +137,7 @@ const RecentIncidents = () => {
         })}
       </div>
     </div>
-  );
+  
       <Footer />
       <FloatingChatbot />
     </>

@@ -47,13 +47,13 @@ const RecentIncidents = () => {
             let statusTag = "";
 
             switch (incident.status) {
-              case "completed":
+              case "Resolved":
                 bgColor = "bg-green-100";
                 statusTag = "Completed";
                 break;
-              case "processing":
+              case "under investigation":
                 bgColor = "bg-yellow-100";
-                statusTag = "Ongoing";
+                statusTag = "Under Investigation";
                 break;
               case "submitted":
                 bgColor = "bg-red-100";
@@ -76,9 +76,9 @@ const RecentIncidents = () => {
                   {statusTag && (
                     <span
                       className={`px-3 py-1 text-sm font-semibold rounded-full ${
-                        incident.status === "completed"
+                        incident.status === "Resolved"
                           ? "bg-green-200 text-green-800"
-                          : incident.status === "processing"
+                          : incident.status === "under investigation"
                           ? "bg-yellow-200 text-yellow-800"
                           : "bg-red-200 text-red-800"
                       }`}

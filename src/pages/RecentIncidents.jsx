@@ -33,146 +33,110 @@ const RecentIncidents = () => {
       [id]: !prev[id],
     }));
   };
-
   return (
     <>
-      <div className="bg-blue-100">
-        <h1 className="py-4 text-center text-sky-600 font-extrabold text-3xl sm:text-4xl lg:text-5xl">
-          Recently Reported Incidents
-        </h1>
-        <div className="p-6 max-w-4xl mx-auto">
-          {incidents.map((incident) => {
-            // Determine the background color and status tag based on the incident status
-            let bgColor = "";
-            let statusTag = "";
+    <div className="bg-gray-100 min-h-screen flex flex-col items-center py-10">
+      <h1 className="text-center text-sky-600 font-extrabold text-3xl sm:text-4xl lg:text-5xl mb-8 drop-shadow-lg">
+        Recently Reported Incidents
+      </h1>
 
-            switch (incident.status) {
-              case "completed":
-                bgColor = "bg-green-100";
-                statusTag = "Completed";
-                break;
-              case "processing":
-                bgColor = "bg-yellow-100";
-                statusTag = "Ongoing";
-                break;
-              case "submitted":
-                bgColor = "bg-red-100";
-                statusTag = "Reported";
-                break;
-              default:
-                bgColor = "bg-white";
-                statusTag = "";
-            }
+      <div className="p-6 max-w-4xl w-full">
+        {incidents.map((incident) => {
+          // Neumorphic card styles
+          let bgColor = "";
+          let statusTag = "";
+          let tagStyles = "";
 
-            return (
-              <div
-                key={incident.id}
-                className={`mb-6 p-4 border rounded-lg shadow-md ${bgColor}`}
-              >
-                <div className="flex justify-between items-center mb-2">
-                  <h2 className="text-xl font-semibold">
-                    {incident.incidentType}
-                  </h2>
-                  {statusTag && (
-                    <span
-                      className={`px-3 py-1 text-sm font-semibold rounded-full ${
-                        incident.status === "completed"
-                          ? "bg-green-200 text-green-800"
-                          : incident.status === "processing"
-                          ? "bg-yellow-200 text-yellow-800"
-                          : "bg-red-200 text-red-800"
-                      }`}
-                    >
-                      {statusTag}
-                    </span>
-                  )}
-                </div>
-                <p className="text-gray-600 mb-1">{incident.description}</p>
-                <p className="text-sm text-gray-500">
-                  Reported at: {new Date(incident.reported_at).toLocaleString()}
-                </p>
-                <p className="text-sm text-gray-500">
-                  Location:{" "}
-                  {incident.location
-                    ? `${incident.location.latitude}, ${incident.location.longitude}`
-                    : "N/A"}
-                </p>
+          switch (incident.status) {
+            case "Resolved":
+              statusTag = "Resolved";
+              tagStyles = "bg-green-400 text-green-800 shadow-inner";
+              bgColor='bg-green-200';
+              break;
+            case "processing":
+              statusTag = "Ongoing";
+              tagStyles = "bg-yellow-400 text-yellow-800 shadow-inner";
+              bgColor='bg-yellow-200';
+              break;
+            case "submitted":
+              statusTag = "Reported";
+              tagStyles = "bg-red-400 text-red-800 shadow-inner";
+              bgColor='bg-red-200';
+              break;
+          }
 
-                <button
-                  onClick={() => toggleComments(incident.id)}
-                  className="flex items-center gap-2 mt-4 text-blue-500 hover:text-blue-700"
-                >
-                  <FaCommentDots className="text-lg" />
-                  {openCommentSection[incident.id]
-                    ? "Hide Comments"
-                    : "Comments"}
-                </button>
-
-                <div
-                  className={`transition-all duration-300 overflow-hidden ${
-                    openCommentSection[incident.id] ? "max-h-screen" : "max-h-0"
-                  }`}
-                >
-                  {openCommentSection[incident.id] && (
-                    <Suspense fallback={<p>Loading comments...</p>}>
-                      <div className="mt-4">
-                        <h3 className="text-lg font-semibold mb-4">Comments</h3>
-                        <ul className="space-y-4">
-                          {incident.comments && incident.comments.length > 0 ? (
-                            incident.comments.map((comment, index) => (
-                              <li
-                                key={index}
-                                className="flex items-start gap-3"
-                              >
-                                <div className="w-10 h-10 rounded-full flex-shrink-0">
-                                  <img
-                                    className="rounded-full"
-                                    src="https://cdn.pfps.gg/pfps/2301-default-2.png"
-                                    alt="pfp"
-                                  />
-                                </div>
-                                <div className="flex-1">
-                                  <p className="text-sm font-semibold text-gray-800">
-                                    {comment.commented_by.first_name}{" "}
-                                    {comment.commented_by.last_name}
-                                  </p>
-                                  <p className="text-sm text-gray-600">
-                                    {comment.comment}
-                                  </p>
-                                </div>
-                              </li>
-                            ))
-                          ) : (
-                            <p className="text-gray-500">No comments yet.</p>
-                          )}
-                        </ul>
-                        <AddCommentForm
-                          incidentId={incident.id}
-                          onAddComment={(newComment) => {
-                            setIncidents((prev) =>
-                              prev.map((inc) =>
-                                inc.id === incident.id
-                                  ? {
-                                      ...inc,
-                                      comments: [
-                                        ...(inc.comments || []),
-                                        newComment,
-                                      ],
-                                    }
-                                  : inc
-                              )
-                            );
-                          }}
-                        />
-                      </div>
-                    </Suspense>
-                  )}
-                </div>
+          return (
+            <div
+              key={incident.id}
+              className={`mb-6 p-6 rounded-xl ${bgColor} transition-transform hover:scale-105`}
+            >
+              <div className="flex justify-between items-center mb-4">
+                <h2 className="text-xl font-semibold text-gray-800">{incident.incidentType}</h2>
+                {statusTag && (
+                  <span className={`px-3 py-1 text-sm font-semibold rounded-full ${tagStyles}`}>
+                    {statusTag}
+                  </span>
+                )}
               </div>
-            );
-          })}
-        </div>
+
+              <p className="text-gray-600 mb-1">{incident.description}</p>
+              <p className="text-sm text-gray-500">
+                Reported at: {new Date(incident.reported_at).toLocaleString()}
+              </p>
+              <p className="text-sm text-gray-500">
+                Location: {incident.location ? `${incident.location.latitude}, ${incident.location.longitude}` : "N/A"}
+              </p>
+
+              <button
+                onClick={() => toggleComments(incident.id)}
+                className="flex items-center gap-2 mt-4 text-blue-500 hover:text-blue-700 transition-all"
+              >
+                <FaCommentDots className="text-lg drop-shadow-sm" />
+                {openCommentSection[incident.id] ? "Hide Comments" : "Comments"}
+              </button>
+
+              <div
+                className={`transition-all duration-300 overflow-hidden ${
+                  openCommentSection[incident.id] ? "max-h-screen" : "max-h-0"
+                }`}
+              >
+                {openCommentSection[incident.id] && (
+                  <Suspense fallback={<p>Loading comments...</p>}>
+                    <div className="mt-4">
+                      <h3 className="text-lg font-semibold mb-4 text-gray-700">Comments</h3>
+                      <ul className="space-y-4">
+                        {incident.comments && incident.comments.length > 0 ? (
+                          incident.comments.map((comment, index) => (
+                            <li key={index} className="flex items-start gap-3">
+                              <div className="w-10 h-10 rounded-full flex-shrink-0 shadow-md">
+                                <img
+                                  className="rounded-full"
+                                  src="https://cdn.pfps.gg/pfps/2301-default-2.png"
+                                  alt="pfp"
+                                />
+                              </div>
+                              <div className="flex-1 bg-gray-50 p-3 rounded-lg shadow-[inset_4px_4px_8px_#d1d1d1,inset_-4px_-4px_8px_#ffffff]">
+                                <p className="text-sm font-semibold text-gray-800">
+                                  {comment.commented_by.first_name} {comment.commented_by.last_name}
+                                </p>
+                                <p className="text-sm text-gray-600">{comment.comment}</p>
+                              </div>
+                            </li>
+                          ))
+                        ) : (
+                          <p className="text-gray-500">No comments yet.</p>
+                        )}
+                      </ul>
+                    </div>
+                  </Suspense>
+                )}
+              </div>
+            </div>
+          );
+        })}
       </div>
+    </div>
+  );
       <Footer />
       <FloatingChatbot />
     </>

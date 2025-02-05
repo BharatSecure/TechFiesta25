@@ -3,7 +3,9 @@ from django.conf import settings
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth.base_user import AbstractBaseUser, BaseUserManager
 from django.utils import timezone
-# from .views import get_google_maps_link
+
+def get_google_maps_link(latitude, longitude):
+    return f"https://www.google.com/maps?q={latitude},{longitude}"
 class CustomUserManager(BaseUserManager):
     def create_user(self, email, password=None, **extra_fields):
         if not email:
@@ -163,8 +165,8 @@ class Incidents(models.Model):
             if incidents.count() > 0:
                 self.score = (count / incidents.count()) * 100
             else:
-                self.score = 0  # Prevent division by zero
-        # self.maps_link = get_google_maps_link(self.location.latitude, self.location.longitude)
+                self.score = 80  # Prevent division by zero
+        self.maps_link = get_google_maps_link(self.location.latitude, self.location.longitude)
 
         super().save(*args, **kwargs)
 

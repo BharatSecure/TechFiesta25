@@ -238,7 +238,7 @@ def report_incident(request):
                                 f"Description: {incident.description}"
                             )
                             
-                            send_sms(message, number)
+                            # send_sms(message, number)
                             send_email_example(
                                 "New Incident Alert",
                                 message,
@@ -387,7 +387,7 @@ class voicereport(APIView):
                                 f"Location: ({user_lat}, {user_lon})\n"
                                 f"Description: {incident['description']}"
                             )
-                            send_sms(message, number)
+                            # send_sms(message, number)
                             send_email_example(
                                 "New Incident Alert",
                                 message,

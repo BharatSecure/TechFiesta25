@@ -83,11 +83,11 @@ const RecentIncidents = () => {
               </div>
   
               {/* Incident Details */}
-              <p className="text-gray-600 mb-1">{incident.description}</p>
-              <p className="text-sm text-gray-500">
+              <p className="text-black mb-1">{incident.description}</p>
+              <p className="text-sm text-black font-semibold">
                 Reported at: {new Date(incident.reported_at).toLocaleString()}
               </p>
-              <p className="text-sm text-gray-500">
+              <p className="text-sm text-black font-semibold">
                 Location:{" "}
                 {incident.location ? `${incident.location.latitude}, ${incident.location.longitude}` : "N/A"}
               </p>
@@ -95,7 +95,7 @@ const RecentIncidents = () => {
               {/* Comment Section */}
               <button
                 onClick={() => toggleComments(incident.id)}
-                className="flex items-center gap-2 mt-4 text-blue-500 hover:text-blue-700 transition-all bg-blue-200 px-4 py-2 rounded-lg shadow-[4px_4px_10px_#c1d5ff,-4px_-4px_10px_#ffffff] hover:scale-105"
+                className="flex items-center gap-2 mt-4 text-blue-500 hover:text-blue-700 transition-all bg-blue-200 font-semibold  px-4 py-2 rounded-lg shadow-[1px_1px_14px_#000000,-1px_-1px_15px_#000000] hover:scale-105"
               >
                 <FaCommentDots className="text-lg drop-shadow-sm" />
                 {openCommentSection[incident.id] ? "Hide Comments" : "Comments"}

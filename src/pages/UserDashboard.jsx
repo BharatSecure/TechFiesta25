@@ -35,7 +35,7 @@ const UserDashboard = () => {
   };
 
   const getStatusColor = (status) => {
-    if (status === "completed") return "bg-green-100 text-green-700";
+    if (status === "Resolved") return "bg-green-100 text-green-700";
     if (status === "submitted") return "bg-red-100 text-red-700";
     return "bg-yellow-100 text-yellow-700";
   };
@@ -53,7 +53,7 @@ const UserDashboard = () => {
 
     incidents.forEach((inci) => {
       totalIncidents++;
-      if (inci.status === "completed") {
+      if (inci.status === "Resolved") {
         resolvedIncidents++;
       } else {
         unresolvedIncidents++;
@@ -248,7 +248,118 @@ const UserDashboard = () => {
             </table>
           </div>
         </div>
+        <MdReportProblem className="text-red-500 text-6xl" />
       </div>
+
+      {/* Resolved Incidents Card */}
+      <div className="bg-white p-6 rounded-2xl shadow-soft hover:shadow-soft-hover transition-all transform hover:scale-105 flex items-center justify-between w-full sm:w-80 border-2 border-gray-100 cursor-pointer">
+        <div>
+          <h3 className="text-xl font-semibold text-gray-700">
+            Resolved Incidents
+          </h3>
+          <p className="text-3xl font-bold text-gray-900">{resolved}</p>
+        </div>
+        <MdCheckCircle className="text-green-500 text-6xl" />
+      </div>
+
+      {/* Unresolved Incidents Card */}
+      <div className="bg-white p-6 rounded-2xl shadow-soft hover:shadow-soft-hover transition-all transform hover:scale-105 flex items-center justify-between w-full sm:w-80 border-2 border-gray-100 cursor-pointer">
+        <div>
+          <h3 className="text-xl font-semibold text-gray-700">
+            Unresolved Incidents
+          </h3>
+          <p className="text-3xl font-bold text-gray-900">{unresolved}</p>
+        </div>
+        <MdHourglassEmpty className="text-yellow-500 text-6xl" />
+      </div>
+    </div>
+
+    {/* All Incidents Table */}
+    <h2 className="text-2xl font-semibold text-gray-800 mb-4 mt-16">
+      All Incidents
+    </h2>
+    <div className="overflow-x-auto">
+      <table className="min-w-full bg-white rounded-2xl shadow-soft overflow-hidden">
+        <thead className="bg-gray-100">
+          <tr>
+            <th className="p-4 text-left text-gray-600">ID</th>
+            <th className="p-4 text-left text-gray-600">Title</th>
+            <th className="p-4 text-left text-gray-600">Description</th>
+            <th className="p-4 text-left text-gray-600">Severity</th>
+            <th className="p-4 text-left text-gray-600">Status</th>
+            <th className="p-4 text-left text-gray-600">Location</th>
+            <th className="p-4 text-left text-gray-600">Chat</th>
+          </tr>
+        </thead>
+        <tbody>
+          {incidents.map((incident) => (
+            <tr
+              key={incident.id}
+              className="hover:bg-gray-50 transition-all cursor-pointer"
+            >
+              <td className="p-4 font-semibold">{incident.id}</td>
+              <td className="p-4 font-semibold">{incident.incidentType}</td>
+              <td className="p-3 max-w-80 h-5">
+                <div className="max-h-20 p-3 overflow-y-auto">{incident.description}</div>
+              </td>
+              <td className="p-4 items-center">
+                <button
+                  className={`px-4 py-2 rounded-lg text-sm font-semibold shadow-soft ${getSeverityColor(
+                    incident.severity
+                  )}`}
+                >
+                  {incident.severity?.charAt(0).toUpperCase() +
+                    incident.severity?.slice(1)}
+                </button>
+              </td>
+              <td className="p-4">
+                <button
+                  className={`px-4 py-2 rounded-lg text-sm font-semibold shadow-soft ${getStatusColor(
+                    incident.status
+                  )}`}
+                >
+                  {incident.status?.charAt(0).toUpperCase() +
+                    incident.status?.slice(1)}
+                </button>
+              </td>
+              <td className="p-4 text-gray-600">
+                Latitude: {incident.location.latitude}, Longitude:{" "}
+                {incident.location.longitude}
+              </td>
+              <td className="p-4 text-center">
+                <Popover>
+                  <PopoverTrigger>
+                    <MdChat
+                      title="Contact Authorities"
+                      className="text-sky-500 cursor-pointer hover:text-sky-700 transition-all text-3xl"
+                    />
+                  </PopoverTrigger>
+                  <PopoverContent>
+                    <div className="p-4 bg-white rounded-2xl shadow-soft w-full h-full">
+                      <h3 className="text-lg font-bold text-gray-800 mb-2">
+                        Chat with Authorities
+                      </h3>
+                      <p className="text-gray-600 mb-4">
+                        Start a conversation with authorities to discuss
+                        this incident. Provide updates or ask for guidance
+                        in real-time.
+                      </p>
+                      <div className="flex justify-end gap-2">
+                        <button className="px-4 py-2 bg-sky-500 text-white rounded-lg hover:bg-sky-600 transition-all shadow-soft hover:shadow-soft-hover">
+                          Start Chat
+                        </button>
+                      </div>
+                    </div>
+                  </PopoverContent>
+                </Popover>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
 
       <Footer />
       <FloatingChatbot />

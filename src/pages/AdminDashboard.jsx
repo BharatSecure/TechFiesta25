@@ -166,14 +166,14 @@ const AdminDashboard = () => {
     }
   };
 
-  // useEffect(() => {
-  //   const completedmarked = incidents.filter(
-  //     (incident) => incident.status === "Resolved"
-  //   );
+  useEffect(() => {
+    const completedmarked = incidents.filter(
+      (incident) => incident.status === "Resolved"
+    );
 
-  //   setCompletedId(completedmarked);
-  //   console.log("completed ids:", completedId);
-  // });
+    setCompletedId(completedmarked);
+    console.log("completed ids:", completedId);
+  }, [filter, incidents]);
 
   return (
     <div className="h-full bg-gradient-to-r from-green-100 to-green-200">
@@ -435,9 +435,9 @@ const AdminDashboard = () => {
                     incident.severity?.slice(1)}
                 </span>
 
-                <span className="text-green-800 font-bold border border-green-700 px-2 py-1 rounded text-2xl">
+                {/* <span className="text-green-800 font-bold border border-green-700 px-2 py-1 rounded text-2xl">
                   Completed
-                </span>
+                </span> */}
               </div>
               <div className="flex justify-between items-center mb-2">
                 <h3 className="text-lg font-semibold text-gray-800">

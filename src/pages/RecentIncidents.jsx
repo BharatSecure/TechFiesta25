@@ -52,17 +52,17 @@ const RecentIncidents = () => {
             case "Resolved":
               statusTag = "Completed";
               tagStyles = "bg-green-200 text-green-800";
-              bgColor='bg-green-400';
+              bgColor='bg-green-300';
               break;
             case "processing":
               statusTag = "Ongoing";
               tagStyles = "bg-yellow-200 text-yellow-800";
-              bgColor='bg-yellow-400';
+              bgColor='bg-yellow-300';
               break;
             case "submitted":
               statusTag = "Reported";
               tagStyles = "bg-red-200 text-red-800";
-              bgColor='bg-red-400';
+              bgColor='bg-red-300';
               break;
             default:
               statusTag = "Unknown";
@@ -95,7 +95,7 @@ const RecentIncidents = () => {
               {/* Comment Section */}
               <button
                 onClick={() => toggleComments(incident.id)}
-                className="flex items-center gap-2 mt-4 text-blue-500 hover:text-blue-700 transition-all bg-blue-200 font-semibold  px-4 py-2 rounded-lg shadow-[1px_1px_14px_#000000,-1px_-1px_15px_#000000] hover:scale-105"
+                className="flex items-center gap-2 mt-4 text-blue-500 hover:text-blue-700 transition-all bg-blue-200 font-semibold  px-4 py-2 rounded-lg  hover:scale-105"
               >
                 <FaCommentDots className="text-lg drop-shadow-sm" />
                 {openCommentSection[incident.id] ? "Hide Comments" : "Comments"}

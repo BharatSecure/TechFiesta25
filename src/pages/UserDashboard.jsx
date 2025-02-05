@@ -41,7 +41,7 @@ const UserDashboard = () => {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem("userType")
+    localStorage.removeItem("userType");
     logout();
     navigate("/login");
   };
@@ -181,10 +181,7 @@ const UserDashboard = () => {
                 </tr>
               </thead>
               <tbody>
-
-               
-                {
-                incidents.map((incident) => (
+                {incidents.map((incident) => (
                   <tr
                     key={incident.id}
                     className="hover:bg-gray-50 transition-all cursor-pointer"
@@ -217,10 +214,7 @@ const UserDashboard = () => {
                       </button>
                     </td>
                     {/* <td className="p-4 text-gray-600">{incident.location}</td> */}
-                    <td className="p-4 text-gray-600">
-                      Latitude: {incident.location.latitude}, Longitude:{" "}
-                      {incident.location.longitude}
-                    </td>
+                    <td className="p-4 text-gray-600">{incident.maps_link}</td>
                     <td className="p-4 text-center">
                       <Popover>
                         <PopoverTrigger>

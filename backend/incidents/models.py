@@ -3,6 +3,7 @@ from django.conf import settings
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth.base_user import AbstractBaseUser, BaseUserManager
 from django.utils import timezone
+# from .views import get_google_maps_link
 class CustomUserManager(BaseUserManager):
     def create_user(self, email, password=None, **extra_fields):
         if not email:
@@ -148,10 +149,28 @@ class Incidents(models.Model):
     hospital_station = models.ForeignKey(Hospital, on_delete=models.DO_NOTHING, null=True, blank=True)
     status = models.CharField(default='submitted', choices=STATUS_CHOICES, max_length=50)
     remarks = models.CharField(default='None', max_length=300)
+    maps_link = models.CharField(default="None", max_length=100)
+    score = models.DecimalField(decimal_places=2, default=0, max_digits=4)
     true_or_false = models.BooleanField(default=False)
+
+    def save(self, *args, **kwargs):
+        if self.reported_by and self.reported_by.first_name == 'Anonymous':
+            self.score = 50
+        else:
+            incidents = Incidents.objects.filter(reported_by=self.reported_by)
+            count = sum(1 for incident in incidents if incident.true_or_false)  # Fixed count initialization
+            
+            if incidents.count() > 0:
+                self.score = (count / incidents.count()) * 100
+            else:
+                self.score = 0  # Prevent division by zero
+        # self.maps_link = get_google_maps_link(self.location.latitude, self.location.longitude)
+
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return f"{self.incidentType}: {self.id}"
+    
 class Comment(models.Model):
     comment = models.TextField()
     file = models.FileField(upload_to='comments_files/', blank=True, null=True)

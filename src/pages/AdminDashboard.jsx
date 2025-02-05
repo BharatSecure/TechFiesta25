@@ -1,4 +1,4 @@
-import  { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import {
   MdReportProblem,
   MdCheckCircle,
@@ -22,7 +22,7 @@ const AdminDashboard = () => {
   const [filter, setFilter] = useState("All");
   const [filternew, setFilterNew] = useState([]);
   const [incidents, setIncidents] = useState([]);
-const [completedId,setCompletedId]=useState([])
+  const [completedId, setCompletedId] = useState([]);
 
   const token = localStorage.getItem("accessToken");
   const getincidents = async () => {
@@ -41,10 +41,6 @@ const [completedId,setCompletedId]=useState([])
       if (response.ok) {
         const incidentData = await response.json();
         setIncidents(incidentData);
-        console.log('all incidents admin',incidents);
-      
-       
-        
       } else {
         console.error("Failed to fetch incidents");
       }
@@ -52,6 +48,9 @@ const [completedId,setCompletedId]=useState([])
       console.error("Error fetching incidents:", error);
     }
   };
+  useEffect(() => {
+    console.log("all incidents admin", incidents);
+  }, [incidents]);
 
   useEffect(() => {
     getincidents();
@@ -63,7 +62,6 @@ const [completedId,setCompletedId]=useState([])
       return "text-yellow-700 border-yellow-600 bg-yellow-200";
     if (severity === "high") return "text-red-700 border-red-600 bg-red-200";
     return "text-gray-700 border-gray-600 bg-gray-200";
- 
   };
 
   const { logout } = useAuth();
@@ -104,11 +102,14 @@ const [completedId,setCompletedId]=useState([])
   useEffect(() => {
     const filteredIncidents = incidents.filter((incident) => {
       if (filter === "All") {
-        return incident.status !== "submitted"&&incident.status !== "Resolved" ;
+        return (
+          incident.status !== "submitted" && incident.status !== "Resolved"
+        );
       }
       return (
         incident.severity === filter.toLowerCase() &&
-        incident.status !== "submitted"&&incident.status !== "Resolved" 
+        incident.status !== "submitted" &&
+        incident.status !== "Resolved"
       );
     });
 
@@ -130,8 +131,6 @@ const [completedId,setCompletedId]=useState([])
           },
           body: JSON.stringify({ status: "processing" }),
         }
-        
-        
       );
 
       if (response.ok) {
@@ -167,21 +166,14 @@ const [completedId,setCompletedId]=useState([])
     }
   };
 
-useEffect(() => {
-  const completedmarked = incidents.filter((incident)=> incident.status==="Resolved"
+  useEffect(() => {
+    const completedmarked = incidents.filter(
+      (incident) => incident.status === "Resolved"
+    );
 
-  )
-
-  setCompletedId(completedmarked)
-  console.log('completed ids:' , completedId)
- 
-}, )
-
-
-
-
-
-
+    setCompletedId(completedmarked);
+    console.log("completed ids:", completedId);
+  }, [filter, incidents]);
 
   return (
     <div className="h-full bg-gradient-to-r from-green-100 to-green-200">
@@ -254,7 +246,7 @@ useEffect(() => {
                       )}`}
                     >
                       {incident.severity?.charAt(0).toUpperCase() +
-                          incident.severity?.slice(1)}
+                        incident.severity?.slice(1)}
                     </span>
                   </div>
                   <div className="flex justify-between items-center mb-2">
@@ -269,14 +261,21 @@ useEffect(() => {
                     {incident.description}
                   </p>
                   <p className="text-gray-600 text-sm mb-2">
-                  Reported By:  <span className="font-semibold text-black">{incident.reported_by?.first_name|| "Unknown"} </span>  <span className="font-semibold text-black">{incident.reported_by?.last_name|| ""}</span>
-                    Reported By: {incident.reported_by?.first_name || "Unknown"}{" "}
-                    {incident.reported_by?.last_name}
+                    Reported By:{" "}
+                    <span className="font-semibold text-black">
+                      {incident.reported_by?.first_name || "Unknown"}{" "}
+                    </span>{" "}
+                    <span className="font-semibold text-black">
+                      {incident.reported_by?.last_name || ""}
+                    </span>
                   </p>
                   <p className="text-gray-600 text-sm mb-4">
-                  Location: <span className="font-semibold text-black">{incident.location
-                  ? `${incident.location.latitude}, ${incident.location.longitude}`
-                  : "No location"}</span> 
+                    Location:{" "}
+                    <span className="font-semibold text-black">
+                      {incident.location
+                        ? `${incident.location.latitude}, ${incident.location.longitude}`
+                        : "No location"}
+                    </span>
                   </p>
                   <button
                     className="bg-purple-400 hover:bg-purple-600 px-5 py-2 rounded-lg text-black"
@@ -296,8 +295,7 @@ useEffect(() => {
           </div>
         )}
 
-
-            {/*ACEPPTED INCIDENTS*/}
+        {/*ACEPPTED INCIDENTS*/}
 
         <h1 className="text-4xl font-semibold mb-5">Accepted Incidents</h1>
         <form className="mb-6 flex flex-row items-center justify-start gap-4 space-y-2">
@@ -334,8 +332,8 @@ useEffect(() => {
                     incident.severity
                   )}`}
                 >
-                   {incident.severity?.charAt(0).toUpperCase() +
-                          incident.severity?.slice(1)}
+                  {incident.severity?.charAt(0).toUpperCase() +
+                    incident.severity?.slice(1)}
                 </span>
               </div>
               <div className="flex justify-between items-center mb-2">
@@ -350,13 +348,21 @@ useEffect(() => {
                 {incident.description}
               </p>
               <p className="text-gray-600 text-sm mb-2">
-                Reported By:  <span className="font-semibold text-black">{incident.reported_by?.first_name|| "Unknown"} </span>  <span className="font-semibold text-black">{incident.reported_by?.last_name|| ""}</span>
+                Reported By:{" "}
+                <span className="font-semibold text-black">
+                  {incident.reported_by?.first_name || "Unknown"}{" "}
+                </span>{" "}
+                <span className="font-semibold text-black">
+                  {incident.reported_by?.last_name || ""}
+                </span>
               </p>
               <p className="text-gray-600 text-sm mb-4">
-
-               Location: <span className="font-semibold text-black">{incident.location
-                  ? `${incident.location.latitude}, ${incident.location.longitude}`
-                  : "No location"}</span> 
+                Location:{" "}
+                <span className="font-semibold text-black">
+                  {incident.location
+                    ? `${incident.location.latitude}, ${incident.location.longitude}`
+                    : "No location"}
+                </span>
               </p>
 
               <div className="flex gap-4 items-center">
@@ -387,7 +393,6 @@ useEffect(() => {
                 {incident.status !== "Resolved" && (
                   <button
                     onClick={() => handleMarkAsCompleted(incident.id)}
-                    
                     className="bg-green-500 text-white px-5 py-2 rounded hover:bg-green-600"
                   >
                     Mark as Completed
@@ -412,8 +417,9 @@ useEffect(() => {
         </div>
 
         {/*COmpleted Incidentss */}
-        <h1 className="text-4xl font-semibold mb-5 mt-12">Completed Incidents</h1>
-        
+        <h1 className="text-4xl font-semibold mb-5 mt-12">
+          Completed Incidents
+        </h1>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-12 from-green-100 to-green-200">
           {completedId.map((incident) => (
@@ -425,13 +431,13 @@ useEffect(() => {
                 <span
                   className={`px-3 py-1 rounded border font-bold text-lg bg-green-300`}
                 >
-                   {incident.severity?.charAt(0).toUpperCase() +
-                          incident.severity?.slice(1)}
+                  {incident.severity?.charAt(0).toUpperCase() +
+                    incident.severity?.slice(1)}
                 </span>
 
-                <span className="text-green-800 font-bold border border-green-700 px-2 py-1 rounded text-2xl">
-                    Completed
-                  </span>
+                {/* <span className="text-green-800 font-bold border border-green-700 px-2 py-1 rounded text-2xl">
+                  Completed
+                </span> */}
               </div>
               <div className="flex justify-between items-center mb-2">
                 <h3 className="text-lg font-semibold text-gray-800">
@@ -445,13 +451,21 @@ useEffect(() => {
                 {incident.description}
               </p>
               <p className="text-gray-600 text-sm mb-2">
-                Reported By:  <span className="font-semibold text-black">{incident.reported_by?.first_name|| "Unknown"} </span>  <span className="font-semibold text-black">{incident.reported_by?.last_name|| ""}</span>
+                Reported By:{" "}
+                <span className="font-semibold text-black">
+                  {incident.reported_by?.first_name || "Unknown"}{" "}
+                </span>{" "}
+                <span className="font-semibold text-black">
+                  {incident.reported_by?.last_name || ""}
+                </span>
               </p>
               <p className="text-gray-600 text-sm mb-4">
-
-               Location: <span className="font-semibold text-black">{incident.location
-                  ? `${incident.location.latitude}, ${incident.location.longitude}`
-                  : "No location"}</span> 
+                Location:{" "}
+                <span className="font-semibold text-black">
+                  {incident.location
+                    ? `${incident.location.latitude}, ${incident.location.longitude}`
+                    : "No location"}
+                </span>
               </p>
 
               <div className="flex gap-4 items-center">
@@ -487,10 +501,6 @@ useEffect(() => {
                     Mark as Completed
                   </button>
                 )}
-
-              
-                  
-              
               </div>
 
               <button
@@ -502,12 +512,6 @@ useEffect(() => {
             </div>
           ))}
         </div>
-
-
-
-
-
-
       </div>
       <Footer />
     </div>

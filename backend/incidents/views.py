@@ -131,80 +131,114 @@ class LoginView(APIView):
             }, status=status.HTTP_401_UNAUTHORIZED)
         
         
-@api_view(['POST'])
-def report_incident(request):
-    user = None
-    
-    # Check for authentication token if provided
-    auth_header = request.META.get('HTTP_AUTHORIZATION')
-    if auth_header and auth_header.startswith('Bearer '):
-        try:
-            # Extract and validate token
-            token_str = auth_header.split(' ')[1]
-            token = AccessToken(token_str)
-            user = User.objects.get(id=token['user_id'])
-        except Exception:
-            print("User not found")
-            # If token validation fails, we'll fall back to anonymous user
-            pass
-    
-    # If no valid authentication was provided or token validation failed,
-    # get or create anonymous user
-    if not user:
-        user, _ = User.objects.get_or_create(
-            email='anonymous@example.com',
-            defaults={
-                'first_name': 'Anonymous',
-                'last_name': 'User',
-                'phone_number': '0000000000',
-                'address': 'Anonymous',
-                'aadhar_number': '000000000000',
-                'emergency_contact1': '0000000000',
-                'emergency_contact2': '0000000000',
-                'password': 'anonymous'
-            }
-        )
-    
-    # Map incident types to appropriate station models
-    station_map = {
-        'Fire': [FireStations, PoliceStations, Hospital],
-        'Theft': [PoliceStations],
-        'Accident': [PoliceStations, Hospital],
-        'Missing Persons': [PoliceStations],
-        'Other': [None]
-    }
-    
-    serializer = IncidentSerializer(data=request.data)
 
-    if serializer.is_valid():
-        # Save the incident with the appropriate user
-        incident = serializer.save(reported_by=user)
+class form_report(APIView):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.llm = model
+        self.prompt = ChatPromptTemplate.from_messages([
+            ("system", """
+            Analyze the incident report and determine its severity level based on the following criteria:
 
-        # Parse and validate location data
-        try:
-            if isinstance(incident.location, str):
-                incident.location = json.loads(incident.location)
-        except json.JSONDecodeError:
-            return Response({
-                "error": "Invalid location data format"
-            }, status=status.HTTP_400_BAD_REQUEST)
+            high:
+            - Immediate threat to life
+            - Multiple casualties
+            - Large-scale property damage
+            - Ongoing dangerous situation
 
-        user_lat = incident.location.get('latitude')
-        user_lon = incident.location.get('longitude')
+            medium:
+            - Non-life-threatening injuries
+            - Significant property damage
+            - Potential for situation escalation
+            - Missing persons cases
 
-        if not user_lat or not user_lon or \
-           not isinstance(user_lat, (int, float)) or \
-           not isinstance(user_lon, (int, float)):
-            return Response({
-                "error": "Location must include valid latitude and longitude"
-            }, status=status.HTTP_400_BAD_REQUEST)
+            low:
+            - Minor incidents
+            - No injuries
+            - Minor property damage
+            - Non-emergency situations
 
-        # Get the station models for the incident type
-        station_models = station_map.get(incident.incidentType, [])
+            Return ONLY one of these words: high, medium, or low
+            """),
+            ("human", "{user_input}")
+        ])
+        self.chain = self.prompt | self.llm | StrOutputParser()
 
-        if station_models:
+    def post(self, request, *args, **kwargs):
+        user = None
+        
+        # Check for authentication token if provided
+        auth_header = request.META.get('HTTP_AUTHORIZATION')
+        if auth_header and auth_header.startswith('Bearer '):
             try:
-                # Initialize variables to store the nearest stations
+                token_str = auth_header.split(' ')[1]
+                token = AccessToken(token_str)
+                user = User.objects.get(id=token['user_id'])
+            except Exception as e:
+                print(f"Authentication error: {str(e)}")
+                # If token validation fails, fall back to anonymous user
+                pass
+        
+        # If no valid authentication was provided or token validation failed,
+        # get or create anonymous user
+        if not user:
+            user, _ = User.objects.get_or_create(
+                email='anonymous@example.com',
+                defaults={
+                    'first_name': 'Anonymous',
+                    'last_name': 'User',
+                    'phone_number': '0000000000',
+                    'address': 'Anonymous',
+                    'aadhar_number': '000000000000',
+                    'emergency_contact1': '0000000000',
+                    'emergency_contact2': '0000000000',
+                    'password': 'anonymous'
+                }
+            )
+        
+        # Map incident types to appropriate station models
+        station_map = {
+            'Fire': [FireStations, PoliceStations, Hospital],
+            'Theft': [PoliceStations],
+            'Accident': [PoliceStations, Hospital],
+            'Missing Persons': [PoliceStations],
+            'Other': []  # Changed from [None] to empty list
+        }
+
+        try:
+            data = request.data.copy()
+            response = self.chain.invoke({"user_input": data})
+            data['severity'] = response.strip()
+            print(response)
+            serializer = IncidentSerializer(data=data)
+
+            if serializer.is_valid():
+                # Save the incident with the appropriate user
+                incident = serializer.save(reported_by=user)
+
+                # Parse and validate location data
+                try:
+                    if isinstance(incident.location, str):
+                        incident.location = json.loads(incident.location)
+                except json.JSONDecodeError:
+                    return Response({
+                        "error": "Invalid location data format"
+                    }, status=status.HTTP_400_BAD_REQUEST)
+
+                user_lat = incident.location.get('latitude')
+                user_lon = incident.location.get('longitude')
+
+                if not user_lat or not user_lon or \
+                not isinstance(user_lat, (int, float)) or \
+                not isinstance(user_lon, (int, float)):
+                    return Response({
+                        "error": "Location must include valid latitude and longitude"
+                    }, status=status.HTTP_400_BAD_REQUEST)
+
+                # Get the station models for the incident type
+                station_models = station_map.get(incident.incidentType, [])
+                user_location = (user_lat, user_lon)
+
                 nearest_police_station = None
                 nearest_fire_station = None
                 nearest_hospital = None
@@ -216,7 +250,7 @@ def report_incident(request):
                         nearest_station = min(
                             stations,
                             key=lambda station: great_circle(
-                                (user_lat, user_lon),
+                                user_location,
                                 (station.latitude, station.longitude)
                             ).km
                         )
@@ -229,42 +263,45 @@ def report_incident(request):
                         elif station_model == Hospital:
                             nearest_hospital = nearest_station
 
-                        # Send notifications
+                        # Send notifications with enhanced message
                         try:
                             number = '+91' + str(nearest_station.number)
                             message = (
                                 f"New {incident.incidentType} reported!\n"
+                                f"Severity: {response}\n"
                                 f"Location: ({user_lat}, {user_lon})\n"
-                                f"Description: {incident.description}"
+                                f"Description: {incident.description}\n"
+                                f"Reported by: {user.first_name} {user.last_name}"
                             )
                             
                             # send_sms(message, number)
                             send_email_example(
-                                "New Incident Alert",
+                                f"New {response} Priority Incident Alert",
                                 message,
                                 nearest_station.email
                             )
                         except Exception as e:
-                            # Log notification error but don't fail the request
-                            print(f"Notification error: {str(e)}")
+                            print(f"Notification error for station {nearest_station.id}: {str(e)}")
+                            # Continue processing even if notification fails
 
                 # Update the incident with the nearest stations
                 incident.police_station = nearest_police_station
                 incident.fire_station = nearest_fire_station
                 incident.hospital_station = nearest_hospital
                 incident.save()
-            except Exception as e:
+
                 return Response({
-                    "error": f"Error processing station data: {str(e)}"
-                }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                    "message": "Incident reported successfully!",
+                    "incident_id": incident.id,
+                    "severity": response
+                }, status=status.HTTP_201_CREATED)
 
-        return Response({
-            "message": "Incident reported successfully!",
-            "incident_id": incident.id
-        }, status=status.HTTP_201_CREATED)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
+        except Exception as e:
+            return Response({
+                "error": f"An unexpected error occurred: {str(e)}"
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 class voicereport(APIView):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)

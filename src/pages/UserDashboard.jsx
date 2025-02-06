@@ -215,10 +215,7 @@ const UserDashboard = () => {
                           incident.status?.slice(1)}
                       </button>
                     </td>
-                    <td className="p-4 text-gray-600">
-                      Latitude: {incident.location.latitude}, Longitude:{" "}
-                      {incident.location.longitude}
-                    </td>
+                    <td className="p-4 text-gray-600">{incident.maps_link}</td>
                     <td className="p-4 text-center">
                       <Popover>
                         <PopoverTrigger>

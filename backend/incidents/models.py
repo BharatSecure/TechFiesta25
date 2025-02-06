@@ -166,7 +166,7 @@ class Incidents(models.Model):
                 self.score = (count / incidents.count()) * 100
             else:
                 self.score = 80  # Prevent division by zero
-        self.maps_link = get_google_maps_link(self.location.latitude, self.location.longitude)
+        self.maps_link = get_google_maps_link(self.location['latitude'], self.location["longitude"])
 
         super().save(*args, **kwargs)
 

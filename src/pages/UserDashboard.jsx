@@ -27,11 +27,11 @@ const UserDashboard = () => {
 
   const getSeverityColor = (severity) => {
     if (severity === "low")
-      return "text-yellow-700 border-lime-600 bg-lime-300 border-2";
+      return "text-yellow-700 border-lime-600 bg-white border-4";
     if (severity === "medium")
-      return "text-yellow-700 border-yellow-600 bg-yellow-300 border-2";
+      return "text-yellow-700 border-yellow-600 bg-white border-4";
     if (severity === "high")
-      return "text-red-800 border-red-600 bg-red-300 border-2";
+      return "text-red-800 border-red-600 bg-white border-4";
   };
 
   const getStatusColor = (status) => {
@@ -184,7 +184,11 @@ const UserDashboard = () => {
           {incidents.map((incident) => (
             <tr
               key={incident.id}
-              className="hover:bg-gray-50 transition-all cursor-pointer"
+              className={`transition-all cursor-pointer ${
+                incident.severity === "high" ? "hover:bg-red-100" :
+                incident.severity === "medium" ? "hover:bg-yellow-100" :
+                incident.severity === "low" ? "hover:bg-blue-100" : ""
+              }`}
             >
               <td className="p-4 font-semibold">{incident.id}</td>
               <td className="p-4 font-semibold">{incident.incidentType}</td>
@@ -193,7 +197,7 @@ const UserDashboard = () => {
               </td>
               <td className="p-4 items-center">
                 <button
-                  className={`px-4 py-2 rounded-lg text-sm font-semibold shadow-soft ${getSeverityColor(
+                  className={`px-4 py-2 rounded-xl text-sm font-semibold shadow-soft ${getSeverityColor(
                     incident.severity
                   )}`}
                 >

@@ -52,17 +52,17 @@ const RecentIncidents = () => {
             case "Resolved":
               statusTag = "Completed";
               tagStyles = "bg-green-200 text-green-800";
-              bgColor='bg-green-300';
+              bgColor='bg-green-200';
               break;
             case "processing":
               statusTag = "Ongoing";
               tagStyles = "bg-yellow-200 text-yellow-800";
-              bgColor='bg-yellow-300';
+              bgColor='bg-yellow-200';
               break;
             case "submitted":
               statusTag = "Reported";
               tagStyles = "bg-red-200 text-red-800";
-              bgColor='bg-red-300';
+              bgColor='bg-red-200';
               break;
             default:
               statusTag = "Unknown";

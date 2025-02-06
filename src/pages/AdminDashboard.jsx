@@ -429,7 +429,7 @@ const AdminDashboard = () => {
             >
               <div className="flex justify-between items-center mb-4">
                 <span
-                  className={`px-3 py-1 rounded border font-bold text-lg bg-green-300`}
+                  className={`px-3 py-1 rounded border font-bold text-lg border-green-500 bg-green-300`}
                 >
                   {incident.severity?.charAt(0).toUpperCase() +
                     incident.severity?.slice(1)}

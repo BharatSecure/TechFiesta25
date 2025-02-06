@@ -321,7 +321,7 @@ const IncidentReportForm = () => {
 
   return (
     <>
-      <div className="min-h-screen bg-gradient-to-b from-gray-100 via-gray-200 to-gray-300 flex flex-col items-center py-10 px-4">
+      <div className="min-h-screen bg-gradient-to-b from-slate-900 via-blue-950 to-black flex flex-col items-center py-10 px-4">
         {/* Heading and Description */}
         <SimpleModal
           open={offlineModalOpen}

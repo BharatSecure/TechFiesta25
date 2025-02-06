@@ -176,7 +176,7 @@ const AdminDashboard = () => {
   }, [filter, incidents]);
 
   return (
-    <div className="h-full bg-gradient-to-r from-green-100 to-green-200">
+    <div className="h-full bg-gradient-to-b from-slate-900 via-blue-950">
       <div className="flex-grow p-8 pb-24">
         <header className="mb-6 lg:text-center">
           <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-800">
@@ -429,7 +429,7 @@ const AdminDashboard = () => {
             >
               <div className="flex justify-between items-center mb-4">
                 <span
-                  className={`px-3 py-1 rounded border font-bold text-lg bg-green-300`}
+                  className={`px-3 py-1 rounded border font-bold text-lg border-green-500 bg-green-300`}
                 >
                   {incident.severity?.charAt(0).toUpperCase() +
                     incident.severity?.slice(1)}

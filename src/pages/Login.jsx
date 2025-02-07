@@ -82,7 +82,7 @@ const Login = () => {
             alignItems: "center",
             justifyContent: "center",
             background:
-              "url('https://i.pinimg.com/736x/2c/90/a3/2c90a3402573bea4f3ba5b85c1008cc5.jpg') no-repeat center center fixed",
+              "url('https://preview.redd.it/dark-magical-forest-desktop-wallpaper-3840x2160-v0-gtjs6enuckjd1.jpeg?auto=webp&s=29ecf260c86d42345270b3ddd35c9ba9ea7e14f4') no-repeat center center fixed",
             backgroundSize: "cover",
           }}
         >

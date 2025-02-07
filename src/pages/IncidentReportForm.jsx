@@ -352,7 +352,7 @@ const IncidentReportForm = () => {
           animate={{ opacity: 1, y: 0 }}
           className="max-w-2xl mx-auto"
         >
-          <div className="bg-slate-900 rounded-2xl p-8 shadow-[inset_0_2px_4px_rgba(255,255,255,0.1)] border border-slate-800">
+          <div className="bg-slate-900 rounded-2xl p-8 border border-cyan-500 shadow-[0_0_10px_cyan] transition-all duration-300 hover:shadow-[0_0_20px_cyan]">
             <form onSubmit={handleSubmit} className="space-y-6">
               {/* Incident Type Section */}
               <div className="relative">

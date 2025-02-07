@@ -1,3 +1,4 @@
+from django.conf import settings
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from geopy.distance import great_circle
@@ -458,6 +459,14 @@ def update_incident(request, id):
         incident.status = status
         incident.save()
         serializer = IncidentSerializer(incident)
+        user = incident.reported_by
+        
+        # Send Email Notification
+        subject = f"Incident Status Updated: {incident.id}"
+        message = f"Dear {user.username},\n\nThe status of your reported incident (ID: {incident.id}) has been updated to: {status}.\n\nThank you,\nIncident Management Team"
+        recipient_email = user.email  # Get user email
+
+        send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, [recipient_email])
         return Response(serializer.data, status=200)
     except Exception as e:
         return Response({"message": f"Error Occurred: {e}"}, status=400)      

@@ -113,142 +113,167 @@ const UserDashboard = () => {
 
   console.log("user data dashboard", incidents);
   return (
-<>
-<div className="min-h-screen bg-gradient-to-b from-slate-900 via-blue-950 to-slate-900">
-      <div className="p-4 md:p-8 max-w-[1600px] mx-auto">
-        {/* Header */}
-        <div className="mb-10">
-        <h1 className="text-2xl text-left md:text-center md:text-5xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-sky-400 to-blue-600">
-            Your Dashboard
-          </h1>
-          <button
-            onClick={handleLogout}
-            className="px-4 py-2 bg-red-500/10 text-red-500 font-bold border border-red-500/20 rounded-lg hover:bg-red-500/20 transition-all absolute right-8 top-20 md:top-28"
-          >
-            Logout
-          </button>
-        
-        </div>
-         
+    <>
+      <div className="min-h-screen bg-gradient-to-b from-slate-900 via-blue-950 to-slate-900">
+        <div className="p-4 md:p-8 max-w-[1600px] mx-auto">
+          {/* Header */}
+          <div className="mb-10">
+            <h1 className="text-2xl text-left md:text-center md:text-5xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-sky-400 to-blue-600">
+              Your Dashboard
+            </h1>
+            <button
+              onClick={handleLogout}
+              className="px-4 py-2 bg-red-500/10 text-red-500 font-bold border border-red-500/20 rounded-lg hover:bg-red-500/20 transition-all absolute right-8 top-20 md:top-28"
+            >
+              Logout
+            </button>
+          </div>
 
-        {/* Dashboard Stats Cards */}
-        <div className="flex flex-col md:flex-row  items-center gap-6  mb-8 justify-center ">
-          {/* Total Incidents Card */}
-          <div className="bg-white/5 p-6 rounded-2xl cursor-pointer border border-white/10 shadow-[0px_5px_15px_rgba(255,255,255,0.1),0px_10px_25px_rgba(0,0,0,0.7)] transition-all hover:scale-105 hover:shadow-[0px_10px_30px_rgba(255,255,255,0.15),0px_15px_50px_rgba(0,0,0,0.8)] flex items-center justify-between group w-64 md:w-80">
-  <div>
-    <h3 className="text-gray-400 font-medium mb-1">Total Incidents</h3>
-    <p className="text-3xl font-bold text-white">{total}</p>
-  </div>
-  <AlertTriangle className="text-red-400 w-12 h-12 group-hover:scale-110 transition-transform" />
-</div>
+          {/* Dashboard Stats Cards */}
+          <div className="flex flex-col md:flex-row  items-center gap-6  mb-8 justify-center ">
+            {/* Total Incidents Card */}
+            <div className="bg-white/5 p-6 rounded-2xl cursor-pointer border border-white/10 shadow-[0px_5px_15px_rgba(255,255,255,0.1),0px_10px_25px_rgba(0,0,0,0.7)] transition-all hover:scale-105 hover:shadow-[0px_10px_30px_rgba(255,255,255,0.15),0px_15px_50px_rgba(0,0,0,0.8)] flex items-center justify-between group w-64 md:w-80">
+              <div>
+                <h3 className="text-gray-400 font-medium mb-1">
+                  Total Incidents
+                </h3>
+                <p className="text-3xl font-bold text-white">{total}</p>
+              </div>
+              <AlertTriangle className="text-red-400 w-12 h-12 group-hover:scale-110 transition-transform" />
+            </div>
 
+            {/* Resolved Incidents Card */}
 
-          {/* Resolved Incidents Card */}
-         
-          <div className="bg-white/5 cursor-pointer  p-6 rounded-2xl border border-white/10 shadow-[0px_5px_15px_rgba(255,255,255,0.1),0px_10px_25px_rgba(0,0,0,0.7)] transition-all hover:scale-105 hover:shadow-[0px_10px_30px_rgba(100,255,100,0.2),0px_15px_50px_rgba(0,0,0,0.8)] flex items-center justify-between group w-64 md:w-80">
-  <div>
-    <h3 className="text-gray-400 font-medium mb-1">Resolved</h3>
-    <p className="text-3xl font-bold text-white">{resolved}</p>
-  </div>
-  <CheckCircle2 className="text-emerald-400 w-12 h-12 group-hover:scale-110 transition-transform" />
-</div>
+            <div className="bg-white/5 cursor-pointer  p-6 rounded-2xl border border-white/10 shadow-[0px_5px_15px_rgba(255,255,255,0.1),0px_10px_25px_rgba(0,0,0,0.7)] transition-all hover:scale-105 hover:shadow-[0px_10px_30px_rgba(100,255,100,0.2),0px_15px_50px_rgba(0,0,0,0.8)] flex items-center justify-between group w-64 md:w-80">
+              <div>
+                <h3 className="text-gray-400 font-medium mb-1">Resolved</h3>
+                <p className="text-3xl font-bold text-white">{resolved}</p>
+              </div>
+              <CheckCircle2 className="text-emerald-400 w-12 h-12 group-hover:scale-110 transition-transform" />
+            </div>
 
+            {/* Unresolved Incidents Card */}
+            <div className="bg-white/5  p-6 cursor-pointer rounded-2xl border border-white/10 shadow-[0px_5px_15px_rgba(255,255,255,0.1),0px_10px_25px_rgba(0,0,0,0.7)] transition-all hover:scale-105 hover:shadow-[0px_10px_30px_rgba(255,204,0,0.2),0px_15px_50px_rgba(0,0,0,0.8)] flex items-center justify-between group w-64 md:w-80">
+              <div>
+                <h3 className="text-gray-400 font-medium mb-1">Unresolved</h3>
+                <p className="text-3xl font-bold text-white">{unresolved}</p>
+              </div>
+              <Timer className="text-yellow-400 w-12 h-12 group-hover:scale-110 transition-transform" />
+            </div>
+          </div>
 
-          {/* Unresolved Incidents Card */}
-          <div className="bg-white/5  p-6 cursor-pointer rounded-2xl border border-white/10 shadow-[0px_5px_15px_rgba(255,255,255,0.1),0px_10px_25px_rgba(0,0,0,0.7)] transition-all hover:scale-105 hover:shadow-[0px_10px_30px_rgba(255,204,0,0.2),0px_15px_50px_rgba(0,0,0,0.8)] flex items-center justify-between group w-64 md:w-80">
-  <div>
-    <h3 className="text-gray-400 font-medium mb-1">Unresolved</h3>
-    <p className="text-3xl font-bold text-white">{unresolved}</p>
-  </div>
-  <Timer className="text-yellow-400 w-12 h-12 group-hover:scale-110 transition-transform" />
-</div>
-
-        </div>
-
-        {/* All Incidents Table */}
-        <div className="rounded-2xl border border-white/10  overflow-hidden">
-          <h2 className="text-xl font-semibold text-white p-6 border-b border-white/10 bg-white/5">
-            All Incidents
-          </h2>
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr className="border-b border-white/10 bg-white/5">
-                  <th className="p-4 text-center text-gray-400 font-medium">ID</th>
-                  <th className="p-4 text-center text-gray-400 font-medium">Title</th>
-                  <th className="p-4 text-center text-gray-400 font-medium">Description</th>
-                  <th className="p-4 text-center text-gray-400 font-medium">Severity</th>
-                  <th className="p-4 text-center text-gray-400 font-medium">Status</th>
-                  <th className="p-4 text-center text-gray-400 font-medium">Location</th>
-                  <th className="p-4 text-center text-gray-400 font-medium">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {incidents.map((incident) => (
-                  <tr
-                    key={incident.id}
-                    className="border-b border-white/10 hover:bg-white/5 transition-color text-center"
-                  >
-                    <td className="p-4 text-gray-300">#{incident.id}</td>
-                    <td className="p-4 text-white font-medium">{incident.incidentType}</td>
-                    <td className="p-4 text-gray-300 max-w-xs">
-                      <div className="line-clamp-2 overflow-y-auto">{incident.description}</div>
-                    </td>
-                    <td className="p-4">
-                      <span className={` rounded-lg px-4 py-2 bg-transparent w-28 text-center  font-bold ${getSeverityColor(incident.severity)}`}>
-                        {incident.severity?.charAt(0).toUpperCase() + incident.severity?.slice(1)}
-                      </span>
-                    </td>
-                    <td className="p-4">
-                      <span className={`inline-flex  bg-transparent px-3 py-1 rounded-full border-2 border-gray-500 font-semibold text-base ${getStatusColor(incident.status)}`}>
-                        {incident.status?.charAt(0).toUpperCase() + incident.status?.slice(1)}
-                      </span>
-                    </td>
-                    <td className="p-4">
-                      <a
-                        href={incident.maps_link}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center text-sky-400 hover:text-sky-300 transition-colors"
-                      >
-                        <MapPin className="text-xl" />
-                      </a>
-                    </td>
-                    <td className="p-4">
-                      <Popover>
-                        <PopoverTrigger>
-                          <button className="inline-flex items-center text-sky-400 hover:text-sky-300 transition-colors">
-                            <MessageCircle className="text-xl" />
-                          </button>
-                        </PopoverTrigger>
-                        <PopoverContent className="bg-gradient-to-b from-slate-900 via-blue-950 to-slate-900">
-                          <div className="p-4 bg-transparent  rounded-xl border border-white/20">
-                            <h3 className="text-lg font-semibold text-white mb-2">
-                              Chat with Authorities
-                            </h3>
-                            <p className="text-gray-300 mb-4 text-sm">
-                              Start a conversation with authorities to discuss this incident.
-                            </p>
-                            <button className="w-full px-4 py-2 bg-sky-500 text-white rounded-lg hover:bg-sky-600 transition-all">
-                              Start Chat
-                            </button>
-                          </div>
-                        </PopoverContent>
-                      </Popover>
-                    </td>
+          {/* All Incidents Table */}
+          <div className="rounded-2xl border border-white/10  overflow-hidden">
+            <h2 className="text-xl font-semibold text-white p-6 border-b border-white/10 bg-white/5">
+              All Incidents
+            </h2>
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b border-white/10 bg-white/5">
+                    <th className="p-4 text-center text-gray-400 font-medium">
+                      ID
+                    </th>
+                    <th className="p-4 text-center text-gray-400 font-medium">
+                      Title
+                    </th>
+                    <th className="p-4 text-center text-gray-400 font-medium">
+                      Description
+                    </th>
+                    <th className="p-4 text-center text-gray-400 font-medium">
+                      Severity
+                    </th>
+                    <th className="p-4 text-center text-gray-400 font-medium">
+                      Status
+                    </th>
+                    <th className="p-4 text-center text-gray-400 font-medium">
+                      Location
+                    </th>
+                    <th className="p-4 text-center text-gray-400 font-medium">
+                      Actions
+                    </th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {incidents.map((incident) => (
+                    <tr
+                      key={incident.id}
+                      className="border-b border-white/10 hover:bg-white/5 transition-color text-center"
+                    >
+                      <td className="p-4 text-gray-300">#{incident.id}</td>
+                      <td className="p-4 text-white font-medium">
+                        {incident.incidentType}
+                      </td>
+                      <td className="p-4 text-gray-300 max-w-xs">
+                        <div className="line-clamp-2 overflow-y-auto">
+                          {incident.description}
+                        </div>
+                      </td>
+                      <td className="p-4">
+                        <span
+                          className={` rounded-lg px-4 py-2 bg-transparent w-28 text-center  font-bold ${getSeverityColor(
+                            incident.severity
+                          )}`}
+                        >
+                          {incident.severity?.charAt(0).toUpperCase() +
+                            incident.severity?.slice(1)}
+                        </span>
+                      </td>
+                      <td className="p-4">
+                        <span
+                          className={`inline-flex  bg-transparent px-3 py-1 rounded-full border-2 border-gray-500 font-semibold text-base ${getStatusColor(
+                            incident.status
+                          )}`}
+                        >
+                          {incident.status?.charAt(0).toUpperCase() +
+                            incident.status?.slice(1)}
+                        </span>
+                      </td>
+                      <td className="p-4">
+                        <LocationDisplay location={incident.location} />
+                        <a
+                          href={incident.maps_link}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center text-sky-400 hover:text-sky-300 transition-colors"
+                        >
+                          <MapPin className="text-xl" />
+                        </a>
+                      </td>
+                      <td className="p-4">
+                        <Popover>
+                          <PopoverTrigger>
+                            <button className="inline-flex items-center text-sky-400 hover:text-sky-300 transition-colors">
+                              <MessageCircle className="text-xl" />
+                            </button>
+                          </PopoverTrigger>
+                          <PopoverContent className="bg-gradient-to-b from-slate-900 via-blue-950 to-slate-900">
+                            <div className="p-4 bg-transparent  rounded-xl border border-white/20">
+                              <h3 className="text-lg font-semibold text-white mb-2">
+                                Chat with Authorities
+                              </h3>
+                              <p className="text-gray-300 mb-4 text-sm">
+                                Start a conversation with authorities to discuss
+                                this incident.
+                              </p>
+                              <button className="w-full px-4 py-2 bg-sky-500 text-white rounded-lg hover:bg-sky-600 transition-all">
+                                Start Chat
+                              </button>
+                            </div>
+                          </PopoverContent>
+                        </Popover>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
       </div>
-    </div>
 
-  <FloatingChatbot />
-</>
-
-
+      <FloatingChatbot />
+    </>
   );
 };
 

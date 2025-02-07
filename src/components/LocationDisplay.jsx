@@ -19,7 +19,7 @@ const LocationDisplay = ({ location }) => {
   }, [location]);
 
   return (
-    <p className="text-sm text-gray-400 font-semibold">Location: {address}</p>
+    <p className="text-sm text-gray-400 font-semibold">Location: {address} </p>
   );
 };
 

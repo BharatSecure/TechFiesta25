@@ -212,14 +212,7 @@ const IncidentCard = ({
         <p className="text-sm text-gray-400">
           Reported: {new Date(incident.reported_at).toLocaleString()}
         </p>
-        <p className="text-sm text-gray-400">
-          Location:{" "}
-          {incident.location
-            ? `${incident.location.latitude.toFixed(
-                4
-              )}, ${incident.location.longitude.toFixed(4)}`
-            : "N/A"}
-        </p>
+       <LocationDisplay location={incident.location} />
       </div>
 
       {/* Comments Toggle */}

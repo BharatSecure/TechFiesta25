@@ -100,7 +100,7 @@ const ViewDetails = () => {
               <strong>Description:</strong> {fullDetails.description}
             </p>
             <p className="text-gray-800">
-              <div className="flex"><strong>Location:</strong> <a href={fullDetails.maps_link}><MapPin/></a></div>
+              <div className="flex"><strong>Location:<LocationDisplay location={incident.location} /></strong> <a href={fullDetails.maps_link}><MapPin/></a></div>
               
             </p>
           </div>

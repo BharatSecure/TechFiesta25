@@ -35,10 +35,13 @@ const AdvancedIncidentCharts = () => {
   useEffect(() => {
     const fetchAnalyticsData = async () => {
       try {
-        const response = await fetch("/api/advanced-incident-analysis/", {
-          method: "GET",
-          headers: { Accept: "application/json" },
-        });
+        const response = await fetch(
+          "http://127.0.0.1:8000/api/advanced-incident-analysis/",
+          {
+            method: "GET",
+            headers: { Accept: "application/json" },
+          }
+        );
         const data = await response.json();
         setAnalyticsData(data);
       } catch (error) {

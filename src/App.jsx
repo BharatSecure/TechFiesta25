@@ -24,12 +24,11 @@ import ViewDetails from "./pages/ViewDetails";
 // import Chatbot from "./pages/chatbotTrial";
 import UserRoute from "./protected-routes/UserRoute";
 import AdminRoute from "./protected-routes/AdminRoute";
-import RecentIncidents1 from "./pages/RecentIncidents1";
 
 const UserDashboard = lazy(() => import("./pages/UserDashboard"));
 const AdminDashboard = lazy(() => import("./pages/AdminDashboard"));
 const AboutUs = lazy(() => import("./pages/AboutUs"));
-//const RecentIncidents1 = lazy(() => import("./pages/RecentIncidents1"));
+const RecentIncidents1 = lazy(() => import("./pages/RecentIncidents1"));
 const HeatMap2 = lazy(() => import("./components/Heatmap2"));
 const IncidentReportForm = lazy(() => import("./pages/IncidentReportForm"));
 const FeedbackForm = lazy(() => import("./pages/FeedbackForm"));

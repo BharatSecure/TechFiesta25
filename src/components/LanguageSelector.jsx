@@ -1,33 +1,30 @@
-import React, { useEffect } from "react";
+import React, { useState } from "react";
+import styles from "./LanguageSwitcher.module.css";
 
-const LanguageSelector = () => {
-  useEffect(() => {
-    // Define the function globally so Google Translate can call it
-    window.googleTranslateElementInit = () => {
-      new window.google.translate.TranslateElement(
-        {
-          pageLanguage: "en",
-          includedLanguages: "en,hi,mr,ta,te,kn,ml,gu,pa,bn",
-          layout: window.google.translate.TranslateElement.InlineLayout.SIMPLE,
-        },
-        "google_translate_element"
-      );
-    };
-
-    // Load the Google Translate script
-    const addScript = document.createElement("script");
-    addScript.src =
-      "//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit";
-    addScript.async = true;
-    document.body.appendChild(addScript);
-  }, []);
+const LanguageSwitcher = ({ onLanguageChange }) => {
+  const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <div
-      id="google_translate_element"
-      className="fixed top-4 right-4 z-50 bg-white p-2 rounded-md shadow-md"
-    ></div>
+    <div className={styles.floatingWidget}>
+      <button
+        className={styles.toggleButton}
+        onClick={() => setIsOpen(!isOpen)}
+      >
+        🌐
+      </button>
+      {isOpen && (
+        <div className={styles.dropdown}>
+          <p>Select Language:</p>
+          <select onChange={(e) => onLanguageChange(e.target.value)}>
+            <option value="en">English</option>
+            <option value="es">Spanish</option>
+            <option value="fr">French</option>
+            <option value="de">German</option>
+          </select>
+        </div>
+      )}
+    </div>
   );
 };
 
-export default LanguageSelector;
+export default LanguageSwitcher;

@@ -3,6 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
 import { MapPin } from "lucide-react";
+import LocationDisplay from "@/components/LocationDisplay";
 
 const ViewDetails = () => {
   const navigate = useNavigate();
@@ -79,7 +80,7 @@ const ViewDetails = () => {
               Report ID: <span className="font-normal">{fullDetails.id}</span>
             </p>
             <p className="text-gray-800 font-bold">
-              Severity: {" "}
+              Severity:{" "}
               <span
                 className={`px-3 py-1 text-md font-bold rounded-full ${
                   fullDetails.severity === "high"
@@ -90,7 +91,7 @@ const ViewDetails = () => {
                 }`}
               >
                 {fullDetails.severity?.charAt(0).toUpperCase() +
-            fullDetails.severity?.slice(1)}
+                  fullDetails.severity?.slice(1)}
               </span>
             </p>
             <p className="text-gray-800">
@@ -99,10 +100,15 @@ const ViewDetails = () => {
             <p className="text-gray-800">
               <strong>Description:</strong> {fullDetails.description}
             </p>
-            <p className="text-gray-800">
-              <div className="flex"><strong>Location:<LocationDisplay location={incident.location} /></strong> <a href={fullDetails.maps_link}><MapPin/></a></div>
-              
-            </p>
+            <div className="flex">
+              <strong>
+                Location:
+                <LocationDisplay location={fullDetails.location} />
+              </strong>{" "}
+              <a href={fullDetails.maps_link}>
+                <MapPin />
+              </a>
+            </div>
           </div>
 
           <div className="mb-6">
@@ -126,7 +132,7 @@ const ViewDetails = () => {
               <strong>Address:</strong> {fullDetails.reported_by?.address}
             </p>
             <p className="text-gray-800">
-              <strong>Aadhar Number:</strong> {" "}
+              <strong>Aadhar Number:</strong>{" "}
               {fullDetails.reported_by?.aadhar_number}
             </p>
           </div>
@@ -142,17 +148,18 @@ const ViewDetails = () => {
                 <div key={index} className="mb-4 p-3 bg-gray-200 rounded-lg">
                   <p className="text-gray-800">
                     <p className="text-sm font-semibold text-gray-800">
-                        {comment.commented_by.first_name} {comment.commented_by.last_name}
+                      {comment.commented_by.first_name}{" "}
+                      {comment.commented_by.last_name}
                     </p>
                     {comment.comment}
                   </p>
-                  <p className="text-gray-600 text-sm">
-                    {comment.created_at}
-                  </p>
+                  <p className="text-gray-600 text-sm">{comment.created_at}</p>
                 </div>
               ))
             ) : (
-              <p className="text-gray-500">No comments available for this incident.</p>
+              <p className="text-gray-500">
+                No comments available for this incident.
+              </p>
             )}
           </div>
         </div>

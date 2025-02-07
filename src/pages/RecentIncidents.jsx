@@ -6,6 +6,7 @@ import { useAuth } from "@/context/AuthContext";
 import Footer from "@/components/Footer";
 import FloatingChatbot from "@/components/FloatingChatbot";
 import { AnimatedBackground } from "animated-backgrounds";
+import LocationDisplay from "@/components/LocationDisplay";
 
 // Lazy load comment form
 const AddCommentForm = lazy(() => import("../components/AddCommentForm"));

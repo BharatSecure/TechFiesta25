@@ -13,7 +13,7 @@ import {
 } from "@mui/material";
 import Footer from "../components/Footer";
 import { useAuth } from "@/context/AuthContext";
-import { useNavigate, Link } from "react-router-dom"; // Import useNavigate
+import { useNavigate, Link } from "react-router-dom";
 import ScaleInComponent from "@/lib/ScaleInComponent";
 
 const Login = () => {
@@ -22,10 +22,9 @@ const Login = () => {
     password: "",
     rememberMe: false,
   });
-
   const [errors, setErrors] = useState({});
-  const { login, isLoggedIn } = useAuth();
-  const navigate = useNavigate(); // Initialize the useNavigate hook
+  const { login } = useAuth();
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -38,49 +37,34 @@ const Login = () => {
 
   const validate = () => {
     let tempErrors = {};
-
     if (!formData.email || !/\S+@\S+\.\S+/.test(formData.email))
       tempErrors.email = "Valid Email is required";
     if (!formData.password || formData.password.length < 6)
       tempErrors.password = "Password must be at least 6 characters long";
-
     setErrors(tempErrors);
     return Object.keys(tempErrors).length === 0;
   };
 
   const handleLogin = async () => {
     if (validate()) {
-      console.log(formData.password, formData.email);
       try {
         const response = await axios.post("http://127.0.0.1:8000/api/login/", {
           email: formData.email,
           password: formData.password,
         });
 
-        // Handle success
         const {
           tokens: { access, refresh },
         } = response.data;
         localStorage.setItem("accessToken", access);
         localStorage.setItem("refreshToken", refresh);
-        console.log("Login successful:", response.data.message);
-        console.log(response);
         localStorage.setItem("userType", response.data.user_type);
-        if (response.data.user_type == "user") {
-          login();
-          navigate("/my-reports"); // Redirect to the dashboard
-        } else {
-          login();
-          navigate("/admin");
-        }
+        login();
+        navigate(response.data.user_type === "user" ? "/my-reports" : "/admin");
       } catch (error) {
-        // Handle errors
-        console.error(error.response?.data || error.message);
         setErrors({
           ...errors,
-          general:
-            error.response?.data?.error ||
-            "Something went wrong! Please try again later.",
+          general: error.response?.data?.error || "Something went wrong!",
         });
       }
     }
@@ -89,32 +73,49 @@ const Login = () => {
   return (
     <>
       <ScaleInComponent>
-        <Container sx={{ py: 8, backgroundColor: "#7bffeb40" }}>
+        <Container
+          maxWidth={false} // Disables default max-width
+          disableGutters // Removes padding that might be restricting width
+          sx={{
+            minHeight: "85vh",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            background:
+              "url('https://i.pinimg.com/736x/2c/90/a3/2c90a3402573bea4f3ba5b85c1008cc5.jpg') no-repeat center center fixed",
+            backgroundSize: "cover",
+          }}
+        >
           <Box
             sx={{
               maxWidth: 500,
-              mx: "auto",
               textAlign: "center",
               padding: 4,
-              borderRadius: 2,
-              boxShadow: "0 4px 10px rgba(0, 0, 0, 0.1)",
-              backgroundColor: "#fffff2fc",
+              borderRadius: 4,
+              backdropFilter: "blur(10px)",
+              backgroundColor: "rgba(255, 255, 255, 0.04)",
+              boxShadow: `
+      8px 8px 16px rgba(0, 0, 0, 0.6),
+      -8px -8px 16px rgba(255, 255, 255, 0.05),
+      0 0 15px rgba(0, 191, 255, 0.5)
+    `,
+              border: "1px solid rgba(255, 255, 255, 0.1)",
             }}
           >
             <Typography
               variant="h4"
               sx={{
                 fontWeight: "bold",
-                color: "#003366",
-                mb: 4,
+                color: "#fff",
+                mb: 2,
                 fontFamily: "'Smooch Sans', sans-serif",
-                letterSpacing: 1,
+                textShadow: "0 0 10px rgba(0, 191, 255, 0.8)",
               }}
             >
-              Log In to Your Account
+              Log In
             </Typography>
             <Divider
-              sx={{ mb: 4, borderColor: "#003366", width: "50px", mx: "auto" }}
+              sx={{ mb: 3, borderColor: "#bbb", width: "50px", mx: "auto" }}
             />
             <Grid container spacing={3}>
               <Grid item xs={12}>
@@ -122,17 +123,26 @@ const Login = () => {
                   label="Email"
                   name="email"
                   type="email"
-                  variant="outlined"
                   fullWidth
                   value={formData.email}
                   onChange={handleChange}
-                  required
                   error={!!errors.email}
                   helperText={errors.email}
                   sx={{
-                    "& .MuiOutlinedInput-root": {
-                      borderRadius: 2,
+                    backgroundColor: "rgba(255, 255, 255, 0.05)",
+                    borderRadius: 2,
+                    input: {
+                      color: "#fff",
+                      "&::placeholder": {
+                        color: "#bbb", // Change placeholder color here
+                        opacity: 1, // Ensure visibility in some browsers
+                      },
                     },
+                    boxShadow:
+                      "inset 3px 3px 6px rgba(0, 0, 0, 0.6), inset -3px -3px 6px rgba(255, 255, 255, 0.05)",
+                  }}
+                  InputLabelProps={{
+                    sx: { color: "#bbb" }, // Label color
                   }}
                 />
               </Grid>
@@ -141,17 +151,26 @@ const Login = () => {
                   label="Password"
                   name="password"
                   type="password"
-                  variant="outlined"
                   fullWidth
                   value={formData.password}
                   onChange={handleChange}
-                  required
                   error={!!errors.password}
                   helperText={errors.password}
                   sx={{
-                    "& .MuiOutlinedInput-root": {
-                      borderRadius: 2,
+                    backgroundColor: "rgba(255, 255, 255, 0.05)",
+                    borderRadius: 2,
+                    input: {
+                      color: "#fff",
+                      "&::placeholder": {
+                        color: "#bbb", // Change placeholder color here
+                        opacity: 1, // Ensure visibility in some browsers
+                      },
                     },
+                    boxShadow:
+                      "inset 3px 3px 6px rgba(0, 0, 0, 0.6), inset -3px -3px 6px rgba(255, 255, 255, 0.05)",
+                  }}
+                  InputLabelProps={{
+                    sx: { color: "#bbb" }, // Label color
                   }}
                 />
               </Grid>
@@ -161,10 +180,12 @@ const Login = () => {
                     <Checkbox
                       checked={formData.rememberMe}
                       onChange={handleCheckboxChange}
-                      color="primary"
+                      sx={{ color: "#fff" }}
                     />
                   }
-                  label="Remember Me"
+                  label={
+                    <Typography sx={{ color: "#fff" }}>Remember Me</Typography>
+                  }
                 />
               </Grid>
               <Grid item xs={12}>
@@ -172,28 +193,28 @@ const Login = () => {
                   variant="contained"
                   fullWidth
                   sx={{
-                    backgroundColor: "#003366",
+                    backgroundColor: "#222",
                     color: "#fff",
-                    padding: "12px 20px",
-                    borderRadius: "4px",
+                    borderRadius: "10px",
+                    boxShadow: `
+                      5px 5px 15px rgba(0, 0, 0, 0.7),
+                      -5px -5px 15px rgba(255, 255, 255, 0.05),
+                      0 0 10px rgba(0, 191, 255, 0.8)
+                    `,
                     "&:hover": {
-                      backgroundColor: "#00509e",
+                      backgroundColor: "#333",
+                      boxShadow: `
+                        0 0 10px rgba(0, 191, 255, 0.8),
+                        0 0 20px rgba(0, 191, 255, 0.6)
+                      `,
                     },
-                    boxShadow: "0 4px 10px rgba(0, 0, 0, 0.2)",
                   }}
                   onClick={handleLogin}
                 >
                   Log In
                 </Button>
                 {errors.general && (
-                  <Typography
-                    color="error"
-                    sx={{
-                      mt: 2,
-                      fontFamily: "'Ubuntu', sans-serif",
-                      fontSize: "0.9rem",
-                    }}
-                  >
+                  <Typography color="error" sx={{ mt: 2, fontSize: "0.9rem" }}>
                     {errors.general}
                   </Typography>
                 )}
@@ -201,16 +222,54 @@ const Login = () => {
                   variant="body2"
                   sx={{
                     mt: 2,
-                    color: "#003366",
-                    fontFamily: "'Ubuntu', 'Smooch Sans', sans-serif",
-                    fontSize: "1.2rem",
+                    color: "#bbb",
+                    fontSize: "1rem",
+                    textAlign: "center",
+                    letterSpacing: "0.5px",
                   }}
                 >
                   Don't have an account?{" "}
-                  <Link to={"/signup"} style={{ color: "#00509e" }}>
+                  <Link
+                    to="/signup"
+                    style={{
+                      color: "#0bf",
+                      fontWeight: "bold",
+                      textDecoration: "none",
+                      position: "relative",
+                      transition: "color 0.3s ease-in-out",
+                    }}
+                    onMouseEnter={(e) => (e.target.style.color = "#00ffff")}
+                    onMouseLeave={(e) => (e.target.style.color = "#0bf")}
+                  >
                     Sign Up
+                    <span
+                      style={{
+                        position: "absolute",
+                        bottom: "-2px",
+                        left: 0,
+                        width: "100%",
+                        height: "2px",
+                        background: "linear-gradient(90deg, #0bf, #00ffff)",
+                        transition: "transform 0.3s ease-in-out",
+                        transform: "scaleX(0)",
+                        transformOrigin: "right",
+                      }}
+                      className="signup-underline"
+                    ></span>
                   </Link>
                 </Typography>
+
+                <style>
+                  {`
+  .signup-underline {
+    display: block;
+  }
+  a:hover .signup-underline {
+    transform: scaleX(1);
+    transform-origin: left;
+  }
+  `}
+                </style>
               </Grid>
             </Grid>
           </Box>

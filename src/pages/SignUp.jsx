@@ -97,34 +97,76 @@ const SignUp = () => {
   return (
     <>
       <ScaleInComponent>
-        <Container sx={{ py: 8, backgroundColor: "#7bffeb40" }}>
+        <Container
+          maxWidth={false}
+          disableGutters
+          sx={{
+            minHeight: "85vh",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            padding:"44px 0px",
+            background:
+              "url('https://i.pinimg.com/736x/2c/90/a3/2c90a3402573bea4f3ba5b85c1008cc5.jpg') no-repeat center center fixed",
+            backgroundSize: "cover",
+            position: "relative",
+            overflow: "hidden",
+            "&::before": {
+              content: '""',
+              position: "absolute",
+              top: 0,
+              left: 0,
+              width: "100%",
+              height: "100%",
+              background:
+                "url('https://i.pinimg.com/736x/2c/90/a3/2c90a3402573bea4f3ba5b85c1008cc5.jpg') no-repeat center center fixed",
+              backgroundSize: "cover",
+              opacity: 0.3,
+              zIndex: -1,
+            },
+          }}
+        >
           <Box
             sx={{
               maxWidth: 700,
               mx: "auto",
               textAlign: "center",
               padding: 4,
-              borderRadius: 2,
-              boxShadow: "0 4px 10px rgba(0, 0, 0, 0.1)",
-              backgroundColor: "#fffff2fc",
+              borderRadius: 4,
+              backdropFilter: "blur(15px)",
+              backgroundColor: "rgba(255, 255, 255, 0.04)",
+              boxShadow: `
+                8px 8px 16px rgba(0, 0, 0, 0.6),
+                -8px -8px 16px rgba(255, 255, 255, 0.05),
+                0 0 15px rgba(0, 191, 255, 0.5)
+              `,
+              border: "1px solid rgba(255, 255, 255, 0.1)",
             }}
           >
             <Typography
               variant="h4"
               sx={{
                 fontWeight: "bold",
-                color: "#003366",
+                color: "#fff",
                 mb: 4,
                 fontFamily: "'Smooch Sans', sans-serif",
                 letterSpacing: 1,
+                textShadow: "0 0 10px rgba(0, 191, 255, 0.8)",
               }}
             >
               Create Your Account
             </Typography>
             <Divider
-              sx={{ mb: 4, borderColor: "#003366", width: "50px", mx: "auto" }}
+              sx={{ mb: 4, borderColor: "#bbb", width: "50px", mx: "auto" }}
             />
-            {message && <p className="success-message">{message}</p>}
+            {message && (
+              <Typography
+                sx={{ color: "#0bf", mb: 2, fontWeight: "bold" }}
+                variant="body1"
+              >
+                {message}
+              </Typography>
+            )}
 
             <form onSubmit={handleSubmit}>
               <Grid container spacing={3}>
@@ -171,9 +213,20 @@ const SignUp = () => {
                       error={!!errors[field.name]}
                       helperText={errors[field.name]}
                       sx={{
-                        "& .MuiOutlinedInput-root": {
-                          borderRadius: 2,
+                        backgroundColor: "rgba(255, 255, 255, 0.05)",
+                        borderRadius: 2,
+                        input: {
+                          color: "#fff",
+                          "&::placeholder": {
+                            color: "#bbb",
+                            opacity: 1,
+                          },
                         },
+                        boxShadow:
+                          "inset 3px 3px 6px rgba(0, 0, 0, 0.6), inset -3px -3px 6px rgba(255, 255, 255, 0.05)",
+                      }}
+                      InputLabelProps={{
+                        sx: { color: "#bbb" },
                       }}
                     />
                   </Grid>
@@ -184,38 +237,86 @@ const SignUp = () => {
                     variant="contained"
                     fullWidth
                     sx={{
-                      backgroundColor: "#003366",
+                      backgroundColor: "#222",
                       color: "#fff",
                       padding: "12px 20px",
-                      borderRadius: "4px",
+                      borderRadius: "10px",
+                      boxShadow: `
+                        5px 5px 15px rgba(0, 0, 0, 0.7),
+                        -5px -5px 15px rgba(255, 255, 255, 0.05),
+                        0 0 10px rgba(0, 191, 255, 0.8)
+                      `,
                       "&:hover": {
-                        backgroundColor: "#00509e",
+                        backgroundColor: "#333",
+                        boxShadow: `
+                          0 0 10px rgba(0, 191, 255, 0.8),
+                          0 0 20px rgba(0, 191, 255, 0.6)
+                        `,
                       },
-                      boxShadow: "0 4px 10px rgba(0, 0, 0, 0.2)",
                     }}
                   >
                     Sign Up
                   </Button>
                   {error && (
-                    <p className="error-message" style={{ color: "red" }}>
+                    <Typography
+                      sx={{ mt: 2, fontSize: "0.9rem", color: "red" }}
+                    >
                       {error}
-                    </p>
+                    </Typography>
                   )}
 
                   <Typography
                     variant="body2"
                     sx={{
                       mt: 2,
-                      color: "#003366",
-                      fontFamily: "'Ubuntu', 'Smooch Sans', sans-serif",
-                      fontSize: "1.2rem",
+                      color: "#bbb",
+                      fontSize: "1rem",
+                      textAlign: "center",
+                      letterSpacing: "0.5px",
                     }}
                   >
                     Already have an account?{" "}
-                    <Link to={"/login"} style={{ color: "#00509e" }}>
+                    <Link
+                      to="/login"
+                      style={{
+                        color: "#0bf",
+                        fontWeight: "bold",
+                        textDecoration: "none",
+                        position: "relative",
+                        transition: "color 0.3s ease-in-out",
+                      }}
+                      onMouseEnter={(e) => (e.target.style.color = "#00ffff")}
+                      onMouseLeave={(e) => (e.target.style.color = "#0bf")}
+                    >
                       Log in
+                      <span
+                        style={{
+                          position: "absolute",
+                          bottom: "-2px",
+                          left: 0,
+                          width: "100%",
+                          height: "2px",
+                          background: "linear-gradient(90deg, #0bf, #00ffff)",
+                          transition: "transform 0.3s ease-in-out",
+                          transform: "scaleX(0)",
+                          transformOrigin: "right",
+                        }}
+                        className="login-underline"
+                      ></span>
                     </Link>
                   </Typography>
+
+                  <style>
+                    {`
+                      .login-underline {
+                        display: block;
+                      }
+                      a:hover .login-underline {
+                        transform: scaleX(1);
+                        transform-origin: left;
+                      }
+                    `}
+                  </style>
                 </Grid>
               </Grid>
             </form>

@@ -153,6 +153,7 @@ class Incidents(models.Model):
     remarks = models.CharField(default='None', max_length=300)
     maps_link = models.CharField(default="None", max_length=100)
     score = models.DecimalField(decimal_places=2, default=0, max_digits=4)
+    resolved_at = models.DateTimeField(null=True, blank=True)
     true_or_false = models.BooleanField(default=False)
 
     def save(self, *args, **kwargs):
@@ -167,6 +168,9 @@ class Incidents(models.Model):
             else:
                 self.score = 80  # Prevent division by zero
         self.maps_link = get_google_maps_link(self.location['latitude'], self.location["longitude"])
+        if self.status == "Resolved":
+            self.resolved_at = timezone.now()
+
 
         super().save(*args, **kwargs)
 

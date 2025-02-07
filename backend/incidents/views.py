@@ -33,6 +33,17 @@ from langchain.schema.output_parser import StrOutputParser
 from rest_framework.parsers import JSONParser
 from tenacity import wait_exponential
 import re
+from django.db.models import (
+    Avg, Count, Q, FloatField, F, 
+    ExpressionWrapper, Case, When, 
+    OuterRef, Subquery, IntegerField
+)
+from django.db.models.functions import (
+    ExtractWeekDay, TruncMonth, 
+    ExtractHour, ExtractYear
+)
+from django.utils import timezone
+from datetime import timedelta
 
 model = ChatGoogleGenerativeAI(
                 model="gemini-1.5-flash",
@@ -744,3 +755,200 @@ class ChatbotView_Therapist(APIView):
             "chat_history": chat_history,
         }, status=status.HTTP_200_OK)
 
+@api_view(["GET"])
+def incident_chart_data(request):
+    try:
+        # Get time range from query params (default to last 12 months)
+        months = int(request.query_params.get('months', 12))
+        start_date = timezone.now() - timedelta(days=30*months)
+        
+        # Base queryset
+        queryset = Incidents.objects.filter(reported_at__gte=start_date)
+        
+        # Monthly incident count
+        monthly_incidents = (
+            queryset
+            .annotate(month=TruncMonth('reported_at'))
+            .values('month')
+            .annotate(count=Count('id'))
+            .order_by('month')
+        )
+
+        # Incident types distribution
+        type_distribution = (
+            queryset
+            .values('incidentType')
+            .annotate(count=Count('id'))
+            .order_by('-count')
+        )
+
+        # Severity distribution
+        severity_distribution = (
+            queryset
+            .values('severity')
+            .annotate(count=Count('id'))
+            .order_by('severity')
+        )
+
+        # Time of day analysis
+        hourly_distribution = (
+            queryset
+            .annotate(hour=ExtractHour('reported_at'))
+            .values('hour')
+            .annotate(count=Count('id'))
+            .order_by('hour')
+        )
+
+        # Status distribution
+        status_distribution = (
+            queryset
+            .values('status')
+            .annotate(count=Count('id'))
+            .order_by('status')
+        )
+
+        data = {
+            'monthly_incidents': list(monthly_incidents),
+            'type_distribution': list(type_distribution),
+            'severity_distribution': list(severity_distribution),
+            'hourly_distribution': list(hourly_distribution),
+            'status_distribution': list(status_distribution),
+            'total_incidents': queryset.count(),
+        }
+        
+        logger.info(f"Successfully generated chart data: {data}")
+        return Response(data)
+    
+    except Exception as e:
+        logger.error(f"Error in incident_chart_data: {str(e)}")
+        return Response(
+            {"error": str(e)}, 
+            status=500
+        )
+@api_view(['GET'])
+def advanced_incident_analysis(request):
+    try:
+        queryset = Incidents.objects.all()
+        
+        # 1. Comprehensive Analytics
+        analytics = {
+            # Existing Analyses
+            'response_time_analysis': list(
+                queryset
+                .values('incidentType', 'severity')
+                .annotate(avg_score=Avg('score'))
+                .order_by('incidentType', 'severity')
+            ),
+            
+            # 2. Temporal Analysis
+            'monthly_trends': list(
+                queryset
+                .annotate(month=TruncMonth('reported_at'))
+                .values('month')
+                .annotate(
+                    total_incidents=Count('id'),
+                    high_severity_incidents=Count('id', filter=Q(severity='high')),
+                    avg_resolution_time=Avg(F('resolved_at') - F('reported_at'))
+                )
+                .order_by('month')
+            ),
+            
+            # 3. Hourly Incident Distribution
+            'hourly_distribution': list(
+                queryset
+                .annotate(hour=ExtractHour('reported_at'))
+                .values('hour')
+                .annotate(
+                    incident_count=Count('id'),
+                    avg_severity=Avg('score')
+                )
+                .order_by('hour')
+            ),
+            
+            # 4. Geospatial Risk Assessment
+            'risk_hotspots': list(
+                queryset
+                .values('location')
+                .annotate(
+                    incident_density=Count('id'),
+                    avg_severity=Avg('score'),
+                    high_severity_ratio=ExpressionWrapper(
+                        Count('id', filter=Q(severity='high')) / 
+                        Count('id', output_field=FloatField()) * 100,
+                        output_field=FloatField()
+                    )
+                )
+                .order_by('-incident_density')[:10]
+            ),
+            
+            # 5. Incident Type Deep Dive
+            'incident_type_analysis': list(
+                queryset
+                .values('incidentType')
+                .annotate(
+                    total_count=Count('id'),
+                    avg_resolution_time=Avg(F('resolved_at') - F('reported_at')),
+                    severity_breakdown=Count(
+                        Case(
+                            When(severity='high', then=1),
+                            When(severity='medium', then=2),
+                            When(severity='low', then=3),
+                            output_field=IntegerField()
+                        )
+                    )
+                )
+                .order_by('-total_count')
+            ),
+            
+            # 6. Predictive Indicators
+            'prediction_factors': list(
+                queryset
+                .values('incidentType')
+                .annotate(
+                    recurrence_rate=Count('id'),
+                    avg_time_between_incidents=Avg('reported_at'),
+                    severity_probability=Avg(
+                        Case(
+                            When(severity='high', then=1.0),
+                            default=0.0,
+                            output_field=FloatField()
+                        )
+                    )
+                )
+                .order_by('-recurrence_rate')
+            ),
+            
+            # Existing Analyses from Previous View
+            'weekly_pattern': list(
+                queryset
+                .annotate(weekday=ExtractWeekDay('reported_at'))
+                .values('weekday')
+                .annotate(count=Count('id'))
+                .order_by('weekday')
+            ),
+            
+            'emergency_services': queryset.aggregate(
+                police_involved=Count('police_station', filter=Q(police_station__isnull=False)),
+                fire_involved=Count('fire_station', filter=Q(fire_station__isnull=False)),
+                hospital_involved=Count('hospital_station', filter=Q(hospital_station__isnull=False))
+            ),
+            
+            'severity_by_location': list(
+                queryset
+                .values('location')
+                .annotate(
+                    incident_count=Count('id'),
+                    high_severity=Count('id', filter=Q(severity='high')),
+                    medium_severity=Count('id', filter=Q(severity='medium')),
+                    low_severity=Count('id', filter=Q(severity='low'))
+                )
+            ),
+        }
+
+        return Response(analytics, status=status.HTTP_200_OK)
+    
+    except Exception as e:
+        return Response({
+            'error': 'Analysis failed',
+            'details': str(e)
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

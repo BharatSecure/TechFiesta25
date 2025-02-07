@@ -825,14 +825,14 @@ def incident_chart_data(request):
             {"error": str(e)}, 
             status=500
         )
+from django.core.serializers.json import DjangoJSONEncoder
+
 @api_view(['GET'])
 def advanced_incident_analysis(request):
     try:
         queryset = Incidents.objects.all()
         
-        # 1. Comprehensive Analytics
         analytics = {
-            # Existing Analyses
             'response_time_analysis': list(
                 queryset
                 .values('incidentType', 'severity')
@@ -840,54 +840,42 @@ def advanced_incident_analysis(request):
                 .order_by('incidentType', 'severity')
             ),
             
-            # 2. Temporal Analysis
             'monthly_trends': list(
                 queryset
                 .annotate(month=TruncMonth('reported_at'))
                 .values('month')
                 .annotate(
                     total_incidents=Count('id'),
-                    high_severity_incidents=Count('id', filter=Q(severity='high')),
-                    avg_resolution_time=Avg(F('resolved_at') - F('reported_at'))
+                    high_severity_incidents=Count('id', filter=Q(severity='high'))
                 )
                 .order_by('month')
             ),
             
-            # 3. Hourly Incident Distribution
             'hourly_distribution': list(
                 queryset
                 .annotate(hour=ExtractHour('reported_at'))
                 .values('hour')
                 .annotate(
-                    incident_count=Count('id'),
-                    avg_severity=Avg('score')
+                    incident_count=Count('id')
                 )
                 .order_by('hour')
             ),
             
-            # 4. Geospatial Risk Assessment
             'risk_hotspots': list(
                 queryset
                 .values('location')
                 .annotate(
                     incident_density=Count('id'),
-                    avg_severity=Avg('score'),
-                    high_severity_ratio=ExpressionWrapper(
-                        Count('id', filter=Q(severity='high')) / 
-                        Count('id', output_field=FloatField()) * 100,
-                        output_field=FloatField()
-                    )
+                    high_severity_count=Count('id', filter=Q(severity='high'))
                 )
                 .order_by('-incident_density')[:10]
             ),
             
-            # 5. Incident Type Deep Dive
             'incident_type_analysis': list(
                 queryset
                 .values('incidentType')
                 .annotate(
                     total_count=Count('id'),
-                    avg_resolution_time=Avg(F('resolved_at') - F('reported_at')),
                     severity_breakdown=Count(
                         Case(
                             When(severity='high', then=1),
@@ -900,25 +888,15 @@ def advanced_incident_analysis(request):
                 .order_by('-total_count')
             ),
             
-            # 6. Predictive Indicators
             'prediction_factors': list(
                 queryset
                 .values('incidentType')
                 .annotate(
-                    recurrence_rate=Count('id'),
-                    avg_time_between_incidents=Avg('reported_at'),
-                    severity_probability=Avg(
-                        Case(
-                            When(severity='high', then=1.0),
-                            default=0.0,
-                            output_field=FloatField()
-                        )
-                    )
+                    recurrence_rate=Count('id')
                 )
                 .order_by('-recurrence_rate')
             ),
             
-            # Existing Analyses from Previous View
             'weekly_pattern': list(
                 queryset
                 .annotate(weekday=ExtractWeekDay('reported_at'))
@@ -927,11 +905,11 @@ def advanced_incident_analysis(request):
                 .order_by('weekday')
             ),
             
-            'emergency_services': queryset.aggregate(
-                police_involved=Count('police_station', filter=Q(police_station__isnull=False)),
-                fire_involved=Count('fire_station', filter=Q(fire_station__isnull=False)),
-                hospital_involved=Count('hospital_station', filter=Q(hospital_station__isnull=False))
-            ),
+            'emergency_services': {
+                'police_involved': queryset.filter(police_station__isnull=False).count(),
+                'fire_involved': queryset.filter(fire_station__isnull=False).count(),
+                'hospital_involved': queryset.filter(hospital_station__isnull=False).count()
+            },
             
             'severity_by_location': list(
                 queryset
@@ -945,7 +923,7 @@ def advanced_incident_analysis(request):
             ),
         }
 
-        return Response(analytics, status=status.HTTP_200_OK)
+        return Response(json.loads(json.dumps(analytics, cls=DjangoJSONEncoder)), status=status.HTTP_200_OK)
     
     except Exception as e:
         return Response({

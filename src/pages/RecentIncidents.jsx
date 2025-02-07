@@ -4,6 +4,7 @@ import { FaCommentDots } from "react-icons/fa";
 import Footer from "@/components/Footer";
 import { useAuth } from "@/context/AuthContext";
 import FloatingChatbot from "@/components/FloatingChatbot";
+import { AnimatedBackground } from 'animated-backgrounds';
 const AddCommentForm = lazy(() => import("../components/AddCommentForm"));
 
 const RecentIncidents = () => {
@@ -45,7 +46,8 @@ const RecentIncidents = () => {
 
   return (
     <>
-      <div className="bg-blue-100 min-h-screen flex flex-col items-center py-10">
+      <div className=" min-h-screen flex flex-col items-center py-10">
+      <AnimatedBackground animationName="cosmicDust" blendMode="normal"/>
         <h1 className="text-center text-sky-600 font-extrabold text-3xl sm:text-4xl lg:text-5xl mb-8 drop-shadow-lg">
           Recently Reported Incidents
         </h1>
@@ -90,7 +92,7 @@ const RecentIncidents = () => {
                 return (
                   <div
                     key={incident.id}
-                    className={`mb-6 p-6 rounded-xl ${bgColor} shadow-[4px_4px_10px_#c1d5ff,-4px_-4px_10px_#ffffff] transition-transform hover:scale-105`}
+                    className={`mb-6 p-6 rounded-xl ${bgColor} shadow-[4px_4px_10px_#333] transition-transform hover:scale-105`}
                   >
                     {/* Incident Title & Status */}
                     <div className="flex justify-between items-center mb-4">

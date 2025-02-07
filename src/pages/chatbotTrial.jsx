@@ -1,5 +1,6 @@
 import Footer from "@/components/Footer";
 import React, { useState, useEffect, useRef } from "react";
+import { AnimatedBackground } from 'animated-backgrounds';
 
 const Chatbot = () => {
   const [userInput, setUserInput] = useState("");
@@ -70,8 +71,11 @@ const Chatbot = () => {
       backgroundRepeat: "no-repeat",
     }}
   >
+    
     {/* Dark Overlay */}
-    <div className="absolute inset-0 bg-black opacity-80"></div>
+    <div className="absolute inset-0 bg-black opacity-80 z-0">
+      <AnimatedBackground animationName="fireflies" blendMode="screeen" />
+    </div>
 
     {/* Header Section (No Glow) */}
     <div className="relative z-10 text-center mb-6 px-4">
@@ -165,7 +169,9 @@ const Chatbot = () => {
       </div>
     </div>
   </div>
-      <Footer />
+  <div className="relative z-20 w-full">
+    <Footer />
+  </div>
     </>
   );
 };

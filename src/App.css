@@ -1,4 +1,12 @@
 /* HTML: <div class="loader"></div> */
+
+
+body {
+  font-family: "Montserrat", serif;
+  font-optical-sizing: auto;
+}
+
+
 .loader {
   display: flex;
   align-self: center;

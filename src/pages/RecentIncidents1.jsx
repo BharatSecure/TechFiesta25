@@ -47,7 +47,7 @@ const RecentIncidents = () => {
 
   return (
     <>
-      <div className="bg-gradient-to-b from-slate-900 via-blue-950 h-full flex flex-col items-center py-10">
+      <div className="min-h-screen bg-gradient-to-b from-slate-900 via-blue-950 to-slate-900 flex flex-col items-center py-10">
         <h1 className="text-center text-sky-600 font-extrabold text-3xl sm:text-4xl lg:text-5xl mb-8 drop-shadow-lg">
           Recently Reported Incidents
         </h1>

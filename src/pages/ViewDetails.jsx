@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
+import { MapPin } from "lucide-react";
 
 const ViewDetails = () => {
   const navigate = useNavigate();
@@ -62,7 +63,7 @@ const ViewDetails = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 flex items-center justify-center p-6">
+    <div className="min-h-screen bg-gradient-to-b from-slate-900 via-blue-950 to-slate-900 flex items-center justify-center p-6">
       <div className="bg-white shadow-lg rounded-lg p-8 max-w-2xl w-full border-l-8 border-blue-500">
         <div id="report-details">
           <h1 className="text-2xl font-bold text-gray-800 text-center mb-6">
@@ -81,14 +82,15 @@ const ViewDetails = () => {
               Severity: {" "}
               <span
                 className={`px-3 py-1 text-md font-bold rounded-full ${
-                  fullDetails.severity === "High"
+                  fullDetails.severity === "high"
                     ? "text-red-500"
-                    : fullDetails.severity === "Medium"
+                    : fullDetails.severity === "medium"
                     ? "text-yellow-500"
-                    : "text-green-500"
+                    : "text-blue-500"
                 }`}
               >
-                {fullDetails.severity}
+                {fullDetails.severity?.charAt(0).toUpperCase() +
+            fullDetails.severity?.slice(1)}
               </span>
             </p>
             <p className="text-gray-800">
@@ -98,8 +100,8 @@ const ViewDetails = () => {
               <strong>Description:</strong> {fullDetails.description}
             </p>
             <p className="text-gray-800">
-              <strong>Location:</strong> {fullDetails.location?.latitude},{" "}
-              {fullDetails.location?.longitude}
+              <div className="flex"><strong>Location:</strong> <a href={fullDetails.maps_link}><MapPin/></a></div>
+              
             </p>
           </div>
 

@@ -49,7 +49,7 @@ const RecentIncidents = () => {
       <div className=" min-h-screen flex flex-col items-center py-10">
       <AnimatedBackground animationName="cosmicDust" blendMode="normal"/>
         <h1 className="text-center text-sky-600 font-extrabold text-3xl sm:text-4xl lg:text-5xl mb-8 drop-shadow-lg">
-          Recently Reported Incidents
+          Recently Reported Incidents 
         </h1>
 
         {/* Show loading or error message */}

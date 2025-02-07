@@ -29,7 +29,7 @@ import IncidentChart from "./pages/chart";
 const UserDashboard = lazy(() => import("./pages/UserDashboard"));
 const AdminDashboard = lazy(() => import("./pages/AdminDashboard"));
 const AboutUs = lazy(() => import("./pages/AboutUs"));
-const RecentIncidents1 = lazy(() => import("./pages/RecentIncidents1"));
+const RecentIncidents = lazy(() => import("./pages/RecentIncidents"));
 const HeatMap2 = lazy(() => import("./components/Heatmap2"));
 const IncidentReportForm = lazy(() => import("./pages/IncidentReportForm2"));
 const FeedbackForm = lazy(() => import("./pages/FeedbackForm"));
@@ -72,7 +72,7 @@ const App = () => {
               <Route path="/voice-report" element={<VoiceToText />} />
               <Route path="/signUp" element={<SignUp />} />
               <Route path="/login" element={<Login />} />
-              <Route path="/blogs" element={<RecentIncidents1 />} />
+              <Route path="/blogs" element={<RecentIncidents />} />
               <Route path="/view-details/:id" element={<ViewDetails />} />
               <Route path="/feedback" element={<FeedbackForm />} />
               <Route path="chatbot" element={<Chatbot />} />

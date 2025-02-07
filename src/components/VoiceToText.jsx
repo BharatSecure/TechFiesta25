@@ -105,17 +105,35 @@ const VoiceInput = () => {
                 <select
                   value={language}
                   onChange={(e) => setLanguage(e.target.value)}
-                  className="w-full bg-slate-900/50 text-gray-200 px-4 py-3 rounded-xl border border-slate-600 focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400 shadow-[inset_2px_2px_8px_rgba(0,0,0,0.3)] appearance-none transition-all duration-200"
+                  className="w-full bg-gradient-to-b from-slate-800 to-slate-900/90 text-gray-200 px-4 py-3 rounded-xl 
+    border border-slate-600/50 hover:border-cyan-500/70
+    focus:border-cyan-400 focus:ring-2 focus:ring-cyan-400/30 
+    shadow-[inset_2px_2px_8px_rgba(0,0,0,0.3)] 
+    appearance-none transition-all duration-200
+    backdrop-blur-sm
+    hover:bg-slate-800/90
+    cursor-pointer
+    text-lg font-medium"
                 >
-                  <option value="hi-IN">Hindi</option>
-                  <option value="en-US">English</option>
-                  <option value="mr-IN">Marathi</option>
-                  <option value="es-ES">Spanish</option>
-                  <option value="fr-FR">French</option>
+                  <option value="hi-IN" className="bg-slate-800">
+                    Hindi
+                  </option>
+                  <option value="en-US" className="bg-slate-800">
+                    English
+                  </option>
+                  <option value="mr-IN" className="bg-slate-800">
+                    Marathi
+                  </option>
+                  <option value="es-ES" className="bg-slate-800">
+                    Spanish
+                  </option>
+                  <option value="fr-FR" className="bg-slate-800">
+                    French
+                  </option>
                 </select>
-                <div className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">
+                <div className="absolute right-4 top-1/2 -translate-y-1/2 text-cyan-400/80 pointer-events-none transition-transform duration-200 group-hover:text-cyan-300">
                   <svg
-                    className="w-5 h-5"
+                    className="w-5 h-5 transform group-hover:translate-y-0.5 transition-transform duration-200"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"

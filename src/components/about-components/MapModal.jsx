@@ -85,7 +85,7 @@ const MapModal = ({ isOpen, onClose, onSelectLocation }) => {
 
   return isOpen ? (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="w-full max-w-2xl bg-[#1a2238] rounded-2xl p-8 shadow-[inset_-12px_-12px_24px_#151b2d,inset_12px_12px_24px_#1f2943,inset_0_0_20px_5px_cyan]">
+      <div className="w-full max-w-2xl bg-[#1a2238] rounded-2xl p-8 shadow-[inset_-3px_-3px_12px_cyan,inset_3px_3px_12px_cyan]">
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-2xl font-bold bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">

@@ -27,6 +27,7 @@ import AdminRoute from "./protected-routes/AdminRoute";
 import IncidentChart from "./pages/chart";
 import UserProfile from "./pages/UserProfile";
 import IncidentDashboardUser from "./pages/charts-user";
+import IncidentAnalyticsDashboard from "./pages/chart-global";
 
 const UserDashboard = lazy(() => import("./pages/UserDashboard"));
 const AdminDashboard = lazy(() => import("./pages/AdminDashboard"));
@@ -78,7 +79,10 @@ const App = () => {
               <Route path="/view-details/:id" element={<ViewDetails />} />
               <Route path="/feedback" element={<FeedbackForm />} />
               <Route path="chatbot" element={<Chatbot />} />
-              <Route path="/charts" element={<IncidentChart />} />
+              <Route
+                path="/charts-global"
+                element={<IncidentAnalyticsDashboard />}
+              />
               <Route path="/charts-user" element={<IncidentDashboardUser />} />
               <Route path="/incident/:id" element={<ViewDetails />} />
               <Route path="/user/:userId" element={<UserProfile />} />

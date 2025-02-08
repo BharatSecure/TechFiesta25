@@ -12,7 +12,6 @@ import requests
 from rest_framework import status
 from django.shortcuts import get_object_or_404
 from django.contrib.auth.hashers import check_password
-from utils.call_Operator import EmergencyHelplineBot
 from twilio.rest import Client
 import json
 from geopy.distance import great_circle
@@ -28,7 +27,6 @@ from rest_framework import generics, status
 from langchain.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_google_genai import ChatGoogleGenerativeAI
 from rest_framework import viewsets, status
-from langchain.schema.messages import SystemMessage
 from langchain.schema.output_parser import StrOutputParser
 from rest_framework.parsers import JSONParser
 from tenacity import wait_exponential
@@ -150,170 +148,194 @@ class form_report(APIView):
         self.llm = model
         self.prompt = ChatPromptTemplate.from_messages([
             ("system", """
-            Analyze the incident report and determine its severity level based on the following criteria:
+            Analyze the incident report and determine its severity level strictly based on the given description, using the following criteria:
 
             high:
-            - Immediate threat to life
-            - Multiple casualties
-            - Large-scale property damage
-            - Ongoing dangerous situation
-
+            Immediate threat to life
+            Multiple casualties
+            Large-scale property damage
+            Ongoing dangerous situation
+            
             medium:
-            - Non-life-threatening injuries
-            - Significant property damage
-            - Potential for situation escalation
-            - Missing persons cases
+            Non-life-threatening injuries
+            Significant property damage
+            Potential for situation escalation
+            Missing persons cases
 
             low:
-            - Minor incidents
-            - No injuries
-            - Minor property damage
-            - Non-emergency situations
-
-            Return ONLY one of these words: high, medium, or low
+            Minor incidents
+            No injuries
+            Minor property damage
+            Non-emergency situations
+            
+            You must return only one of these words: high, medium, or low based on the information provided. If details are unclear, make the best possible classification rather than asking for more details. Do not include explanations—return only the classification.
             """),
             ("human", "{user_input}")
         ])
         self.chain = self.prompt | self.llm | StrOutputParser()
 
     def post(self, request, *args, **kwargs):
-        user = None
-        
-        # Check for authentication token if provided
+        """Handles reporting of incidents"""
+        try:
+            user = self.authenticate_user(request)
+            data = request.data.copy()
+            data['severity'] = self.chain.invoke({"user_input": data.get("description", "")}).strip()
+            
+            # Validate location data
+            location = self.validate_location(data.get("location"))
+            if not location:
+                return Response({"error": "Invalid location data"}, status=status.HTTP_400_BAD_REQUEST)
+            print("Location check")
+            
+            lat, lon = location["latitude"], location["longitude"]
+            
+            # Check for similar existing incidents
+            existing_incident = self.find_similar_incident(data, lat, lon)
+            if existing_incident:
+                existing_incident.count += 1
+                existing_incident.save()
+                self.notify_existing_incident(existing_incident)
+            
+                
+                return Response({
+                    "message": "Incident reported successfully!",
+                    "incident_id": existing_incident.id,
+                    "severity": data['severity']
+                }, status=status.HTTP_201_CREATED)
+            print(data)
+            # Create new incident
+            serializer = IncidentSerializer(data=data)
+            if serializer.is_valid():
+                incident = serializer.save(reported_by=user)
+                self.assign_nearest_stations(incident, lat, lon)
+                return Response({
+                    "message": "Incident reported successfully!",
+                    "incident_id": incident.id,
+                    "severity": data['severity']
+                }, status=status.HTTP_201_CREATED)
+            
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        except Exception as e:
+            return Response({"error": f"An unexpected error occurred: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    def authenticate_user(self, request):
+        """Authenticate user or fallback to anonymous"""
         auth_header = request.META.get('HTTP_AUTHORIZATION')
         if auth_header and auth_header.startswith('Bearer '):
             try:
                 token_str = auth_header.split(' ')[1]
                 token = AccessToken(token_str)
-                user = User.objects.get(id=token['user_id'])
-            except Exception as e:
-                print(f"Authentication error: {str(e)}")
-                # If token validation fails, fall back to anonymous user
-                pass
+                return User.objects.get(id=token['user_id'])
+            except Exception:
+                pass  # Fallback to anonymous
+
+        return User.objects.get_or_create(
+            email='anonymous@example.com',
+            defaults={
+                'first_name': 'Anonymous',
+                'last_name': 'User',
+                'phone_number': '0000000000',
+                'address': 'Anonymous',
+                'aadhar_number': '000000000000',
+                'emergency_contact1': '0000000000',
+                'emergency_contact2': '0000000000',
+                'password': 'anonymous'
+            }
+        )[0]
+
+    def validate_location(self, location):
+        """Ensures location is valid"""
+        if isinstance(location, str):
+            try:
+                location = json.loads(location)
+            except json.JSONDecodeError:
+                return None
+
+        if not isinstance(location, dict) or "latitude" not in location or "longitude" not in location:
+            return None
+
+        lat, lon = location["latitude"], location["longitude"]
+        if not isinstance(lat, (int, float)) or not isinstance(lon, (int, float)):
+            return None
         
-        # If no valid authentication was provided or token validation failed,
-        # get or create anonymous user
-        if not user:
-            user, _ = User.objects.get_or_create(
-                email='anonymous@example.com',
-                defaults={
-                    'first_name': 'Anonymous',
-                    'last_name': 'User',
-                    'phone_number': '0000000000',
-                    'address': 'Anonymous',
-                    'aadhar_number': '000000000000',
-                    'emergency_contact1': '0000000000',
-                    'emergency_contact2': '0000000000',
-                    'password': 'anonymous'
-                }
-            )
-        
-        # Map incident types to appropriate station models
+        return location
+
+    def find_similar_incident(self, data, lat, lon):
+        """Check for existing similar incidents within 50 meters & 1 hour"""
+        recent_incidents = Incidents.objects.filter(incidentType=data.get("incidentType"))
+        for incident in recent_incidents:
+            if great_circle((lat, lon), (incident.location["latitude"], incident.location["longitude"])).meters <= 50:
+                print("Under 50 metres")
+                if abs(data.get("reported_at", timezone.now()) - incident.reported_at) <= timedelta(hours=1):
+                    print("Under 1 hour")
+                    if self.is_similar_incident(data["description"], incident.description):
+                        return incident
+        return None
+
+    def is_similar_incident(self, new_description, previous_description):
+        """Check if two incidents have similar descriptions using LLM"""
+        prompt = ChatPromptTemplate.from_messages([
+            ("system", "Based on the description of the two incidents, return only 'True' if they are similar, otherwise 'False'."),
+            ("human", "{newdata} \n {previousdata}")
+        ])
+        chain = prompt | model | StrOutputParser()
+        return chain.invoke({"newdata": new_description, "previousdata": previous_description}) == "True"
+
+    def notify_existing_incident(self, incident):
+        """Send notification if an incident is reported again"""
+        stations = [incident.police_station, incident.fire_station, incident.hospital_station]
+        for station in filter(None, stations):
+            subject = "Incident has been reported by another user"
+            message = f"Another user has reported the same incident (ID: {incident.id}). Please investigate."
+            send_email_example(subject, message, station.email)
+
+    def assign_nearest_stations(self, incident, lat, lon):
+        """Assigns nearest police, fire, and hospital stations to the incident"""
         station_map = {
             'Fire': [FireStations, PoliceStations, Hospital],
             'Theft': [PoliceStations],
             'Accident': [PoliceStations, Hospital],
             'Missing Persons': [PoliceStations],
-            'Other': []  # Changed from [None] to empty list
+            'Other': [PoliceStations]  
         }
 
+        station_models = station_map.get(incident.incidentType, [])
+        user_location = (lat, lon)
+
+        for station_model in station_models:
+            stations = station_model.objects.all()
+            if stations.exists():
+                nearest_station = min(stations, key=lambda station: great_circle(user_location, (station.latitude, station.longitude)).km)
+                
+                if station_model == PoliceStations:
+                    incident.police_station = nearest_station
+                elif station_model == FireStations:
+                    incident.fire_station = nearest_station
+                elif station_model == Hospital:
+                    incident.hospital_station = nearest_station
+
+                # Notify nearest station
+                self.notify_new_incident(nearest_station, incident)
+
+        incident.save()
+
+    def notify_new_incident(self, station, incident):
+        """Send email notification to the assigned station"""
         try:
-            data = request.data.copy()
-            response = self.chain.invoke({"user_input": data})
-            data['severity'] = response.strip()
-            print(response)
-            serializer = IncidentSerializer(data=data)
-
-            if serializer.is_valid():
-                # Save the incident with the appropriate user
-                incident = serializer.save(reported_by=user)
-
-                # Parse and validate location data
-                try:
-                    if isinstance(incident.location, str):
-                        incident.location = json.loads(incident.location)
-                except json.JSONDecodeError:
-                    return Response({
-                        "error": "Invalid location data format"
-                    }, status=status.HTTP_400_BAD_REQUEST)
-
-                user_lat = incident.location.get('latitude')
-                user_lon = incident.location.get('longitude')
-
-                if not user_lat or not user_lon or \
-                not isinstance(user_lat, (int, float)) or \
-                not isinstance(user_lon, (int, float)):
-                    return Response({
-                        "error": "Location must include valid latitude and longitude"
-                    }, status=status.HTTP_400_BAD_REQUEST)
-
-                # Get the station models for the incident type
-                station_models = station_map.get(incident.incidentType, [])
-                user_location = (user_lat, user_lon)
-
-                nearest_police_station = None
-                nearest_fire_station = None
-                nearest_hospital = None
-
-                # Find nearest stations and send notifications
-                for station_model in station_models:
-                    stations = station_model.objects.all()
-                    if stations.exists():
-                        nearest_station = min(
-                            stations,
-                            key=lambda station: great_circle(
-                                user_location,
-                                (station.latitude, station.longitude)
-                            ).km
-                        )
-
-                        # Save the nearest station based on its type
-                        if station_model == PoliceStations:
-                            nearest_police_station = nearest_station
-                        elif station_model == FireStations:
-                            nearest_fire_station = nearest_station
-                        elif station_model == Hospital:
-                            nearest_hospital = nearest_station
-
-                        # Send notifications with enhanced message
-                        try:
-                            number = '+91' + str(nearest_station.number)
-                            message = (
-                                f"New {incident.incidentType} reported!\n"
-                                f"Severity: {response}\n"
-                                f"Location: ({user_lat}, {user_lon})\n"
-                                f"Description: {incident.description}\n"
-                                f"Reported by: {user.first_name} {user.last_name}"
-                            )
-                            
-                            # send_sms(message, number)
-                            send_email_example(
-                                f"New {response} Priority Incident Alert",
-                                message,
-                                nearest_station.email
-                            )
-                        except Exception as e:
-                            print(f"Notification error for station {nearest_station.id}: {str(e)}")
-                            # Continue processing even if notification fails
-
-                # Update the incident with the nearest stations
-                incident.police_station = nearest_police_station
-                incident.fire_station = nearest_fire_station
-                incident.hospital_station = nearest_hospital
-                incident.save()
-
-                return Response({
-                    "message": "Incident reported successfully!",
-                    "incident_id": incident.id,
-                    "severity": response
-                }, status=status.HTTP_201_CREATED)
-
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
+            message = (
+                f"New {incident.incidentType} reported!\n"
+                f"Severity: {incident.severity}\n"
+                f"Location: ({incident.location['latitude']}, {incident.location['longitude']})\n"
+                f"Description: {incident.description}\n"
+                f"Reported by: {incident.reported_by.first_name} {incident.reported_by.last_name}"
+            )
+            number = "+91"+str(station.number)
+            # send_sms(message, number)
+            send_email_example(f"New {incident.severity.capitalize()} Priority Incident Alert", message, station.email)
         except Exception as e:
-            return Response({
-                "error": f"An unexpected error occurred: {str(e)}"
-            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            print(f"Notification error for station {station.id}: {str(e)}")
+
 class voicereport(APIView):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)

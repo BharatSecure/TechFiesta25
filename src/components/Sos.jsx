@@ -103,9 +103,9 @@ const Sos = () => {
           {/* SOS Button */}
           <button
             onClick={handleSOSClick}
-            className="relative bg-cyan-600 text-white font-bold text-3xl py-6 px-16 rounded-full shadow-[inset_-4px_-4px_8px_rgba(0,0,0,0.3),inset_4px_4px_8px_rgba(255,255,255,0.1)] hover:shadow-[0_0_20px_rgba(34,211,238,0.5)] transition-all duration-300 hover:scale-105 z-10"
+            className="relative bg-red-500 text-white font-bold text-3xl py-6 px-16 rounded-full shadow-[inset_-4px_-4px_8px_rgba(0,0,0,0.3),inset_4px_4px_8px_rgba(255,255,255,0.1)] hover:shadow-[0_0_20px_rgba(239,68,68,0.5)] transition-all duration-300 hover:scale-105 z-10"
           >
-            <span className="absolute inset-0 rounded-full bg-cyan-500 animate-ping opacity-30"></span>
+            <span className="absolute inset-0 rounded-full bg-red-500 animate-ping opacity-30"></span>
             SOS
           </button>
         </div>

@@ -292,7 +292,13 @@ class form_report(APIView):
 
     def assign_nearest_stations(self, incident, lat, lon):
         """Assigns nearest police, fire, and hospital stations to the incident"""
+
         station_map = {
+            'Domestic Violence': [PoliceStations],
+            'Child Abuse': [PoliceStations],
+            'Sexual Harassment': [PoliceStations],
+            'Stalking': [PoliceStations],
+            'Human Trafficking': [PoliceStations],
             'Fire': [FireStations, PoliceStations, Hospital],
             'Theft': [PoliceStations],
             'Accident': [PoliceStations, Hospital],
@@ -420,6 +426,11 @@ class voicereport(APIView):
 
         # Nearest stations lookup
         station_map = {
+            'Domestic Violence': [PoliceStations],
+            'Child Abuse': [PoliceStations],
+            'Sexual Harassment': [PoliceStations],
+            'Stalking': [PoliceStations],
+            'Human Trafficking': [PoliceStations],
             'Fire': [FireStations, PoliceStations, Hospital],
             'Theft': [PoliceStations],
             'Accident': [PoliceStations, Hospital],

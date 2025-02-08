@@ -614,24 +614,30 @@ def all_station_incidents(request):
         token_str = auth_header.split(' ')[1]
         token = AccessToken(token_str)
         admin = get_object_or_404(Admin, id=token['user_id'])
-    except Exception as e:
+    except Exception:
         return Response(
             {"error": "Invalid or expired token"},
             status=status.HTTP_401_UNAUTHORIZED
         )
 
-    # Determine which station the admin belongs to and filter incidents accordingly
-    if admin.police_station is not None:
+    # Determine the station to filter incidents
+    incidents = Incidents.objects.none()  # Default empty queryset
+    if admin.police_station:
         incidents = Incidents.objects.filter(police_station=admin.police_station, true_or_false=True)
-    elif admin.fire_station is not None:
+    elif admin.fire_station:
         incidents = Incidents.objects.filter(fire_station=admin.fire_station, true_or_false=True)
-    elif admin.hospital is not None:
+    elif admin.hospital:
         incidents = Incidents.objects.filter(hospital_station=admin.hospital, true_or_false=True)
     else:
         return Response(
             {"error": "Admin is not associated with any station"},
             status=status.HTTP_400_BAD_REQUEST
         )
+
+    if request.method == 'GET':
+        # Serialize and return incidents that are marked true
+        serializer = IncidentSerializer(incidents, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
     # Handle toggle requests (POST method)
     if request.method == 'POST':
@@ -640,17 +646,13 @@ def all_station_incidents(request):
             return Response({"error": "Incident ID is required"}, status=status.HTTP_400_BAD_REQUEST)
 
         try:
-            incident = Incidents.objects.get(id=incident_id)
+            # Ensure the admin can only toggle incidents related to their station
+            incident = incidents.get(id=incident_id)
             incident.true_or_false = not incident.true_or_false  # Toggle flagged state
             incident.save()
             return Response({"message": f"Flagged status toggled to {incident.true_or_false}"}, status=status.HTTP_200_OK)
         except Incidents.DoesNotExist:
-            return Response({"error": "Incident not found"}, status=status.HTTP_404_NOT_FOUND)
-
-    # Serialize the incidents and return the response
-    serializer = IncidentSerializer(incidents, many=True)
-    return Response(serializer.data, status=status.HTTP_200_OK)
-    
+            return Response({"error": "Incident not found or unauthorized"}, status=status.HTTP_404_NOT_FOUND)
 
 
 class CommentListCreateView(APIView):
@@ -712,20 +714,10 @@ def save_score(request):
     allincidents = Incidents.objects.all()
     
     for incident in allincidents:
-        if incident.reported_by and incident.reported_by.first_name == 'Anonymous':
-            incident.score = 50
-        else:
-            incidents = Incidents.objects.filter(reported_by=incident.reported_by)
-            count = sum(1 for i in incidents if i.true_or_false)  # Count valid incidents
-            
-            if incidents.count() > 0:
-                incident.score = (count / incidents.count()) * 100
-            else:
-                incident.score = 0  # Prevent division by zero
-
+        incident.true_or_false = True
         incident.save()  # Save the updated score to the database
     
-    return Response({"message": "All scores updated successfully."})
+    return Response({"message": "All incidents updated successfully."})
 
 @api_view(['GET'])
 def view_incident(request, id):

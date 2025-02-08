@@ -19,6 +19,7 @@
     "@mui/x-charts": "^7.24.0",
     "@radix-ui/react-popover": "^1.1.4",
     "animate.css": "^4.1.1",
+    "animated-backgrounds": "^1.1.0",
     "axios": "^1.7.9",
     "bootstrap": "^5.3.3",
     "chart.js": "^4.4.7",

@@ -52,9 +52,9 @@ const FeedbackForm = () => {
 
   return (
     <>
-      <div className="min-h-screen bg-gradient-to-b from-slate-900 via-blue-950 to-slate-900">
+      <div className="min-h-screen p-20 bg-gradient-to-b from-slate-900 via-blue-950 to-slate-900">
         <div
-          className="max-w-2xl w-full mx-auto my-6 p-6 py-6 bg-gray-800 rounded-lg shadow-2xl relative overflow-hidden border border-gray-700 transition-transform transform hover:scale-105 duration-300"
+          className="max-w-2xl w-full mx-auto p-6 py-6 bg-gray-800 rounded-lg shadow-2xl relative overflow-hidden border border-gray-700 transition-transform transform "
           style={{ boxShadow: "0 0 20px rgba(0, 128, 255, 0.6)" }}
         >
           <h1 className="text-3xl font-bold text-center text-blue-400 mb-4">
@@ -151,8 +151,8 @@ const FeedbackForm = () => {
             </form>
           )}
         </div>
-        <Footer />
       </div>
+      <Footer />
       <FloatingChatbot />
     </>
   );

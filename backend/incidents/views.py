@@ -42,7 +42,6 @@ from django.db.models.functions import (
 )
 from django.utils import timezone
 from datetime import timedelta
-from utils.sms import get_coordinates_from_address
 
 model = ChatGoogleGenerativeAI(
                 model="gemini-1.5-flash",
@@ -292,7 +291,13 @@ class form_report(APIView):
 
     def assign_nearest_stations(self, incident, lat, lon):
         """Assigns nearest police, fire, and hospital stations to the incident"""
+
         station_map = {
+            'Domestic Violence': [PoliceStations],
+            'Child Abuse': [PoliceStations],
+            'Sexual Harassment': [PoliceStations],
+            'Stalking': [PoliceStations],
+            'Human Trafficking': [PoliceStations],
             'Fire': [FireStations, PoliceStations, Hospital],
             'Theft': [PoliceStations],
             'Accident': [PoliceStations, Hospital],
@@ -374,7 +379,6 @@ class voicereport(APIView):
                 email='anonymous@example.com',
                 defaults={'first_name': 'Anonymous', 'last_name': 'User', 'phone_number': '0000000000'}
             )
-        print("User recieved")
         json_format = """{
             "incidentType": "Accident",
             "location": "A-201, Shubham CHS, Gaurav garden complex 2, Kandivali West, Mumbai",
@@ -383,29 +387,24 @@ class voicereport(APIView):
         }"""
 
         user_input = request.data.get("user_input", "").strip()
-        print(f"Received input: {user_input}")
             
         if not user_input:
             return Response({"error": "user_input is required"}, status=status.HTTP_400_BAD_REQUEST)
 
-        print("user_input successful")
         chain_input = {"user_input": user_input, "json_format": json_format}
         incident = self.chain.invoke(chain_input)
-
-        if isinstance(incident, str):
-            try:
-                incident = json.loads(incident)
-            except json.JSONDecodeError:
-                return Response({"error": "Invalid response format from LLM"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        print(incident)
+        match = re.search(r'\{.*\}', incident, re.DOTALL)
+        if match:
+            json_string = match.group()
+            incident = json.loads(json_string)
         if 'error' in incident:
             return Response(incident, status=status.HTTP_400_BAD_REQUEST)
-
-        if 'location' not in incident or not incident['location']:
+        print("passed error check")
+        if not incident['location']:
             return Response({"error": "Location not specified in the incident report."}, status=status.HTTP_400_BAD_REQUEST)
 
-        incident['location'] = get_coordinates_from_address(incident['location'])
-
+        incident['location'] = get_coordinates(incident['location'])
+        print(incident)
         serializer = IncidentSerializer(data=incident)
         if not serializer.is_valid():
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -420,6 +419,11 @@ class voicereport(APIView):
 
         # Nearest stations lookup
         station_map = {
+            'Domestic Violence': [PoliceStations],
+            'Child Abuse': [PoliceStations],
+            'Sexual Harassment': [PoliceStations],
+            'Stalking': [PoliceStations],
+            'Human Trafficking': [PoliceStations],
             'Fire': [FireStations, PoliceStations, Hospital],
             'Theft': [PoliceStations],
             'Accident': [PoliceStations, Hospital],
@@ -505,14 +509,17 @@ def send_email_example(subject, message, email):
 
 
 # Function to get coordinates from Geoapify Geocoding API
-def get_coordinates(location, api_key):
-    api_key = "5b3ce3597851110001cf6248c3e5474dc5b64991afad8ceec07950da"
+def get_coordinates(location):
+    api_key = "fabe86e749c44aa2a8ae60c68c2e3c6f"
     url = f"https://api.geoapify.com/v1/geocode/search?text={location}&apiKey={api_key}"
-    response = requests.get(url)
+    headers = requests.structures.CaseInsensitiveDict()
+    headers["Accept"] = "application/json"
+    response = requests.get(url, headers=headers)
     data = response.json()
+    print(data)
     if data['features']:
         coords = data['features'][0]['geometry']['coordinates']
-        return coords[1], coords[0]  # Return latitude, longitude
+        return {"latitude": coords[1], "longitude": coords[0]}  # Return latitude, longitude
     else:
         raise ValueError(f"Could not find coordinates for location: {location}")
     
@@ -607,24 +614,30 @@ def all_station_incidents(request):
         token_str = auth_header.split(' ')[1]
         token = AccessToken(token_str)
         admin = get_object_or_404(Admin, id=token['user_id'])
-    except Exception as e:
+    except Exception:
         return Response(
             {"error": "Invalid or expired token"},
             status=status.HTTP_401_UNAUTHORIZED
         )
 
-    # Determine which station the admin belongs to and filter incidents accordingly
-    if admin.police_station is not None:
+    # Determine the station to filter incidents
+    incidents = Incidents.objects.none()  # Default empty queryset
+    if admin.police_station:
         incidents = Incidents.objects.filter(police_station=admin.police_station, true_or_false=True)
-    elif admin.fire_station is not None:
+    elif admin.fire_station:
         incidents = Incidents.objects.filter(fire_station=admin.fire_station, true_or_false=True)
-    elif admin.hospital is not None:
+    elif admin.hospital:
         incidents = Incidents.objects.filter(hospital_station=admin.hospital, true_or_false=True)
     else:
         return Response(
             {"error": "Admin is not associated with any station"},
             status=status.HTTP_400_BAD_REQUEST
         )
+
+    if request.method == 'GET':
+        # Serialize and return incidents that are marked true
+        serializer = IncidentSerializer(incidents, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
     # Handle toggle requests (POST method)
     if request.method == 'POST':
@@ -633,17 +646,13 @@ def all_station_incidents(request):
             return Response({"error": "Incident ID is required"}, status=status.HTTP_400_BAD_REQUEST)
 
         try:
-            incident = Incidents.objects.get(id=incident_id)
+            # Ensure the admin can only toggle incidents related to their station
+            incident = incidents.get(id=incident_id)
             incident.true_or_false = not incident.true_or_false  # Toggle flagged state
             incident.save()
             return Response({"message": f"Flagged status toggled to {incident.true_or_false}"}, status=status.HTTP_200_OK)
         except Incidents.DoesNotExist:
-            return Response({"error": "Incident not found"}, status=status.HTTP_404_NOT_FOUND)
-
-    # Serialize the incidents and return the response
-    serializer = IncidentSerializer(incidents, many=True)
-    return Response(serializer.data, status=status.HTTP_200_OK)
-    
+            return Response({"error": "Incident not found or unauthorized"}, status=status.HTTP_404_NOT_FOUND)
 
 
 class CommentListCreateView(APIView):
@@ -705,20 +714,10 @@ def save_score(request):
     allincidents = Incidents.objects.all()
     
     for incident in allincidents:
-        if incident.reported_by and incident.reported_by.first_name == 'Anonymous':
-            incident.score = 50
-        else:
-            incidents = Incidents.objects.filter(reported_by=incident.reported_by)
-            count = sum(1 for i in incidents if i.true_or_false)  # Count valid incidents
-            
-            if incidents.count() > 0:
-                incident.score = (count / incidents.count()) * 100
-            else:
-                incident.score = 0  # Prevent division by zero
-
+        incident.true_or_false = True
         incident.save()  # Save the updated score to the database
     
-    return Response({"message": "All scores updated successfully."})
+    return Response({"message": "All incidents updated successfully."})
 
 @api_view(['GET'])
 def view_incident(request, id):
@@ -739,15 +738,21 @@ class ChatbotView_Therapist(APIView):
         super().__init__(*args, **kwargs)
         self.llm = model
         self.prompt = ChatPromptTemplate.from_messages([
-            ("system", "You are both a therapist and a legal guidance officer based in India. As a therapist, your role is to provide emotional support, comfort, and guidance to the user, especially after a traumatic incident. As a legal guidance officer, you will provide advice on legal matters specific to Indian law, ensuring your answers are clear and based on the legal framework in India. Balance both roles carefully, making your responses brief but considerate and accurate."),
+            ("system", """
+             You are an AI assistant specializing in both therapy and legal guidance in India.
+            As a therapist, provide empathetic emotional support, comfort, and guidance, especially for users dealing with trauma.
+            As a legal guidance officer, offer clear, concise advice based on Indian law, ensuring accuracy and relevance.
+            Balance both roles carefully—your responses should be brief yet compassionate, legally sound, and practical. If appropriate, use the user’s location to recommend nearby government agencies or legal resources for further assistance.
+             """),
             MessagesPlaceholder(variable_name="chat_history"),
-            ("human", "{user_input}"),
+            ("human", "{user_input}, location: {location}"),
         ])
         self.chain = self.prompt | self.llm | StrOutputParser()
 
     def post(self, request, *args, **kwargs):
         user_input = request.data.get("user_input", "").strip()
         chat_history = request.data.get("chat_history")
+        location = request.data.get("location")
 
         if not isinstance(chat_history, list):  # Ensure chat_history is a list
             chat_history = []
@@ -755,7 +760,7 @@ class ChatbotView_Therapist(APIView):
         if not user_input:
             return Response({"error": "user_input is required"}, status=status.HTTP_400_BAD_REQUEST)
 
-        chain_input = {"user_input": user_input, "chat_history": chat_history}
+        chain_input = {"user_input": user_input, "chat_history": chat_history, "location": location}
         response = self.chain.invoke(chain_input)
 
         chat_history.append(f"User: {user_input}")
@@ -767,76 +772,6 @@ class ChatbotView_Therapist(APIView):
             "chat_history": chat_history,
         }, status=status.HTTP_200_OK)
 
-@api_view(["GET"])
-def incident_chart_data(request):
-    try:
-        # Get time range from query params (default to last 12 months)
-        months = int(request.query_params.get('months', 12))
-        start_date = timezone.now() - timedelta(days=30*months)
-        
-        # Base queryset
-        queryset = Incidents.objects.filter(reported_at__gte=start_date)
-        
-        # Monthly incident count
-        monthly_incidents = (
-            queryset
-            .annotate(month=TruncMonth('reported_at'))
-            .values('month')
-            .annotate(count=Count('id'))
-            .order_by('month')
-        )
-
-        # Incident types distribution
-        type_distribution = (
-            queryset
-            .values('incidentType')
-            .annotate(count=Count('id'))
-            .order_by('-count')
-        )
-
-        # Severity distribution
-        severity_distribution = (
-            queryset
-            .values('severity')
-            .annotate(count=Count('id'))
-            .order_by('severity')
-        )
-
-        # Time of day analysis
-        hourly_distribution = (
-            queryset
-            .annotate(hour=ExtractHour('reported_at'))
-            .values('hour')
-            .annotate(count=Count('id'))
-            .order_by('hour')
-        )
-
-        # Status distribution
-        status_distribution = (
-            queryset
-            .values('status')
-            .annotate(count=Count('id'))
-            .order_by('status')
-        )
-
-        data = {
-            'monthly_incidents': list(monthly_incidents),
-            'type_distribution': list(type_distribution),
-            'severity_distribution': list(severity_distribution),
-            'hourly_distribution': list(hourly_distribution),
-            'status_distribution': list(status_distribution),
-            'total_incidents': queryset.count(),
-        }
-        
-        logger.info(f"Successfully generated chart data: {data}")
-        return Response(data)
-    
-    except Exception as e:
-        logger.error(f"Error in incident_chart_data: {str(e)}")
-        return Response(
-            {"error": str(e)}, 
-            status=500
-        )
 from django.core.serializers.json import DjangoJSONEncoder
 from datetime import datetime
 @api_view(['GET'])
@@ -996,9 +931,6 @@ def advanced_incident_analysis(request):
             'details': str(e)
         }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     
-from django.http import JsonResponse
-from django.shortcuts import get_object_or_404
-from .models import User
 from django.views import View
 
 class UserDetailView(View):
@@ -1016,4 +948,97 @@ class UserDetailView(View):
             "emergency_contact2": user.emergency_contact2,
             "date_joined": user.date_joined.strftime("%Y-%m-%d %H:%M:%S"),
         }
-        return JsonResponse(user_data)
+        return Response(user_data)
+    
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+from django.db.models import Count, Avg
+from django.db.models.functions import TruncMonth, ExtractMonth, ExtractYear
+from django.utils import timezone
+from datetime import timedelta
+import datetime
+
+@api_view(['GET'])
+def get_incident_statistics(request):
+    auth_header = request.headers.get('Authorization')
+    if not auth_header or not auth_header.startswith('Bearer '):
+        return Response(
+            {"error": "Authorization header missing or malformed"},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
+    try:
+        # Extract and validate the token
+        token_str = auth_header.split(' ')[1]
+        token = AccessToken(token_str)
+        user = get_object_or_404(User, id=token['user_id'])
+    except Exception:
+        return Response(
+            {"error": "Invalid or expired token"},
+            status=status.HTTP_401_UNAUTHORIZED
+        )
+    # Get date range from query params or default to last 30 days
+    days = int(request.GET.get('days', 30))
+    start_date = timezone.now() - timedelta(days=days)
+    
+    # Get user's incidents
+    user_incidents = Incidents.objects.filter(
+        reported_by=token['user_id']   ,
+        reported_at__gte=start_date
+    )
+    
+    # Incident types distribution
+    incident_types = list(user_incidents.values('incidentType')
+        .annotate(count=Count('id'))
+        .order_by('-count'))
+    
+    # Severity distribution
+    severity_dist = list(user_incidents.values('severity')
+        .annotate(count=Count('id'))
+        .order_by('severity'))
+    
+    # Status distribution
+    status_dist = list(user_incidents.values('status')
+        .annotate(count=Count('id'))
+        .order_by('status'))
+    
+    # Monthly trend - using SQLite compatible approach
+    monthly_incidents = user_incidents.annotate(
+        year=ExtractYear('reported_at'),
+        month=ExtractMonth('reported_at')
+    ).values('year', 'month').annotate(
+        count=Count('id')
+    ).order_by('year', 'month')
+
+    # Convert to the format expected by the frontend
+    monthly_trend = []
+    for entry in monthly_incidents:
+        month_date = datetime.date(year=entry['year'], month=entry['month'], day=1)
+        monthly_trend.append({
+            'month': month_date.isoformat(),
+            'count': entry['count']
+        })
+    
+    # Score trend
+    score_trend = []
+    for entry in monthly_incidents:
+        month_scores = user_incidents.filter(
+            reported_at__year=entry['year'],
+            reported_at__month=entry['month']
+        )
+        avg_score = month_scores.aggregate(Avg('score'))['score__avg'] or 0
+        month_date = datetime.date(year=entry['year'], month=entry['month'], day=1)
+        score_trend.append({
+            'month': month_date.isoformat(),
+            'avg_score': round(avg_score, 2)
+        })
+    
+    return Response({
+        'incident_types': incident_types,
+        'severity_distribution': severity_dist,
+        'status_distribution': status_dist,
+        'monthly_trend': monthly_trend,
+        'score_trend': score_trend,
+        'total_incidents': user_incidents.count(),
+        'average_score': user_incidents.aggregate(Avg('score'))['score__avg'] or 0
+    })

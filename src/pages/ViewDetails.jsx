@@ -105,9 +105,7 @@ const ViewDetails = () => {
                 Location:
                 <LocationDisplay location={fullDetails.location} />
               </strong>{" "}
-              <a href={fullDetails.maps_link}>
-                <MapPin />
-              </a>
+            
             </div>
           </div>
 

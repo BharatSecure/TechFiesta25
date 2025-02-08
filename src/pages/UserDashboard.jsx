@@ -15,7 +15,7 @@ import Footer from "@/components/Footer";
 import { useAuth } from "@/context/AuthContext";
 import FloatingChatbot from "@/components/FloatingChatbot";
 import { Navigate, useNavigate } from "react-router-dom";
-import LocationDisplay from "@/components/LocationDisplay";
+
 
 const UserDashboard = () => {
   const navigate = useNavigate();
@@ -231,7 +231,7 @@ const UserDashboard = () => {
                         </span>
                       </td>
                       <td className="p-4">
-                        <LocationDisplay location={incident.location} />
+                      
                         <a
                           href={incident.maps_link}
                           target="_blank"

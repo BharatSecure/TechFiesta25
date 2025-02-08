@@ -12,7 +12,7 @@ import {
 import Footer from "@/components/Footer";
 import { useAuth } from "@/context/AuthContext";
 import { useNavigate } from "react-router-dom";
-import LocationDisplay from "@/components/LocationDisplay";
+
 
 const AdminDashboard = () => {
   const [total, setTotal] = useState(0);
@@ -270,7 +270,7 @@ const AdminDashboard = () => {
                     </span>
                   </p>
                   <div className="flex gap-2 items-center ">
-                    <LocationDisplay location={incident.location} />
+                    
                     <a
                       href={incident.maps_link}
                       target="_blank"

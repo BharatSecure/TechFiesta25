@@ -179,14 +179,26 @@ const RecentIncidents = () => {
         <div className="flex justify-center gap-4 mb-8 flex-wrap">
           <button
             onClick={handleLocationFilter}
-            className="px-4 py-2 bg-cyan-500 text-white rounded-lg hover:bg-cyan-600 transition-all duration-300"
+            className="px-6 py-3 bg-slate-800 text-cyan-400 rounded-xl 
+    shadow-[inset_-2px_-2px_4px_rgba(0,0,0,0.3),inset_2px_2px_4px_rgba(255,255,255,0.1)] 
+    hover:shadow-[0_0_15px_rgba(34,211,238,0.3)] 
+    hover:text-cyan-300
+    transition-all duration-300
+    font-semibold
+    border border-cyan-400/20"
           >
             Filter by My Location
           </button>
 
           <button
             onClick={() => setIsMapModalOpen(true)}
-            className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-all duration-300"
+            className="px-6 py-3 bg-slate-800 text-cyan-400 rounded-xl 
+    shadow-[inset_-2px_-2px_4px_rgba(0,0,0,0.3),inset_2px_2px_4px_rgba(255,255,255,0.1)] 
+    hover:shadow-[0_0_15px_rgba(34,211,238,0.3)] 
+    hover:text-cyan-300
+    transition-all duration-300
+    font-semibold
+    border border-cyan-400/20"
           >
             Pick Location on Map
           </button>

@@ -119,11 +119,23 @@ const Sos = () => {
                 animationDelay: `${index * -5}s`,
               }}
             >
-              <div className="w-40 h-40 bg-slate-800 rounded-xl p-4 shadow-[inset_-8px_-8px_12px_rgba(0,0,0,0.3),inset_8px_8px_12px_rgba(255,255,255,0.1)] hover:shadow-[0_0_15px_rgba(34,211,238,0.3)] transition-all duration-300 flex flex-col items-center justify-center text-center transform hover:scale-105">
-                <h3 className="text-cyan-400 font-bold mb-2 drop-shadow-[0_0_8px_rgba(34,211,238,0.3)]">
-                  {feature.title}
-                </h3>
-                <p className="text-slate-300 text-sm">{feature.description}</p>
+              <div className="relative w-40 h-40 bg-slate-800 rounded-xl p-4 shadow-[inset_-8px_-8px_12px_rgba(0,0,0,0.3),inset_8px_8px_12px_rgba(255,255,255,0.1)] hover:shadow-[0_0_15px_rgba(34,211,238,0.3)] transition-all duration-300 flex flex-col items-center justify-center text-center transform hover:scale-105 overflow-hidden">
+                {/* Animated border */}
+                <div className="absolute inset-0 rounded-xl p-[2px]">
+                  <div className="absolute inset-0 bg-[conic-gradient(from_var(--shimmer-angle),#0F172A_0%,#0ea5e9_10%,#0F172A_20%)] animate-border-rotate [--shimmer-angle:0deg]">
+                    <div className="absolute inset-[2px] rounded-[inherit] bg-slate-800"></div>
+                  </div>
+                </div>
+
+                {/* Content */}
+                <div className="relative z-10">
+                  <h3 className="text-cyan-400 font-bold mb-2 drop-shadow-[0_0_8px_rgba(34,211,238,0.3)]">
+                    {feature.title}
+                  </h3>
+                  <p className="text-slate-300 text-sm">
+                    {feature.description}
+                  </p>
+                </div>
               </div>
             </Link>
           ))}

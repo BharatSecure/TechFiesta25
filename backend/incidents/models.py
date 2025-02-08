@@ -105,6 +105,7 @@ class NGO(models.Model):
 
     def __str__(self):
         return f"NGO Station: {self.id}"
+
 class Incidents(models.Model):
     INCIDENT_TYPES = [
         ('Fire', 'Fire'),
@@ -140,7 +141,7 @@ class Incidents(models.Model):
         null=True,
         blank=True
     )
-    reported_at = models.DateTimeField(default=timezone.now)  # Ensuring timezone-aware datetime
+    reported_at = models.DateTimeField(default=timezone.now) 
     police_station = models.ForeignKey(PoliceStations, on_delete=models.DO_NOTHING, null=True, blank=True)
     fire_station = models.ForeignKey(FireStations, on_delete=models.DO_NOTHING, null=True, blank=True)
     hospital_station = models.ForeignKey(Hospital, on_delete=models.DO_NOTHING, null=True, blank=True)
@@ -150,37 +151,38 @@ class Incidents(models.Model):
     score = models.DecimalField(decimal_places=2, default=0, max_digits=4)
     resolved_at = models.DateTimeField(null=True, blank=True)
     true_or_false = models.BooleanField(default=False)
+    count = models.PositiveIntegerField(default=1)
 
     def save(self, *args, **kwargs):
-        # Ensure reported_at is timezone-aware
         if self.reported_at and self.reported_at.tzinfo is None:
             self.reported_at = timezone.make_aware(self.reported_at)
 
-        # Handle anonymous user score
         if self.reported_by and self.reported_by.first_name == 'Anonymous':
-            self.score = 50
+            self.score = 50  # Default neutral score for anonymous reports
         else:
-            # Efficiently calculate the score
             incidents = Incidents.objects.filter(reported_by=self.reported_by)
-            count = incidents.filter(true_or_false=True).count()
-            total = incidents.count()
-            
-            self.score = (count / total) * 100 if total > 0 else 80  # Prevent division by zero
+            verified_count = incidents.filter(true_or_false=True).count()  # Verified reports
+            total_reports = incidents.count()  # Total reports submitted
+            mass_report_bonus = min(self.count * 2, 10)  # Capped bonus to prevent abuse
 
-        # Generate Google Maps link safely
+            if total_reports > 0:
+                # Base score formula: (Verified reports % - Penalty for false reports) + Mass report bonus
+                self.score = ((verified_count / total_reports) * 100)  + mass_report_bonus
+                self.score = max(0, min(self.score, 100))  # Keep score within valid range
+            else:
+                self.score = 50  # Default for new reporters
+
+        # Generate maps link if location exists
         if isinstance(self.location, dict) and 'latitude' in self.location and 'longitude' in self.location:
             self.maps_link = get_google_maps_link(self.location['latitude'], self.location['longitude'])
 
-        # Only set resolved_at when status is updated to "Resolved"
+        # Handle resolution timestamp
         if self.status == "resolved" and not self.resolved_at:
             self.resolved_at = timezone.now()
         elif self.status != "resolved":
-            self.resolved_at = None  # Reset if not resolved
+            self.resolved_at = None
 
         super().save(*args, **kwargs)
-
-    def __str__(self):
-        return f"{self.incidentType}: {self.id}"
     
 class Comment(models.Model):
     comment = models.TextField()

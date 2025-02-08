@@ -69,10 +69,10 @@ const Sos = () => {
   }, []);
 
   return (
-    <div className="bg-slate-900 py-12 min-h-screen flex items-center justify-center overflow-hidden">
+    <div className="bg-slate-900 h-[90vh] flex items-center justify-center overflow-hidden">
       <div className="relative flex flex-col items-center">
         {/* Title */}
-        <h1 className="text-3xl text-cyan-400 font-extrabold tracking-wide mb-16 lg:text-6xl drop-shadow-[0_0_15px_rgba(34,211,238,0.5)]">
+        <h1 className="text-3xl text-cyan-400 font-extrabold tracking-wide mb-20 lg:text-6xl drop-shadow-[0_0_15px_rgba(34,211,238,0.5)]">
           Emergency SOS
         </h1>
 
@@ -103,18 +103,18 @@ const Sos = () => {
           {/* SOS Button */}
           <button
             onClick={handleSOSClick}
-            className="relative bg-cyan-600 text-white font-bold text-3xl py-6 px-16 rounded-full shadow-[inset_-4px_-4px_8px_rgba(0,0,0,0.3),inset_4px_4px_8px_rgba(255,255,255,0.1)] hover:shadow-[0_0_20px_rgba(34,211,238,0.5)] transition-all duration-300 hover:scale-105 z-10"
+            className="relative bg-red-500 text-white font-bold text-3xl py-6 px-16 rounded-full shadow-[inset_-4px_-4px_8px_rgba(0,0,0,0.3),inset_4px_4px_8px_rgba(255,255,255,0.1)] hover:shadow-[0_0_20px_rgba(239,68,68,0.5)] transition-all duration-300 hover:scale-105 z-10"
           >
-            <span className="absolute inset-0 rounded-full bg-cyan-500 animate-ping opacity-30"></span>
+            <span className="absolute inset-0 rounded-full bg-red-500 animate-ping opacity-30"></span>
             SOS
           </button>
         </div>
 
-        {/* Description */}
+        {/* Description
         <p className="text-slate-300 text-center max-w-xl text-lg mt-16 px-6">
           Press the button to send an emergency alert. Your location and details
           will be shared with nearby authorities for immediate assistance.
-        </p>
+        </p> */}
 
         {/* Modals */}
         {showConfirmation && (

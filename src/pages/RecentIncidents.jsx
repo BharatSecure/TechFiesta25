@@ -33,6 +33,13 @@ const RecentIncidents = () => {
   const [error, setError] = useState(null);
   const [isMapModalOpen, setIsMapModalOpen] = useState(false);
   const { isLoggedIn } = useAuth();
+  const [currentFilter, setCurrentFilter] = useState(null);
+
+  // Add reset filter function
+  const resetFilters = () => {
+    setIncidents(originalIncidents);
+    setCurrentFilter(null);
+  };
 
   // Refs for map and data
   const mapRef = useRef(null);
@@ -47,11 +54,14 @@ const RecentIncidents = () => {
   useEffect(() => {
     if (!isMapModalOpen) return;
 
-    const map = L.map("map").setView([51.505, -0.09], 13);
-    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-      attribution:
-        '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-    }).addTo(map);
+    const map = L.map("map", {
+      center: [20.5937, 78.9629],
+      zoom: 5,
+    });
+
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png").addTo(
+      map
+    );
     mapRef.current = map;
 
     map.on("click", async (e) => {
@@ -68,28 +78,29 @@ const RecentIncidents = () => {
 
         const filteredIncidents = originalIncidents.filter((incident) => {
           const distance = getDistanceFromLatLonInKm(
-            latitudeOrLat,
-            longitudeOrLng,
-            incident.location.latitude,
-            incident.location.longitude
+            lat,
+            lng,
+            incident.location.lat, // Changed from latitude
+            incident.location.lon // Changed from longitude
           );
           return distance <= 10;
         });
-
         setIncidents(filteredIncidents);
       } catch (error) {
         console.error("Error fetching location data:", error);
         setError("Failed to get location data");
       }
+      setCurrentFilter(`Map: ${lat.toFixed(4)}, ${lng.toFixed(4)}`);
     });
 
     return () => {
       if (mapRef.current) {
+        mapRef.current.off("click", clickHandler);
         mapRef.current.remove();
         mapRef.current = null;
       }
     };
-  }, [isMapModalOpen]);
+  }, [isMapModalOpen, originalIncidents]);
 
   // Fetch incidents from backend
   useEffect(() => {
@@ -103,7 +114,7 @@ const RecentIncidents = () => {
         if (response.status === 200) {
           setIncidents(response.data);
           setOriginalIncidents(response.data);
-          console.log(incidents)
+          console.log(incidents);
         }
       } catch (error) {
         console.error("Error fetching incidents:", error);
@@ -142,8 +153,8 @@ const RecentIncidents = () => {
             const distance = getDistanceFromLatLonInKm(
               latitude,
               longitude,
-              incident.location.latitude,
-              incident.location.longitude
+              incident.location.lat, // Changed from latitude
+              incident.location.lon // Changed from longitude
             );
             return distance <= 10;
           });
@@ -190,6 +201,15 @@ const RecentIncidents = () => {
           >
             Pick Location on Map
           </button>
+
+          {currentFilter && (
+            <button
+              onClick={resetFilters}
+              className="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-all duration-300"
+            >
+              Clear Filters
+            </button>
+          )}
         </div>
 
         {isMapModalOpen && (

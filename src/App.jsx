@@ -30,7 +30,7 @@ import UserProfile from "./pages/UserProfile";
 const UserDashboard = lazy(() => import("./pages/UserDashboard"));
 const AdminDashboard = lazy(() => import("./pages/AdminDashboard"));
 const AboutUs = lazy(() => import("./pages/AboutUs"));
-const RecentIncidents = lazy(() => import("./pages/RecentIncidents"));
+const RecentIncidents = lazy(() => import("./pages/RecentIncidents1"));
 const HeatMap2 = lazy(() => import("./components/Heatmap2"));
 const IncidentReportForm = lazy(() => import("./pages/IncidentReportForm2"));
 const FeedbackForm = lazy(() => import("./pages/FeedbackForm"));

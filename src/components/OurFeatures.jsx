@@ -17,7 +17,7 @@ const OurFeatures = () => {
               <div className="m-4 overflow-hidden rounded-xl h-48 sm:h-60 flex justify-center items-center bg-slate-700">
                 <img
                   className="w-full h-full object-cover opacity-80"
-                  src="https://t4.ftcdn.net/jpg/04/23/40/87/360_F_423408792_3K3fZwYzn84LbJdIiKYW73FbMHnVFXd8.jpg"
+                  src="https://img.freepik.com/free-vector/chat-bot-concept-illustration_114360-5522.jpg"
                   alt="Saathi AI"
                 />
               </div>
@@ -48,7 +48,7 @@ const OurFeatures = () => {
               <div className="m-4 overflow-hidden rounded-xl h-48 sm:h-60 flex justify-center items-center bg-slate-700">
                 <img
                   className="w-full h-full object-cover opacity-80"
-                  src="https://img.freepik.com/free-vector/chat-bot-concept-illustration_114360-5522.jpg"
+                  src="https://images.squarespace-cdn.com/content/v1/5bab316f7980b339c6dde5c2/877c3b92-24f0-4aa4-8804-2a389705d989/noun-warning-1109440-F5333F.png"
                   alt="Report"
                 />
               </div>
@@ -79,7 +79,7 @@ const OurFeatures = () => {
               <div className="m-4 overflow-hidden rounded-xl h-48 sm:h-60 flex justify-center items-center bg-slate-700">
                 <img
                   className="w-full h-full object-cover opacity-80"
-                  src="https://images.squarespace-cdn.com/content/v1/5bab316f7980b339c6dde5c2/877c3b92-24f0-4aa4-8804-2a389705d989/noun-warning-1109440-F5333F.png"
+                  src="https://t4.ftcdn.net/jpg/04/23/40/87/360_F_423408792_3K3fZwYzn84LbJdIiKYW73FbMHnVFXd8.jpg"
                   alt="Heatmap"
                 />
               </div>

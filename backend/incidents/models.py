@@ -108,6 +108,11 @@ class NGO(models.Model):
 
 class Incidents(models.Model):
     INCIDENT_TYPES = [
+        ('Domestic Violence', 'Domestic Violence'),
+        ('Child Abuse', 'Child Abuse'),
+        ('Sexual Harassment', 'Sexual Harassment'),
+        ('Stalking', 'Stalking'),
+        ('Human Trafficking', 'Human Trafficking'),
         ('Fire', 'Fire'),
         ('Theft', 'Theft'),
         ('Accident', 'Accident'),

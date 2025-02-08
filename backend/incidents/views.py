@@ -42,6 +42,7 @@ from django.db.models.functions import (
 )
 from django.utils import timezone
 from datetime import timedelta
+from utils.sms import get_coordinates_from_address
 
 model = ChatGoogleGenerativeAI(
                 model="gemini-1.5-flash",
@@ -340,13 +341,24 @@ class voicereport(APIView):
         super().__init__(**kwargs)
         self.llm = model  # Ensure `model` is defined
         self.prompt = ChatPromptTemplate.from_messages([
-            ('system', "Analyze the provided incident report and return a structured JSON response in the exact same format as the given example. Preserve all field names and ensure values are correctly formatted. Based on the input, choose the value of severity can be either high, medium or low. Do not add or remove any fields. Ensure the response is a valid JSON object."),
-            ('human',"{json_format}"),
-            ('human', "description: {user_input}, Location = {location}")
+            ('system', """
+                Analyze the provided incident report and return a structured JSON response that strictly follows the given format.
+                
+                - Preserve all field names exactly as in the provided example.
+                - Ensure values are correctly formatted based on the input.
+                - Determine the severity level as 'high', 'medium', or 'low' based on the incident details.
+                - If no location is found in the input, return an error message
+                - Do not add, remove, or modify any fields.
+                - Ensure the response is a valid JSON object.
+            """),
+            ('human', "Expected JSON format: {json_format}"),
+            ('human', "Incident details: {user_input}")
         ])
         self.chain = self.prompt | self.llm | StrOutputParser()
 
     def post(self, request, *args, **kwargs):
+    # Authenticate user
+        print("function started")
         user = None
         auth_header = request.META.get('HTTP_AUTHORIZATION')
         if auth_header and auth_header.startswith('Bearer '):
@@ -355,63 +367,58 @@ class voicereport(APIView):
                 token = AccessToken(token_str)
                 user = User.objects.get(id=token['user_id'])
             except Exception as e:
-                print(f"Token validation failed: {str(e)}")
                 return Response({"error": "Invalid or expired token"}, status=status.HTTP_401_UNAUTHORIZED)
 
         if not user:
             user, _ = User.objects.get_or_create(
                 email='anonymous@example.com',
-                defaults={
-                    'first_name': 'Anonymous',
-                    'last_name': 'User',
-                    'phone_number': '0000000000',
-                    'address': 'Anonymous',
-                    'aadhar_number': '000000000000',
-                    'emergency_contact1': '0000000000',
-                    'emergency_contact2': '0000000000',
-                    'password': 'anonymous'
-                }
+                defaults={'first_name': 'Anonymous', 'last_name': 'User', 'phone_number': '0000000000'}
             )
-
+        print("User recieved")
         json_format = """{
-        "incidentType": "Accident",
-        "location": {"latitude": 19.1234048, "longitude": 72.8563712},
-        "description": "I've been in a terrible accident",
-        "severity": "high"
-    }"""
+            "incidentType": "Accident",
+            "location": "A-201, Shubham CHS, Gaurav garden complex 2, Kandivali West, Mumbai",
+            "description": "I've been in a terrible accident",
+            "severity": "high"
+        }"""
 
         user_input = request.data.get("user_input", "").strip()
-        user_lat = request.data.get('latitude')
-        user_lon = request.data.get('longitude')
+        print(f"Received input: {user_input}")
+            
         if not user_input:
             return Response({"error": "user_input is required"}, status=status.HTTP_400_BAD_REQUEST)
 
-        chain_input = {"user_input": user_input, "json_format":json_format, "location": {"latitude": user_lat, "longitude": user_lon}}
+        print("user_input successful")
+        chain_input = {"user_input": user_input, "json_format": json_format}
         incident = self.chain.invoke(chain_input)
-        
-        # Regular expression to extract JSON block
-        json_pattern = re.search(r"\{[\s\S]*\}", incident)
 
-        if json_pattern:
-            json_text = json_pattern.group()  # Extract JSON string
+        if isinstance(incident, str):
             try:
-                incident = json.loads(json_text)  # Convert to dictionary
-                print(incident)
-            except json.JSONDecodeError as e:
-                print("Invalid JSON:", e)
-        else:
-            print("No JSON found in the log.")
+                incident = json.loads(incident)
+            except json.JSONDecodeError:
+                return Response({"error": "Invalid response format from LLM"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        print(incident)
+        if 'error' in incident:
+            return Response(incident, status=status.HTTP_400_BAD_REQUEST)
+
+        if 'location' not in incident or not incident['location']:
+            return Response({"error": "Location not specified in the incident report."}, status=status.HTTP_400_BAD_REQUEST)
+
+        incident['location'] = get_coordinates_from_address(incident['location'])
 
         serializer = IncidentSerializer(data=incident)
-
         if not serializer.is_valid():
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        incident_obj = serializer.save()
-        incident_obj.reported_by = user
 
-        if not (-90 <= user_lat <= 90) or not (-180 <= user_lon <= 180):
-            return Response({"error": "Invalid latitude or longitude values"}, status=status.HTTP_400_BAD_REQUEST)
+        incident_obj = serializer.save(reported_by=user)
 
+        user_lat = incident['location'].get('latitude')
+        user_lon = incident['location'].get('longitude')
+
+        if user_lat is None or user_lon is None:
+            return Response({"error": "Invalid location data"}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Nearest stations lookup
         station_map = {
             'Fire': [FireStations, PoliceStations, Hospital],
             'Theft': [PoliceStations],
@@ -419,65 +426,34 @@ class voicereport(APIView):
             'Missing Persons': [PoliceStations],
             'Other': [None]
         }
-
         station_models = station_map.get(incident.get('incidentType'), [])
-        nearest_stations = {
-            'police_station': None,
-            'fire_station': None,
-            'hospital_station': None
-        }
+        nearest_stations = {'police_station': None, 'fire_station': None, 'hospital_station': None}
 
-        if station_models:
-            try:
-                for station_model in station_models:
-                    if station_model is None:
-                        continue
-                    
-                    stations = station_model.objects.all()
-                    if stations.exists():
-                        nearest_station = min(
-                            stations,
-                            key=lambda station: great_circle(
-                                (user_lat, user_lon),
-                                (station.latitude, station.longitude)
-                            ).km
-                        )
+        for station_model in station_models:
+            if station_model is None:
+                continue
+            stations = station_model.objects.all()
+            if stations.exists():
+                nearest_station = min(stations, key=lambda s: great_circle((user_lat, user_lon), (s.latitude, s.longitude)).km)
+                if station_model == PoliceStations:
+                    nearest_stations['police_station'] = nearest_station
+                elif station_model == FireStations:
+                    nearest_stations['fire_station'] = nearest_station
+                elif station_model == Hospital:
+                    nearest_stations['hospital_station'] = nearest_station
 
-                        if station_model == PoliceStations:
-                            nearest_stations['police_station'] = nearest_station
-                        elif station_model == FireStations:
-                            nearest_stations['fire_station'] = nearest_station
-                        elif station_model == Hospital:
-                            nearest_stations['hospital_station'] = nearest_station
+                try:
+                    send_email_example("New Incident Alert", f"New {incident['incidentType']} reported at {incident['location']}", nearest_station.email)
+                except Exception as e:
+                    print(f"Notification error: {str(e)}")
 
-                        try:
-                            number = '+91' + str(nearest_station.number)
-                            message = (
-                                f"New {incident['incidentType']} reported!\n"
-                                f"Location: ({user_lat}, {user_lon})\n"
-                                f"Description: {incident['description']}"
-                            )
-                            # send_sms(message, number)
-                            send_email_example(
-                                "New Incident Alert",
-                                message,
-                                nearest_station.email
-                            )
-                        except Exception as e:
-                            print(f"Notification error: {str(e)}")
-                
-                incident_obj.police_station = nearest_stations['police_station']
-                incident_obj.fire_station = nearest_stations['fire_station']
-                incident_obj.hospital_station = nearest_stations['hospital_station']
-                incident_obj.save()
-            
-            except Exception as e:
-                return Response({"error": f"Error processing station data: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        incident_obj.police_station = nearest_stations['police_station']
+        incident_obj.fire_station = nearest_stations['fire_station']
+        incident_obj.hospital_station = nearest_stations['hospital_station']
+        incident_obj.save()
 
-        return Response({
-            "message": "Incident reported successfully!",
-            "incident_id": incident_obj.id
-        }, status=status.HTTP_201_CREATED)
+        return Response({"message": "Incident reported successfully!", "incident_id": incident_obj.id}, status=status.HTTP_201_CREATED)
+
 
         
 
@@ -616,7 +592,7 @@ def all_incidents(request):
     serializer = IncidentSerializer(incidents, many=True)
     return Response(serializer.data, status=201)
 
-@api_view(['GET'])
+@api_view(['GET', 'POST'])
 def all_station_incidents(request):
     # Check for the presence and validity of the authorization header
     auth_header = request.headers.get('Authorization')
@@ -639,16 +615,30 @@ def all_station_incidents(request):
 
     # Determine which station the admin belongs to and filter incidents accordingly
     if admin.police_station is not None:
-        incidents = Incidents.objects.filter(police_station=admin.police_station)
+        incidents = Incidents.objects.filter(police_station=admin.police_station, true_or_false=True)
     elif admin.fire_station is not None:
-        incidents = Incidents.objects.filter(fire_station=admin.fire_station)
+        incidents = Incidents.objects.filter(fire_station=admin.fire_station, true_or_false=True)
     elif admin.hospital is not None:
-        incidents = Incidents.objects.filter(hospital_station=admin.hospital)
+        incidents = Incidents.objects.filter(hospital_station=admin.hospital, true_or_false=True)
     else:
         return Response(
             {"error": "Admin is not associated with any station"},
             status=status.HTTP_400_BAD_REQUEST
         )
+
+    # Handle toggle requests (POST method)
+    if request.method == 'POST':
+        incident_id = request.data.get("incident_id")
+        if not incident_id:
+            return Response({"error": "Incident ID is required"}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            incident = Incidents.objects.get(id=incident_id)
+            incident.true_or_false = not incident.true_or_false  # Toggle flagged state
+            incident.save()
+            return Response({"message": f"Flagged status toggled to {incident.true_or_false}"}, status=status.HTTP_200_OK)
+        except Incidents.DoesNotExist:
+            return Response({"error": "Incident not found"}, status=status.HTTP_404_NOT_FOUND)
 
     # Serialize the incidents and return the response
     serializer = IncidentSerializer(incidents, many=True)

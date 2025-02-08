@@ -50,6 +50,7 @@ const AdminDashboard = () => {
       console.error("Error fetching incidents:", error);
     }
   };
+
   useEffect(() => {}, [incidents]);
 
   useEffect(() => {
@@ -177,15 +178,28 @@ const AdminDashboard = () => {
   }, [filter, incidents]);
 
 
-  const handleFalseReport = (id) => {
-    setFalseReport((prevFalse) => [
-      ...prevFalse, 
-      { incidentid: id, report: "false" }  
-    ]);
+  const handleFalseReport = async (id) => {
+    try {
+      const response = await fetch("http://127.0.0.1:8000/api/all_station_incidents/", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ incident_id: id }),
+      });
 
-    console.log('false report',falseReport);
-    alert('Report marked as False')
-    
+      if (response.ok) {
+        setIncidents((prevIncidents) =>
+          prevIncidents.filter((incident) => incident.id !== id)
+        );  
+        alert("Report marked as False and removed from the list");
+      } else {
+        console.error("Failed to mark report as false");
+      }
+    } catch (error) {
+      console.error("Error marking report as false:", error);
+    }
   };
   
 
@@ -272,10 +286,10 @@ const AdminDashboard = () => {
   <MdReport className="text-3xl text-red-500 hover:cursor-pointer"  title="Marked as False Report"/>
 ) : (
   <MdOutlineReport
-    onClick={() => handleFalseReport(incident.id)}
-    className="text-3xl text-white hover:text-red-500 cursor-pointer"
-    title="Mark as False Report"
-  />
+  onClick={() => handleFalseReport(incident.id)}
+  className="text-3xl text-white hover:text-red-500 cursor-pointer"
+  title="Mark as False Report"
+/>
 )}
 
                   </div>
@@ -381,10 +395,10 @@ const AdminDashboard = () => {
   <MdReport className="text-3xl text-red-500 hover:cursor-pointer"  title="Marked as False Report"/>
 ) : (
   <MdOutlineReport
-    onClick={() => handleFalseReport(incident.id)}
-    className="text-3xl text-white hover:text-red-500 cursor-pointer"
-    title="Mark as False Report"
-  />
+  onClick={() => handleFalseReport(incident.id)}
+  className="text-3xl text-white hover:text-red-500 cursor-pointer"
+  title="Mark as False Report"
+/>
 )}
 
                 
@@ -565,6 +579,7 @@ const AdminDashboard = () => {
                       </div>
                     </div>
                   </PopoverContent>
+
                 </Popover>
 
                 {incident.status !== "Resolved" && (

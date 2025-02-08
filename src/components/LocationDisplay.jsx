@@ -11,9 +11,13 @@ const LocationDisplay = ({ location }) => {
         )
           .then((res) => res.json())
           .then((data) => {
-            setAddress(data.display_name || "Address not found");
+            setAddress(
+              data.display_name || `${location.latitude}, ${location.longitude}`
+            );
           })
-          .catch(() => setAddress("Error fetching address"));
+          .catch(() =>
+            setAddress(`${location.latitude}, ${location.longitude}`)
+          );
       }, 1000); // 1-second delay
 
       return () => clearTimeout(timeout); // Cleanup on unmount

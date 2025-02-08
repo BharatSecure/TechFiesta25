@@ -5,6 +5,7 @@ const Sos = () => {
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [showAlert, setShowAlert] = useState(false);
   const [particles, setParticles] = useState([]);
+  const [ripples, setRipples] = useState([]);
 
   const features = [
     {
@@ -40,6 +41,26 @@ const Sos = () => {
       }));
     };
     setParticles(generateParticles());
+  }, []);
+
+  // Generate ripples
+  useEffect(() => {
+    const generateRipples = () => {
+      return Array.from({ length: 3 }, (_, i) => ({
+        id: i,
+        scale: 1,
+        opacity: 0.8,
+        delay: i * 1
+      }));
+    };
+    setRipples(generateRipples());
+
+    // Regenerate ripples every 3 seconds
+    const interval = setInterval(() => {
+      setRipples(generateRipples());
+    }, 3000);
+
+    return () => clearInterval(interval);
   }, []);
 
   const handleSOSClick = () => setShowConfirmation(true);
@@ -84,12 +105,31 @@ const Sos = () => {
 
   return (
     <div className="bg-slate-900 h-[90vh] flex items-center justify-center overflow-hidden relative">
+
+      {/* Water Ripple Effect Background */}
+      <div className="absolute inset-0 flex items-center justify-center overflow-hidden">
+        {ripples.map((ripple) => (
+          <div
+            key={ripple.id}
+            className="absolute w-full h-full"
+            style={{
+              animation: `ripple 3s ease-out infinite`,
+              animationDelay: `${ripple.delay}s`,
+              border: '2px solid rgba(0, 48, 130, 0.5)',
+              borderRadius: '50%',
+              transform: 'scale(0)',
+              opacity: 0.8,
+            }}
+          />
+        ))}
+      </div>
+
       {/* Animated Background */}
       <div className="absolute inset-0 overflow-hidden">
         {particles.map((particle) => (
           <div
             key={particle.id}
-            className="absolute w-2 h-2 bg-cyan-400 rounded-full opacity-80"
+            className="absolute w-2 h-2 bg-cyan-400 rounded-full opacity-100"
             style={{
               left: `${particle.x}%`,
               top: `${particle.y}%`,
@@ -97,6 +137,7 @@ const Sos = () => {
               height: `${particle.size}px`,
               animation: `moveToCenter ${particle.duration}s infinite`,
             }}
+            
           />
         ))}
       </div>
@@ -191,6 +232,23 @@ const Sos = () => {
       </div>
 
       <style jsx global>{`
+        @keyframes ripple {
+          0% {
+            transform: scale(1);
+            opacity: 1;
+            border-width: 20px;
+          }
+          50% {
+            opacity: 2;
+            border-width: 40px;
+          }
+          100% {
+            transform: scale(3);
+            opacity: 3;
+            border-width: 80px;
+          }
+        }
+
         @keyframes orbit {
           from {
             transform: rotate(0deg) translateX(150px) rotate(0deg);
@@ -213,6 +271,29 @@ const Sos = () => {
         }
         .hover\\:pause:hover {
           animation-play-state: paused;
+        }
+
+        /* Enhance ripple effect with pulse */
+        @keyframes pulse {
+          0% {
+            box-shadow: 0 0 0 0 rgba(0, 48, 130, 0.4);
+          }
+          70% {
+            box-shadow: 0 0 0 100px rgba(0, 48, 130, 0);
+          }
+          100% {
+            box-shadow: 0 0 0 0 rgba(0, 48, 130, 0);
+          }
+        }
+
+        /* Add gradient to ripples */
+        .ripple-gradient {
+          background: radial-gradient(
+            circle,
+            rgba(0, 48, 130, 0.2) 0%,
+            rgba(0, 48, 130, 0.1) 50%,
+            rgba(0, 48, 130, 0) 70%
+          );
         }
       `}</style>
     </div>

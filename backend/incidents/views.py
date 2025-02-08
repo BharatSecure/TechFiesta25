@@ -148,27 +148,27 @@ class form_report(APIView):
         self.llm = model
         self.prompt = ChatPromptTemplate.from_messages([
             ("system", """
-            Analyze the incident report and determine its severity level based on the following criteria:
+            Analyze the incident report and determine its severity level strictly based on the given description, using the following criteria:
 
             high:
-            - Immediate threat to life
-            - Multiple casualties
-            - Large-scale property damage
-            - Ongoing dangerous situation
-
+            Immediate threat to life
+            Multiple casualties
+            Large-scale property damage
+            Ongoing dangerous situation
+            
             medium:
-            - Non-life-threatening injuries
-            - Significant property damage
-            - Potential for situation escalation
-            - Missing persons cases
+            Non-life-threatening injuries
+            Significant property damage
+            Potential for situation escalation
+            Missing persons cases
 
             low:
-            - Minor incidents
-            - No injuries
-            - Minor property damage
-            - Non-emergency situations
-
-            Return ONLY one of these words: high, medium, or low
+            Minor incidents
+            No injuries
+            Minor property damage
+            Non-emergency situations
+            
+            You must return only one of these words: high, medium, or low based on the information provided. If details are unclear, make the best possible classification rather than asking for more details. Do not include explanations—return only the classification.
             """),
             ("human", "{user_input}")
         ])
@@ -185,6 +185,7 @@ class form_report(APIView):
             location = self.validate_location(data.get("location"))
             if not location:
                 return Response({"error": "Invalid location data"}, status=status.HTTP_400_BAD_REQUEST)
+            print("Location check")
             
             lat, lon = location["latitude"], location["longitude"]
             
@@ -194,13 +195,14 @@ class form_report(APIView):
                 existing_incident.count += 1
                 existing_incident.save()
                 self.notify_existing_incident(existing_incident)
+            
                 
                 return Response({
                     "message": "Incident reported successfully!",
                     "incident_id": existing_incident.id,
                     "severity": data['severity']
                 }, status=status.HTTP_201_CREATED)
-
+            print(data)
             # Create new incident
             serializer = IncidentSerializer(data=data)
             if serializer.is_valid():
@@ -264,7 +266,9 @@ class form_report(APIView):
         recent_incidents = Incidents.objects.filter(incidentType=data.get("incidentType"))
         for incident in recent_incidents:
             if great_circle((lat, lon), (incident.location["latitude"], incident.location["longitude"])).meters <= 50:
+                print("Under 50 metres")
                 if abs(data.get("reported_at", timezone.now()) - incident.reported_at) <= timedelta(hours=1):
+                    print("Under 1 hour")
                     if self.is_similar_incident(data["description"], incident.description):
                         return incident
         return None
@@ -327,7 +331,7 @@ class form_report(APIView):
                 f"Reported by: {incident.reported_by.first_name} {incident.reported_by.last_name}"
             )
             number = "+91"+str(station.number)
-            send_sms(message, number)
+            # send_sms(message, number)
             send_email_example(f"New {incident.severity.capitalize()} Priority Incident Alert", message, station.email)
         except Exception as e:
             print(f"Notification error for station {station.id}: {str(e)}")

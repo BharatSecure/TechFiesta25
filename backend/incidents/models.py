@@ -141,7 +141,7 @@ class Incidents(models.Model):
         null=True,
         blank=True
     )
-    reported_at = models.DateTimeField(default=timezone.now)  # Ensuring timezone-aware datetime
+    reported_at = models.DateTimeField(default=timezone.now) 
     police_station = models.ForeignKey(PoliceStations, on_delete=models.DO_NOTHING, null=True, blank=True)
     fire_station = models.ForeignKey(FireStations, on_delete=models.DO_NOTHING, null=True, blank=True)
     hospital_station = models.ForeignKey(Hospital, on_delete=models.DO_NOTHING, null=True, blank=True)

@@ -1,12 +1,10 @@
 /* HTML: <div class="loader"></div> */
-@import 'leaflet/dist/leaflet.css';
-
+@import "leaflet/dist/leaflet.css";
 
 body {
   font-family: "Montserrat", serif;
   font-optical-sizing: auto;
 }
-
 
 .loader {
   display: flex;
@@ -102,4 +100,20 @@ body {
   100% {
     transform: scaleY(-1) rotate(-135deg);
   }
+}
+
+@keyframes border-rotate {
+  to {
+    --shimmer-angle: 360deg;
+  }
+}
+
+@property --shimmer-angle {
+  syntax: "<angle>";
+  initial-value: 0deg;
+  inherits: false;
+}
+
+.animate-border-rotate {
+  animation: border-rotate 4s linear infinite;
 }

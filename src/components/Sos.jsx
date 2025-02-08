@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 const Sos = () => {
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [showAlert, setShowAlert] = useState(false);
+  const [particles, setParticles] = useState([]);
 
   const features = [
     {
@@ -27,6 +28,19 @@ const Sos = () => {
       description: "Accessible voice reporting",
     },
   ];
+
+  useEffect(() => {
+    const generateParticles = () => {
+      return Array.from({ length: 30 }, (_, i) => ({
+        id: i,
+        x: Math.random() * 100,
+        y: Math.random() * 100,
+        size: Math.random() * 3 + 1,
+        duration: Math.random() * 3 + 2,
+      }));
+    };
+    setParticles(generateParticles());
+  }, []);
 
   const handleSOSClick = () => setShowConfirmation(true);
   const confirmSOS = () => {
@@ -69,16 +83,30 @@ const Sos = () => {
   }, []);
 
   return (
-    <div className="bg-slate-900 h-[90vh] flex items-center justify-center overflow-hidden">
+    <div className="bg-slate-900 h-[90vh] flex items-center justify-center overflow-hidden relative">
+      {/* Animated Background */}
+      <div className="absolute inset-0 overflow-hidden">
+        {particles.map((particle) => (
+          <div
+            key={particle.id}
+            className="absolute w-2 h-2 bg-cyan-400 rounded-full opacity-80"
+            style={{
+              left: `${particle.x}%`,
+              top: `${particle.y}%`,
+              width: `${particle.size}px`,
+              height: `${particle.size}px`,
+              animation: `moveToCenter ${particle.duration}s infinite`,
+            }}
+          />
+        ))}
+      </div>
+
       <div className="relative flex flex-col items-center">
-        {/* Title */}
         <h1 className="text-3xl text-cyan-400 font-extrabold tracking-wide mb-20 lg:text-6xl drop-shadow-[0_0_15px_rgba(34,211,238,0.5)]">
           Emergency SOS
         </h1>
 
-        {/* Central container with orbiting features */}
         <div className="relative w-96 h-96 flex items-center justify-center">
-          {/* Orbiting Features */}
           {features.map((feature, index) => (
             <Link
               key={feature.title}
@@ -91,16 +119,27 @@ const Sos = () => {
                 animationDelay: `${index * -5}s`,
               }}
             >
-              <div className="w-40 h-40 bg-slate-800 rounded-xl p-4 shadow-[inset_-8px_-8px_12px_rgba(0,0,0,0.3),inset_8px_8px_12px_rgba(255,255,255,0.1)] hover:shadow-[0_0_15px_rgba(34,211,238,0.3)] transition-all duration-300 flex flex-col items-center justify-center text-center transform hover:scale-105">
-                <h3 className="text-cyan-400 font-bold mb-2 drop-shadow-[0_0_8px_rgba(34,211,238,0.3)]">
-                  {feature.title}
-                </h3>
-                <p className="text-slate-300 text-sm">{feature.description}</p>
+              <div className="relative w-40 h-40 bg-slate-800 rounded-xl p-4 shadow-[inset_-8px_-8px_12px_rgba(0,0,0,0.3),inset_8px_8px_12px_rgba(255,255,255,0.1)] hover:shadow-[0_0_15px_rgba(34,211,238,0.3)] transition-all duration-300 flex flex-col items-center justify-center text-center transform hover:scale-105 overflow-hidden">
+                {/* Animated border */}
+                <div className="absolute inset-0 rounded-xl p-[2px]">
+                  <div className="absolute inset-0 bg-[conic-gradient(from_var(--shimmer-angle),#0F172A_0%,#0ea5e9_10%,#0F172A_20%)] animate-border-rotate [--shimmer-angle:0deg]">
+                    <div className="absolute inset-[2px] rounded-[inherit] bg-slate-800"></div>
+                  </div>
+                </div>
+
+                {/* Content */}
+                <div className="relative z-10">
+                  <h3 className="text-cyan-400 font-bold mb-2 drop-shadow-[0_0_8px_rgba(34,211,238,0.3)]">
+                    {feature.title}
+                  </h3>
+                  <p className="text-slate-300 text-sm">
+                    {feature.description}
+                  </p>
+                </div>
               </div>
             </Link>
           ))}
 
-          {/* SOS Button */}
           <button
             onClick={handleSOSClick}
             className="relative bg-red-500 text-white font-bold text-3xl py-6 px-16 rounded-full shadow-[inset_-4px_-4px_8px_rgba(0,0,0,0.3),inset_4px_4px_8px_rgba(255,255,255,0.1)] hover:shadow-[0_0_20px_rgba(239,68,68,0.5)] transition-all duration-300 hover:scale-105 z-10"
@@ -110,13 +149,6 @@ const Sos = () => {
           </button>
         </div>
 
-        {/* Description
-        <p className="text-slate-300 text-center max-w-xl text-lg mt-16 px-6">
-          Press the button to send an emergency alert. Your location and details
-          will be shared with nearby authorities for immediate assistance.
-        </p> */}
-
-        {/* Modals */}
         {showConfirmation && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
             <div className="bg-slate-800 p-8 rounded-xl shadow-[inset_-8px_-8px_12px_rgba(0,0,0,0.3),inset_8px_8px_12px_rgba(255,255,255,0.1)]">
@@ -165,6 +197,18 @@ const Sos = () => {
           }
           to {
             transform: rotate(360deg) translateX(150px) rotate(-360deg);
+          }
+        }
+        @keyframes moveToCenter {
+          0% {
+            transform: scale(1) translate(0, 0);
+          }
+          50% {
+            transform: scale(0.5) translate(-50%, -50%);
+            opacity: 0.5;
+          }
+          100% {
+            transform: scale(1) translate(0, 0);
           }
         }
         .hover\\:pause:hover {

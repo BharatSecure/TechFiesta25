@@ -473,11 +473,11 @@ def update_incident(request, id):
         user = incident.reported_by
         print("information gotten")
         # Send Email Notification
-        subject = f"Incident Status Updated: {incident.id}"
-        message = f"Dear {user.first_name},\n\nThe status of your reported incident (ID: {incident.id}) has been updated to: {status}.\n\nThank you,\nIncident Management Team"
-        recipient_email = user.email  # Get user email
-        print("Information recieved")
-        send_email_example(subject, message, email=recipient_email)
+        #subject = f"Incident Status Updated: {incident.id}"
+        # message = f"Dear {user.first_name},\n\nThe status of your reported incident (ID: {incident.id}) has been updated to: {status}.\n\nThank you,\nIncident Management Team"
+        # recipient_email = user.email  # Get user email
+        # print("Information recieved")
+        # send_email_example(subject, message, email=recipient_email)
         return Response(serializer.data, status=200)
     except Exception as e:
         return Response({"message": f"Error Occurred: {e}"}, status=400)      
@@ -981,6 +981,27 @@ def advanced_incident_analysis(request):
     except Exception as e:
         return Response({
             'error': 'Analysis failed',
-            'details': str(e),
-            'trace': str(e.__traceback__)
+            'details': str(e)
         }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
+from django.http import JsonResponse
+from django.shortcuts import get_object_or_404
+from .models import User
+from django.views import View
+
+class UserDetailView(View):
+    def get(self, request, user_id):
+        user = get_object_or_404(User, id=user_id)
+        user_data = {
+            "id": user.id,
+            "first_name": user.first_name,
+            "last_name": user.last_name,
+            "email": user.email,
+            "phone_number": user.phone_number,
+            "address": user.address,
+            "aadhar_number": user.aadhar_number,
+            "emergency_contact1": user.emergency_contact1,
+            "emergency_contact2": user.emergency_contact2,
+            "date_joined": user.date_joined.strftime("%Y-%m-%d %H:%M:%S"),
+        }
+        return JsonResponse(user_data)

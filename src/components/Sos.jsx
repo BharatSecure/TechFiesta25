@@ -69,7 +69,7 @@ const Sos = () => {
   }, []);
 
   return (
-    <div className="bg-slate-900 min-h-screen flex items-center justify-center overflow-hidden">
+    <div className="bg-slate-900 h-[90vh] flex items-center justify-center overflow-hidden">
       <div className="relative flex flex-col items-center">
         {/* Title */}
         <h1 className="text-3xl text-cyan-400 font-extrabold tracking-wide mb-20 lg:text-6xl drop-shadow-[0_0_15px_rgba(34,211,238,0.5)]">

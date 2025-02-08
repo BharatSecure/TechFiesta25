@@ -70,12 +70,12 @@ const App = () => {
               </Route>
               <Route path="/my-reports" element={<UserDashboard />} />
               <Route path="/admin" element={<AdminDashboard />} />
-              <Route path="/about" element={<AboutUs />} />
+              <Route path="/About" element={<AboutUs />} />
               <Route path="/heatmap" element={<HeatMap2 />} />
               <Route path="/voice-report" element={<VoiceToText />} />
               <Route path="/signUp" element={<SignUp />} />
               <Route path="/login" element={<Login />} />
-              <Route path="/blogs" element={<RecentIncidents />} />
+              <Route path="/InciLog" element={<RecentIncidents />} />
               <Route path="/view-details/:id" element={<ViewDetails />} />
               <Route path="/feedback" element={<FeedbackForm />} />
               <Route path="chatbot" element={<Chatbot />} />

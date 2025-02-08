@@ -495,6 +495,7 @@ def update_incident(request, id):
         print("information gotten")
         # Send Email Notification
         # subject = f"Incident Status Updated: {incident.id}"
+        #subject = f"Incident Status Updated: {incident.id}"
         # message = f"Dear {user.first_name},\n\nThe status of your reported incident (ID: {incident.id}) has been updated to: {status}.\n\nThank you,\nIncident Management Team"
         # recipient_email = user.email  # Get user email
         # print("Information recieved")

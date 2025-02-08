@@ -257,6 +257,11 @@ const IncidentReportForm = () => {
                   className="w-full bg-slate-800 text-gray-100 px-4 py-3 rounded-xl border border-slate-700 focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400 shadow-[inset_0_2px_4px_rgba(0,0,0,0.2)] transition-all duration-200"
                 >
                   <option value="">Select an incident type</option>
+                  <option value="Domestic Violence">Domestic Violence</option>
+                  <option value="Child Abuse">Child Abuse</option>
+                  <option value="Sexual Harassment">Sexual Harassment</option>
+                  <option value="Stalking">Stalking</option>
+                  <option value="Human Trafficking">Human Trafficking</option>
                   <option value="Fire">Fire</option>
                   <option value="Accident">Accident</option>
                   <option value="Theft">Theft</option>

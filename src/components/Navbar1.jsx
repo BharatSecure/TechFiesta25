@@ -20,21 +20,19 @@ import logo from "/logo.png";
 import MenuIcon from "@mui/icons-material/Menu";
 
 const Navbar = () => {
-  const [anchorEl, setAnchorEl] = useState(null); // For dropdown menu
-  const [drawerOpen, setDrawerOpen] = useState(false); // For side drawer
+  const [anchorEl, setAnchorEl] = useState(null);
+  const [drawerOpen, setDrawerOpen] = useState(false);
   const navigate = useNavigate();
-  const location = useLocation(); // Get the current location
+  const location = useLocation();
   const { isLoggedIn } = useAuth();
 
-  // Set active link based on the current route
   const getActiveLink = () => {
-    if (location.pathname === "/") return "/"; // If the current URL is '/', mark home as active
+    if (location.pathname === "/") return "/";
     return location.pathname;
   };
 
   const activeLink = getActiveLink();
 
-  // Handle dropdown open/close
   const handleMenuClick = (event) => {
     setAnchorEl(event.currentTarget);
   };
@@ -43,12 +41,10 @@ const Navbar = () => {
     setAnchorEl(null);
   };
 
-  // Handle drawer toggle
   const toggleDrawer = (open) => {
     setDrawerOpen(open);
   };
 
-  // Handle active link selection and navigate
   const handleNavigation = (route) => {
     navigate(route);
   };
@@ -58,7 +54,7 @@ const Navbar = () => {
       sx={{
         width: 250,
         height: "100%",
-        backgroundColor: "#f5f5f5",
+        backgroundColor: "#0f192c",
         padding: 2,
         display: "flex",
         flexDirection: "column",
@@ -67,7 +63,7 @@ const Navbar = () => {
       onClick={() => toggleDrawer(false)}
     >
       <List>
-        {["/", "/about", "/blogs"].map((route, index) => {
+        {["/", "/About", "/Blogs"].map((route, index) => {
           const label = route.slice(1) || "Home";
           return (
             <ListItem
@@ -77,11 +73,12 @@ const Navbar = () => {
               sx={{
                 marginBottom: 1,
                 borderRadius: 2,
-                backgroundColor: activeLink === route ? "#003366" : "#fff",
-                color: activeLink === route ? "#fff" : "#555",
+                backgroundColor:
+                  activeLink === route ? "#22d3ee" : "transparent",
+                color: activeLink === route ? "#0f192c" : "#fff",
                 "&:hover": {
-                  backgroundColor: "#003366",
-                  color: "#fff",
+                  backgroundColor: "#22d3ee",
+                  color: "#0f192c",
                 },
               }}
             >
@@ -92,77 +89,26 @@ const Navbar = () => {
             </ListItem>
           );
         })}
-        {/* Features Section */}
         <ListItem
           button
           onClick={handleMenuClick}
           sx={{
             marginBottom: 1,
             borderRadius: 2,
-            backgroundColor: "#fff",
-            color: "#555",
+            backgroundColor: "transparent",
+            color: "#fff",
             "&:hover": {
-              backgroundColor: "#003366",
-              color: "#fff",
+              backgroundColor: "#22d3ee",
+              color: "#0f192c",
             },
           }}
         >
           <ListItemText primary="Features" sx={{ textAlign: "center" }} />
         </ListItem>
-        <Menu
-          anchorEl={anchorEl}
-          open={Boolean(anchorEl)}
-          onClose={handleMenuClose}
-          MenuListProps={{ onMouseLeave: handleMenuClose }}
-          sx={{
-            "& .MuiPaper-root": {
-              borderRadius: 2,
-              boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.1)",
-              minWidth: 180,
-              backgroundColor: "#fff",
-            },
-            "& .MuiMenuItem-root": {
-              padding: "10px 20px",
-              fontSize: "1rem",
-              color: "#555",
-              "&:hover": {
-                fontWeight: "bold",
-                backgroundColor: "#f0f0f0",
-                color: "#003366",
-              },
-            },
-          }}
-        >
-          <MenuItem
-            onClick={() => {
-              handleNavigation("/report-incident");
-              handleMenuClose();
-            }}
-          >
-            Report Incident
-          </MenuItem>
-          <MenuItem
-            onClick={() => {
-              handleNavigation("/heatmap");
-              handleMenuClose();
-            }}
-          >
-            Heatmaps
-          </MenuItem>
-          <MenuItem
-            onClick={() => {
-              handleNavigation("/voice-report");
-              handleMenuClose();
-            }}
-          >
-            Voice Report
-          </MenuItem>
-        </Menu>
       </List>
-      {/* Footer Section */}
       <Box sx={{ textAlign: "center", paddingTop: 2 }}>
-        <Typography variant="caption" sx={{ color: "#777" }}>
-          BharatSecure © 2025
+        <Typography variant="caption" sx={{ color: "#22d3ee" }}>
+          BharatSecure © {new Date().getFullYear()}
         </Typography>
       </Box>
     </Box>
@@ -172,8 +118,9 @@ const Navbar = () => {
     <AppBar
       position="sticky"
       sx={{
-        backgroundColor: "#9ee8e3",
-        boxShadow: 3,
+        backgroundColor: "#0f192c",
+        boxShadow:
+          "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)",
         padding: "0 20px",
         "@media (max-width: 450px)": {
           padding: "0",
@@ -197,23 +144,33 @@ const Navbar = () => {
             },
           }}
         >
-          {/* Logo and Company Name */}
           <Box sx={{ display: "flex", alignItems: "center" }}>
-            <IconButton onClick={() => handleNavigation("/")} sx={{ p: 0 }}>
+            <IconButton
+              onClick={() => handleNavigation("/")}
+              sx={{
+                p: 1,
+                "&:hover": {
+                  backgroundColor: "rgba(34, 211, 238, 0.1)",
+                },
+              }}
+            >
               <img
                 src={logo}
                 alt="Logo"
                 style={{ width: 40, height: 40, marginRight: 10 }}
               />
             </IconButton>
-            <Link to={"/"}>
+            <Link to="/" style={{ textDecoration: "none" }}>
               <Typography
                 variant="h6"
                 sx={{
                   fontWeight: "semibold",
-                  color: "#003366",
+                  color: "#22d3ee",
                   fontFamily: "Smooch Sans, sans-serif",
                   fontSize: "3rem",
+                  "&:hover": {
+                    color: "#0891b2",
+                  },
                   "@media (max-width: 450px)": {
                     fontSize: "2rem",
                   },
@@ -224,7 +181,6 @@ const Navbar = () => {
             </Link>
           </Box>
 
-          {/* Navigation Links */}
           <Box
             sx={{
               display: { xs: "none", md: "flex" },
@@ -232,17 +188,21 @@ const Navbar = () => {
               justifyContent: "center",
             }}
           >
-            {["/", "/about", "/blogs"].map((route, index) => {
+            {["/", "/About", "/InciLog"].map((route, index) => {
               const label = route.slice(1) || "Home";
               return (
                 <Button
                   key={index}
                   sx={{
-                    color: activeLink === route ? "#003366" : "#fff",
+                    color: "#fff",
                     fontWeight: "bold",
                     margin: "0 20px",
                     borderBottom:
-                      activeLink === route ? "2px solid #003366" : "none",
+                      activeLink === route ? "2px solid #22d3ee" : "none",
+                    "&:hover": {
+                      color: "#22d3ee",
+                      backgroundColor: "transparent",
+                    },
                   }}
                   onClick={() => handleNavigation(route)}
                 >
@@ -250,25 +210,22 @@ const Navbar = () => {
                 </Button>
               );
             })}
-            {/* Features Button */}
             <Button
               sx={{
-                color:
-                  activeLink &&
-                  ["/report-incident", "/heatmap", "/voice-report"].includes(
-                    activeLink
-                  )
-                    ? "#003366"
-                    : "#fff",
+                color: "#fff",
                 fontWeight: "bold",
                 margin: "0 20px",
-                borderBottom:
-                  activeLink &&
-                  ["/report-incident", "/heatmap", "/voice-report"].includes(
-                    activeLink
-                  )
-                    ? "2px solid #003366"
-                    : "none",
+                borderBottom: [
+                  "/report-incident",
+                  "/heatmap",
+                  "/voice-report",
+                ].includes(activeLink)
+                  ? "2px solid #22d3ee"
+                  : "none",
+                "&:hover": {
+                  color: "#22d3ee",
+                  backgroundColor: "transparent",
+                },
               }}
               onMouseEnter={handleMenuClick}
               onMouseLeave={(event) => {
@@ -279,79 +236,21 @@ const Navbar = () => {
             >
               Features
             </Button>
-            <Menu
-              anchorEl={anchorEl}
-              open={Boolean(anchorEl)}
-              onClose={handleMenuClose}
-              MenuListProps={{
-                onMouseEnter: () => setAnchorEl(anchorEl), // Keep menu open on hover
-                onMouseLeave: handleMenuClose, // Close when leaving the menu
-              }}
-              sx={{
-                "& .MuiPaper-root": {
-                  borderRadius: 2,
-                  boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.1)",
-                  minWidth: 180,
-                  backgroundColor: "aliceblue",
-                },
-                "& .MuiMenuItem-root": {
-                  padding: "10px 20px",
-                  fontSize: "1rem",
-                  color: "#555",
-                  "&:hover": {
-                    fontWeight: "bold",
-                    backgroundColor: "#f0f0f0",
-                    color: "#003366",
-                  },
-                },
-              }}
-            >
-              <MenuItem
-                onClick={() => {
-                  handleNavigation("/report-incident");
-                  handleMenuClose();
-                }}
-              >
-                Report Incident
-              </MenuItem>
-              <MenuItem
-                onClick={() => {
-                  handleNavigation("/heatmap");
-                  handleMenuClose();
-                }}
-              >
-                Heatmaps
-              </MenuItem>
-              <MenuItem
-                onClick={() => {
-                  handleNavigation("/voice-report");
-                  handleMenuClose();
-                }}
-              >
-                Voice Report
-              </MenuItem>
-              <MenuItem
-                onClick={() => {
-                  handleNavigation("/chatbot");
-                  handleMenuClose();
-                }}
-              >
-                Saathi AI
-              </MenuItem>
-            </Menu>
           </Box>
 
-          {/* Login Button */}
           {!isLoggedIn ? (
-            <Link to={"/login"}>
+            <Link to="/login" style={{ textDecoration: "none" }}>
               <Button
                 sx={{
-                  color: "#003366",
+                  color: "#22d3ee",
                   fontWeight: "bold",
-                  border: "2px solid #003366",
+                  border: "2px solid #22d3ee",
                   borderRadius: 3,
+                  "&:hover": {
+                    backgroundColor: "#22d3ee",
+                    color: "#0f192c",
+                  },
                 }}
-                onClick={() => handleNavigation("/login")}
               >
                 Login
               </Button>
@@ -359,35 +258,86 @@ const Navbar = () => {
           ) : (
             <Button
               sx={{
-                color: "#003366",
+                color: "#22d3ee",
                 fontWeight: "bold",
-                border: "2px solid #003366",
+                border: "2px solid #22d3ee",
                 borderRadius: 3,
+                "&:hover": {
+                  backgroundColor: "#22d3ee",
+                  color: "#0f192c",
+                },
               }}
               onClick={() => {
                 const user_type = localStorage.getItem("userType");
-                if (user_type == "user") {
-                  handleNavigation("/my-reports");
-                } else {
-                  handleNavigation("/admin");
-                }
+                handleNavigation(
+                  user_type === "user" ? "/my-reports" : "/admin"
+                );
               }}
             >
-              Dash Board
+              Dashboard
             </Button>
           )}
 
-          {/* Mobile Drawer Icon */}
           <IconButton
-            sx={{ display: { xs: "block", md: "none" } }}
+            sx={{
+              display: { xs: "block", md: "none" },
+              color: "#22d3ee",
+              "&:hover": {
+                backgroundColor: "rgba(34, 211, 238, 0.1)",
+              },
+            }}
             onClick={() => toggleDrawer(true)}
           >
-            <MenuIcon sx={{ color: "#003366" }} />
+            <MenuIcon />
           </IconButton>
         </Toolbar>
       </Container>
 
-      {/* Drawer for mobile */}
+      <Menu
+        anchorEl={anchorEl}
+        open={Boolean(anchorEl)}
+        onClose={handleMenuClose}
+        MenuListProps={{
+          onMouseEnter: () => setAnchorEl(anchorEl),
+          onMouseLeave: handleMenuClose,
+        }}
+        sx={{
+          "& .MuiPaper-root": {
+            backgroundColor: "#0f192c",
+            borderRadius: 2,
+            boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.3)",
+            minWidth: 180,
+          },
+          "& .MuiMenuItem-root": {
+            padding: "10px 20px",
+            fontSize: "1rem",
+            color: "#fff",
+            "&:hover": {
+              backgroundColor: "#22d3ee",
+              color: "#0f192c",
+              fontWeight: "bold",
+            },
+          },
+        }}
+      >
+        {[
+          { route: "/report-incident", label: "Report Incident" },
+          { route: "/heatmap", label: "Heatmaps" },
+          { route: "/voice-report", label: "Voice Report" },
+          { route: "/chatbot", label: "Saathi AI" },
+        ].map((item) => (
+          <MenuItem
+            key={item.route}
+            onClick={() => {
+              handleNavigation(item.route);
+              handleMenuClose();
+            }}
+          >
+            {item.label}
+          </MenuItem>
+        ))}
+      </Menu>
+
       <Drawer
         anchor="left"
         open={drawerOpen}

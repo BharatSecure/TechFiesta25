@@ -42,7 +42,6 @@ from django.db.models.functions import (
 )
 from django.utils import timezone
 from datetime import timedelta
-from utils.sms import get_coordinates_from_address
 
 model = ChatGoogleGenerativeAI(
                 model="gemini-1.5-flash",
@@ -374,7 +373,6 @@ class voicereport(APIView):
                 email='anonymous@example.com',
                 defaults={'first_name': 'Anonymous', 'last_name': 'User', 'phone_number': '0000000000'}
             )
-        print("User recieved")
         json_format = """{
             "incidentType": "Accident",
             "location": "A-201, Shubham CHS, Gaurav garden complex 2, Kandivali West, Mumbai",
@@ -383,29 +381,24 @@ class voicereport(APIView):
         }"""
 
         user_input = request.data.get("user_input", "").strip()
-        print(f"Received input: {user_input}")
             
         if not user_input:
             return Response({"error": "user_input is required"}, status=status.HTTP_400_BAD_REQUEST)
 
-        print("user_input successful")
         chain_input = {"user_input": user_input, "json_format": json_format}
         incident = self.chain.invoke(chain_input)
-
-        if isinstance(incident, str):
-            try:
-                incident = json.loads(incident)
-            except json.JSONDecodeError:
-                return Response({"error": "Invalid response format from LLM"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        print(incident)
+        match = re.search(r'\{.*\}', incident, re.DOTALL)
+        if match:
+            json_string = match.group()
+            incident = json.loads(json_string)
         if 'error' in incident:
             return Response(incident, status=status.HTTP_400_BAD_REQUEST)
-
-        if 'location' not in incident or not incident['location']:
+        print("passed error check")
+        if not incident['location']:
             return Response({"error": "Location not specified in the incident report."}, status=status.HTTP_400_BAD_REQUEST)
 
-        incident['location'] = get_coordinates_from_address(incident['location'])
-
+        incident['location'] = get_coordinates(incident['location'])
+        print(incident)
         serializer = IncidentSerializer(data=incident)
         if not serializer.is_valid():
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -505,14 +498,17 @@ def send_email_example(subject, message, email):
 
 
 # Function to get coordinates from Geoapify Geocoding API
-def get_coordinates(location, api_key):
-    api_key = "5b3ce3597851110001cf6248c3e5474dc5b64991afad8ceec07950da"
+def get_coordinates(location):
+    api_key = "fabe86e749c44aa2a8ae60c68c2e3c6f"
     url = f"https://api.geoapify.com/v1/geocode/search?text={location}&apiKey={api_key}"
-    response = requests.get(url)
+    headers = requests.structures.CaseInsensitiveDict()
+    headers["Accept"] = "application/json"
+    response = requests.get(url, headers=headers)
     data = response.json()
+    print(data)
     if data['features']:
         coords = data['features'][0]['geometry']['coordinates']
-        return coords[1], coords[0]  # Return latitude, longitude
+        return {"latitude": coords[1], "longitude": coords[0]}  # Return latitude, longitude
     else:
         raise ValueError(f"Could not find coordinates for location: {location}")
     
@@ -725,15 +721,21 @@ class ChatbotView_Therapist(APIView):
         super().__init__(*args, **kwargs)
         self.llm = model
         self.prompt = ChatPromptTemplate.from_messages([
-            ("system", "You are both a therapist and a legal guidance officer based in India. As a therapist, your role is to provide emotional support, comfort, and guidance to the user, especially after a traumatic incident. As a legal guidance officer, you will provide advice on legal matters specific to Indian law, ensuring your answers are clear and based on the legal framework in India. Balance both roles carefully, making your responses brief but considerate and accurate."),
+            ("system", """
+             You are an AI assistant specializing in both therapy and legal guidance in India.
+            As a therapist, provide empathetic emotional support, comfort, and guidance, especially for users dealing with trauma.
+            As a legal guidance officer, offer clear, concise advice based on Indian law, ensuring accuracy and relevance.
+            Balance both roles carefully—your responses should be brief yet compassionate, legally sound, and practical. If appropriate, use the user’s location to recommend nearby government agencies or legal resources for further assistance.
+             """),
             MessagesPlaceholder(variable_name="chat_history"),
-            ("human", "{user_input}"),
+            ("human", "{user_input}, location: {location}"),
         ])
         self.chain = self.prompt | self.llm | StrOutputParser()
 
     def post(self, request, *args, **kwargs):
         user_input = request.data.get("user_input", "").strip()
         chat_history = request.data.get("chat_history")
+        location = request.data.get("location")
 
         if not isinstance(chat_history, list):  # Ensure chat_history is a list
             chat_history = []
@@ -741,7 +743,7 @@ class ChatbotView_Therapist(APIView):
         if not user_input:
             return Response({"error": "user_input is required"}, status=status.HTTP_400_BAD_REQUEST)
 
-        chain_input = {"user_input": user_input, "chat_history": chat_history}
+        chain_input = {"user_input": user_input, "chat_history": chat_history, "location": location}
         response = self.chain.invoke(chain_input)
 
         chat_history.append(f"User: {user_input}")
@@ -982,9 +984,6 @@ def advanced_incident_analysis(request):
             'details': str(e)
         }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     
-from django.http import JsonResponse
-from django.shortcuts import get_object_or_404
-from .models import User
 from django.views import View
 
 class UserDetailView(View):
@@ -1002,4 +1001,4 @@ class UserDetailView(View):
             "emergency_contact2": user.emergency_contact2,
             "date_joined": user.date_joined.strftime("%Y-%m-%d %H:%M:%S"),
         }
-        return JsonResponse(user_data)
+        return Response(user_data)

@@ -930,3 +930,25 @@ def advanced_incident_analysis(request):
             'error': 'Analysis failed',
             'details': str(e)
         }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
+from django.http import JsonResponse
+from django.shortcuts import get_object_or_404
+from .models import User
+from django.views import View
+
+class UserDetailView(View):
+    def get(self, request, user_id):
+        user = get_object_or_404(User, id=user_id)
+        user_data = {
+            "id": user.id,
+            "first_name": user.first_name,
+            "last_name": user.last_name,
+            "email": user.email,
+            "phone_number": user.phone_number,
+            "address": user.address,
+            "aadhar_number": user.aadhar_number,
+            "emergency_contact1": user.emergency_contact1,
+            "emergency_contact2": user.emergency_contact2,
+            "date_joined": user.date_joined.strftime("%Y-%m-%d %H:%M:%S"),
+        }
+        return JsonResponse(user_data)

@@ -495,11 +495,11 @@ def update_incident(request, id):
         user = incident.reported_by
         print("information gotten")
         # Send Email Notification
-        subject = f"Incident Status Updated: {incident.id}"
-        message = f"Dear {user.first_name},\n\nThe status of your reported incident (ID: {incident.id}) has been updated to: {status}.\n\nThank you,\nIncident Management Team"
-        recipient_email = user.email  # Get user email
-        print("Information recieved")
-        send_email_example(subject, message, email=recipient_email)
+        #subject = f"Incident Status Updated: {incident.id}"
+        # message = f"Dear {user.first_name},\n\nThe status of your reported incident (ID: {incident.id}) has been updated to: {status}.\n\nThank you,\nIncident Management Team"
+        # recipient_email = user.email  # Get user email
+        # print("Information recieved")
+        # send_email_example(subject, message, email=recipient_email)
         return Response(serializer.data, status=200)
     except Exception as e:
         return Response({"message": f"Error Occurred: {e}"}, status=400)      

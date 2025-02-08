@@ -69,10 +69,10 @@ const Sos = () => {
   }, []);
 
   return (
-    <div className="bg-slate-900 py-12 min-h-screen flex items-center justify-center overflow-hidden">
+    <div className="bg-slate-900 h-[90vh] flex items-center justify-center overflow-hidden">
       <div className="relative flex flex-col items-center">
         {/* Title */}
-        <h1 className="text-3xl text-cyan-400 font-extrabold tracking-wide mb-16 lg:text-6xl drop-shadow-[0_0_15px_rgba(34,211,238,0.5)]">
+        <h1 className="text-3xl text-cyan-400 font-extrabold tracking-wide mb-20 lg:text-6xl drop-shadow-[0_0_15px_rgba(34,211,238,0.5)]">
           Emergency SOS
         </h1>
 
@@ -110,11 +110,11 @@ const Sos = () => {
           </button>
         </div>
 
-        {/* Description */}
+        {/* Description
         <p className="text-slate-300 text-center max-w-xl text-lg mt-16 px-6">
           Press the button to send an emergency alert. Your location and details
           will be shared with nearby authorities for immediate assistance.
-        </p>
+        </p> */}
 
         {/* Modals */}
         {showConfirmation && (

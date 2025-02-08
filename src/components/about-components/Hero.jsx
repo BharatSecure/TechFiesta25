@@ -7,132 +7,135 @@ const Hero = ({ onLearnMore }) => {
 
   return (
     <Box
+    sx={{
+      position: "relative",
+      height: "70vh",
+      background: '#001a2f',
+      backgroundImage: "url('https://cdn.pixabay.com/photo/2019/11/19/22/24/watch-4638673_640.jpg')",
+      backgroundSize: "cover",
+      backgroundPosition: "center",
+      display: "flex",
+      justifyContent: "center",
+      alignItems: "center",
+      color: "white",
+      textAlign: "center",
+    }}
+  >
+    <Box
+      sx={{
+        position: "absolute",
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        backgroundColor: "rgba(0, 26, 47, 0.75)",
+        backdropFilter: "blur(5px)",
+      }}
+    />
+
+    <Box
       sx={{
         position: "relative",
-        height: "70vh",
-        backgroundImage:
-          "url('https://cdn.pixabay.com/photo/2019/11/19/22/24/watch-4638673_640.jpg')",
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        color: "white",
-        textAlign: "center",
+        zIndex: 1,
+        px: { xs: 3, sm: 4, md: 6 },
       }}
     >
-      {/* Overlay with improved opacity for contrast */}
-      <Box
+      <Typography
+        variant="h3"
         sx={{
-          position: "absolute",
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          backgroundColor: "rgba(0, 0, 0, 0.55)", // Darker overlay for better contrast
-        }}
-      ></Box>
-
-      <Box
-        sx={{
-          position: "relative",
-          zIndex: 1,
-          px: { xs: 3, sm: 4, md: 6 },
+          fontWeight: "bold",
+          mb: 2,
+          animation: "fadeIn 1s ease-in-out 0.5s",
+          fontFamily: "Ubuntu, sans-serif",
+          fontSize: { xs: "2rem", sm: "2.5rem", md: "3rem" },
+          color: "#00ffff",
+          textShadow: "0 0 20px rgba(0, 255, 255, 0.5)",
+          transition: "0.3s",
+          '&:hover': {
+            textShadow: "0 0 30px rgba(0, 255, 255, 0.8)"
+          }
         }}
       >
-        {/* Hero Title */}
+        About Us
+      </Typography>
+
+      <Typography
+        variant="h6"
+        sx={{
+          maxWidth: "700px",
+          margin: "0 auto",
+          mb: 3,
+          animation: "fadeIn 2s ease-in-out 1s",
+          fontFamily: "Ubuntu, sans-serif",
+          fontSize: { xs: "1rem", sm: "1.2rem" },
+          color: "#80ffff",
+          textShadow: "0 0 10px rgba(0, 255, 255, 0.3)",
+        }}
+      >
+        Our Incident Reporting and Response System is designed to ensure
+        safety and quick action during critical situations. We empower users
+        to report incidents through text or voice input, enabling faster
+        responses and better monitoring through real-time analytics.
+      </Typography>
+
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          mb: 3,
+        }}
+      >
+        <LightbulbOutlined
+          sx={{
+            color: "#00ffff",
+            fontSize: 45,
+            mr: 2,
+            animation: "fadeIn 2s ease-in-out 1.5s",
+            filter: "drop-shadow(0 0 10px rgba(0, 255, 255, 0.5))",
+          }}
+        />
         <Typography
-          variant="h3"
+          variant="subtitle1"
           sx={{
             fontWeight: "bold",
-            mb: 2,
-            animation: "fadeIn 1s ease-in-out 0.5s",
+            fontSize: "1.2rem",
             fontFamily: "Ubuntu, sans-serif",
-            fontSize: { xs: "2rem", sm: "2.5rem", md: "3rem" }, // Responsive font size
-            color: "white",
-            textShadow: "2px 2px 10px rgba(0, 0, 0, 0.6)", // Text shadow for more depth
+            color: "#00ffff",
+            animation: "fadeIn 2s ease-in-out 1.5s",
+            textShadow: "0 0 10px rgba(0, 255, 255, 0.3)",
           }}
         >
-          About Us
+          Empowering Safety with Real-time Action
         </Typography>
-
-        {/* Description Text */}
-        <Typography
-          variant="h6"
-          sx={{
-            maxWidth: "700px",
-            margin: "0 auto",
-            mb: 3,
-            animation: "fadeIn 2s ease-in-out 1s",
-            fontFamily: "Ubuntu, sans-serif",
-            color: "white",
-            fontSize: { xs: "1rem", sm: "1.2rem" }, // Responsive font size
-            textShadow: "1px 1px 8px rgba(0, 0, 0, 0.5)", // Text shadow for readability
-          }}
-        >
-          Our Incident Reporting and Response System is designed to ensure
-          safety and quick action during critical situations. We empower users
-          to report incidents through text or voice input, enabling faster
-          responses and better monitoring through real-time analytics.
-        </Typography>
-
-        {/* Icon and Empowering Safety text */}
-        <Box
-          sx={{
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            mb: 3,
-          }}
-        >
-          <LightbulbOutlined
-            sx={{
-              color: theme.palette.warning.main,
-              fontSize: 45, // Larger icon for more emphasis
-              mr: 2,
-              animation: "fadeIn 2s ease-in-out 1.5s", // Smooth animation for the icon
-            }}
-          />
-          <Typography
-            variant="subtitle1"
-            sx={{
-              fontWeight: "bold",
-              fontSize: "1.2rem",
-              fontFamily: "Ubuntu, sans-serif",
-              color: "white",
-              animation: "fadeIn 2s ease-in-out 1.5s",
-              textShadow: "1px 1px 8px rgba(0, 0, 0, 0.6)", // Ensure readability on background
-            }}
-          >
-            Empowering Safety with Real-time Action
-          </Typography>
-        </Box>
-
-        {/* Learn More Button */}
-        <Button
-          onClick={onLearnMore}
-          variant="contained"
-          sx={{
-            mt: 4,
-            bgcolor: theme.palette.primary.main,
-            color: "white", // Ensuring the button text is white
-            fontWeight: "bold",
-            fontSize: "1.1rem",
-            borderRadius: "25px", // Rounded button for a modern look
-            padding: "12px 24px",
-            boxShadow: 4,
-            "&:hover": {
-              bgcolor: theme.palette.primary.dark,
-              boxShadow: 8,
-              transform: "scale(1.05)", // Slight scale effect on hover
-            },
-            animation: "fadeIn 3s ease-in-out 2s", // Animation for the button
-          }}
-        >
-          Explore Features
-        </Button>
       </Box>
+
+      <Button
+        onClick={onLearnMore}
+        variant="contained"
+        sx={{
+          mt: 4,
+          bgcolor: "#002240",
+          color: "#00ffff",
+          fontWeight: "bold",
+          fontSize: "1.1rem",
+          borderRadius: "25px",
+          padding: "12px 24px",
+          boxShadow: '8px 8px 16px #001527, -8px -8px 16px #002f59',
+          border: '1px solid rgba(0, 255, 255, 0.1)',
+          transition: 'all 0.3s ease',
+          animation: "fadeIn 3s ease-in-out 2s",
+          "&:hover": {
+            bgcolor: "#002240",
+            boxShadow: '12px 12px 24px #001527, -12px -12px 24px #002f59, 0 0 20px rgba(0, 255, 255, 0.3)',
+            transform: "scale(1.05)",
+          },
+        }}
+      >
+        Explore Features
+      </Button>
     </Box>
+  </Box>
   );
 };
 

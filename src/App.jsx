@@ -25,6 +25,7 @@ import ViewDetails from "./pages/ViewDetails";
 import UserRoute from "./protected-routes/UserRoute";
 import AdminRoute from "./protected-routes/AdminRoute";
 import IncidentChart from "./pages/chart";
+import OrderProgress from "./components/ProgressBar";
 
 const UserDashboard = lazy(() => import("./pages/UserDashboard"));
 const AdminDashboard = lazy(() => import("./pages/AdminDashboard"));
@@ -77,6 +78,7 @@ const App = () => {
               <Route path="/feedback" element={<FeedbackForm />} />
               <Route path="chatbot" element={<Chatbot />} />
               <Route path="/charts" element={<IncidentChart />} />
+              <Route path="/progress" element={<OrderProgress/>} />
               {/* Redirect all unknown routes to Home */}
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>

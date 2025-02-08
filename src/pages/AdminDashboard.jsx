@@ -12,6 +12,8 @@ import {
 import Footer from "@/components/Footer";
 import { useAuth } from "@/context/AuthContext";
 import { useNavigate } from "react-router-dom";
+import { MdOutlineReport } from "react-icons/md";
+import { MdReport } from "react-icons/md";
 
 const AdminDashboard = () => {
   const [total, setTotal] = useState(0);
@@ -22,6 +24,7 @@ const AdminDashboard = () => {
   const [filternew, setFilterNew] = useState([]);
   const [incidents, setIncidents] = useState([]);
   const [completedId, setCompletedId] = useState([]);
+  const [falseReport,setFalseReport]= useState([{}])
 
   const token = localStorage.getItem("accessToken");
   const getincidents = async () => {
@@ -132,6 +135,7 @@ const AdminDashboard = () => {
 
       if (response.ok) {
         getincidents(); // Refresh incidents after update
+
       } else {
         console.error("Failed to update incident");
       }
@@ -149,7 +153,7 @@ const AdminDashboard = () => {
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ status: "resolved" }),
+          body: JSON.stringify({ status: "Resolved" }),
         }
       );
 
@@ -169,8 +173,21 @@ const AdminDashboard = () => {
     );
 
     setCompletedId(completedmarked);
-    console.log("completed", completedmarked);
+   
   }, [filter, incidents]);
+
+
+  const handleFalseReport = (id) => {
+    setFalseReport((prevFalse) => [
+      ...prevFalse, 
+      { incidentid: id, report: "false" }  
+    ]);
+
+    console.log('false report',falseReport);
+    alert('Report marked as False')
+    
+  };
+  
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-900 via-blue-950 to-slate-900">
@@ -218,6 +235,10 @@ const AdminDashboard = () => {
             <Timer className="text-yellow-400 w-12 h-12 group-hover:scale-110 transition-transform" />
           </div>
         </div>
+
+
+
+
         {/*NEW INCIDNETS*/}
         {newTasks.length === 0 ? (
           <h2 className="text-2xl my-11 text-white">
@@ -247,6 +268,16 @@ const AdminDashboard = () => {
                       {incident.severity?.charAt(0).toUpperCase() +
                         incident.severity?.slice(1)}
                     </span>
+                    {falseReport.some((report) => report.incidentid === incident.id) ? (
+  <MdReport className="text-3xl text-red-500 hover:cursor-pointer"  title="Marked as False Report"/>
+) : (
+  <MdOutlineReport
+    onClick={() => handleFalseReport(incident.id)}
+    className="text-3xl text-white hover:text-red-500 cursor-pointer"
+    title="Mark as False Report"
+  />
+)}
+
                   </div>
                   <div className="flex justify-between items-center mb-2">
                     <h3 className="text-lg font-semibold text-white">
@@ -266,6 +297,10 @@ const AdminDashboard = () => {
                       {incident.reported_by?.last_name || ""}
                     </span>
                   </p>
+                  <p className="text-gray-300 text-sm mb-2">
+               User Score: {incident.score}
+              
+              </p>
                   <div className="flex gap-2 items-center ">
                     <a
                       href={incident.maps_link}
@@ -341,6 +376,18 @@ const AdminDashboard = () => {
                   {incident.severity?.charAt(0).toUpperCase() +
                     incident.severity?.slice(1)}
                 </span>
+              
+{falseReport.some((report) => report.incidentid === incident.id) ? (
+  <MdReport className="text-3xl text-red-500 hover:cursor-pointer"  title="Marked as False Report"/>
+) : (
+  <MdOutlineReport
+    onClick={() => handleFalseReport(incident.id)}
+    className="text-3xl text-white hover:text-red-500 cursor-pointer"
+    title="Mark as False Report"
+  />
+)}
+
+                
               </div>
               <div className="flex justify-between items-center mb-2">
                 <h3 className="text-lg font-semibold text-white">
@@ -360,6 +407,11 @@ const AdminDashboard = () => {
                   {incident.reported_by?.first_name || "Unknown"}{" "}
                   {incident.reported_by?.last_name || ""}
                 </span>
+              </p>
+
+              <p className="text-gray-300 text-sm mb-2">
+               User Score: {incident.score}
+              
               </p>
               <div className="flex gap-2 items-center mb-5 ">
                 <p className="text-gray-300 text-sm ">Location:</p>
@@ -470,6 +522,10 @@ const AdminDashboard = () => {
                   {incident.reported_by?.first_name || "Unknown"}{" "}
                   {incident.reported_by?.last_name || ""}
                 </span>
+              </p>
+              <p className="text-gray-300 text-sm mb-2">
+               User Score: {incident.score}
+              
               </p>
 
               <div className="flex gap-2 items-center mb-5 ">

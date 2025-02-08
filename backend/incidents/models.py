@@ -158,27 +158,31 @@ class Incidents(models.Model):
             self.reported_at = timezone.make_aware(self.reported_at)
 
         if self.reported_by and self.reported_by.first_name == 'Anonymous':
-            self.score = 50
+            self.score = 50  # Default neutral score for anonymous reports
         else:
             incidents = Incidents.objects.filter(reported_by=self.reported_by)
-            count = incidents.filter(true_or_false=True).count()
-            total = incidents.count()
-            
-            self.score = (count / total) * 100 if total > 0 else 80  
+            verified_count = incidents.filter(true_or_false=True).count()  # Verified reports
+            total_reports = incidents.count()  # Total reports submitted
+            mass_report_bonus = min(self.count * 2, 10)  # Capped bonus to prevent abuse
 
+            if total_reports > 0:
+                # Base score formula: (Verified reports % - Penalty for false reports) + Mass report bonus
+                self.score = ((verified_count / total_reports) * 100)  + mass_report_bonus
+                self.score = max(0, min(self.score, 100))  # Keep score within valid range
+            else:
+                self.score = 50  # Default for new reporters
+
+        # Generate maps link if location exists
         if isinstance(self.location, dict) and 'latitude' in self.location and 'longitude' in self.location:
             self.maps_link = get_google_maps_link(self.location['latitude'], self.location['longitude'])
 
-        # Only set resolved_at when status is updated to "Resolved"
+        # Handle resolution timestamp
         if self.status == "resolved" and not self.resolved_at:
             self.resolved_at = timezone.now()
         elif self.status != "resolved":
-            self.resolved_at = None  # Reset if not resolved
+            self.resolved_at = None
 
         super().save(*args, **kwargs)
-
-    def __str__(self):
-        return f"{self.incidentType}: {self.id}"
     
 class Comment(models.Model):
     comment = models.TextField()

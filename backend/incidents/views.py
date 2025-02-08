@@ -185,7 +185,6 @@ class form_report(APIView):
             location = self.validate_location(data.get("location"))
             if not location:
                 return Response({"error": "Invalid location data"}, status=status.HTTP_400_BAD_REQUEST)
-            print("Location check")
             
             lat, lon = location["latitude"], location["longitude"]
             
@@ -495,7 +494,11 @@ def update_incident(request, id):
         user = incident.reported_by
         print("information gotten")
         # Send Email Notification
+<<<<<<< HEAD
+        # subject = f"Incident Status Updated: {incident.id}"
+=======
         #subject = f"Incident Status Updated: {incident.id}"
+>>>>>>> 21e21ebe2b7d0eb3f97d287d70c3757520a3e2a4
         # message = f"Dear {user.first_name},\n\nThe status of your reported incident (ID: {incident.id}) has been updated to: {status}.\n\nThank you,\nIncident Management Team"
         # recipient_email = user.email  # Get user email
         # print("Information recieved")

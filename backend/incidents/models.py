@@ -105,6 +105,7 @@ class NGO(models.Model):
 
     def __str__(self):
         return f"NGO Station: {self.id}"
+
 class Incidents(models.Model):
     INCIDENT_TYPES = [
         ('Fire', 'Fire'),
@@ -140,7 +141,7 @@ class Incidents(models.Model):
         null=True,
         blank=True
     )
-    reported_at = models.DateTimeField(default=timezone.now)  # Ensuring timezone-aware datetime
+    reported_at = models.DateTimeField(default=timezone.now) 
     police_station = models.ForeignKey(PoliceStations, on_delete=models.DO_NOTHING, null=True, blank=True)
     fire_station = models.ForeignKey(FireStations, on_delete=models.DO_NOTHING, null=True, blank=True)
     hospital_station = models.ForeignKey(Hospital, on_delete=models.DO_NOTHING, null=True, blank=True)
@@ -150,24 +151,21 @@ class Incidents(models.Model):
     score = models.DecimalField(decimal_places=2, default=0, max_digits=4)
     resolved_at = models.DateTimeField(null=True, blank=True)
     true_or_false = models.BooleanField(default=False)
+    count = models.PositiveIntegerField(default=1)
 
     def save(self, *args, **kwargs):
-        # Ensure reported_at is timezone-aware
         if self.reported_at and self.reported_at.tzinfo is None:
             self.reported_at = timezone.make_aware(self.reported_at)
 
-        # Handle anonymous user score
         if self.reported_by and self.reported_by.first_name == 'Anonymous':
             self.score = 50
         else:
-            # Efficiently calculate the score
             incidents = Incidents.objects.filter(reported_by=self.reported_by)
             count = incidents.filter(true_or_false=True).count()
             total = incidents.count()
             
-            self.score = (count / total) * 100 if total > 0 else 80  # Prevent division by zero
+            self.score = (count / total) * 100 if total > 0 else 80  
 
-        # Generate Google Maps link safely
         if isinstance(self.location, dict) and 'latitude' in self.location and 'longitude' in self.location:
             self.maps_link = get_google_maps_link(self.location['latitude'], self.location['longitude'])
 

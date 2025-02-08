@@ -16,6 +16,7 @@ import { useAuth } from "@/context/AuthContext";
 import FloatingChatbot from "@/components/FloatingChatbot";
 import { Navigate, useNavigate } from "react-router-dom";
 import OrderProgress from "@/components/ProgressBar";
+import ChartsUser from "./charts-user"
 
 const UserDashboard = () => {
   const navigate = useNavigate();
@@ -277,6 +278,7 @@ const UserDashboard = () => {
             </div>
           </div>
         </div>
+        <ChartsUser />
         <Footer />
       </div>
 

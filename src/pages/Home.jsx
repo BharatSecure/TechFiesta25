@@ -32,6 +32,30 @@ const Home = () => {
     }
   }, [location.state]);
 
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch(
+          "http://127.0.0.1:8000/api/advanced-incident-analysis/",
+          {
+            method: "GET",
+            headers: { Accept: "application/json" },
+          }
+        );
+        if (!response.ok) throw new Error("Failed to fetch data");
+        const result = await response.json();
+        setData(result);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
   return (
     <div className="bg-slate-900 min-h-screen">
       {/* Main content wrapper with subtle gradient */}
@@ -54,12 +78,12 @@ const Home = () => {
               <OurFeatures />
             </section>
           </FadeInComponent>
-          <FadeInComponent>
+          {/* <FadeInComponent> */}
             {/* Features Section */}
             <section className="relative shadow-[inset_0_-20px_30px_-20px_rgba(0,0,0,0.2)]">
               <Chartglobal />
             </section>
-          </FadeInComponent>
+          {/* </FadeInComponent> */}
 
           {/* Testimonials Section */}
           <Suspense fallback={<LoadingSpinner />}>

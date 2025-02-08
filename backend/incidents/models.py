@@ -3,6 +3,7 @@ from django.conf import settings
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth.base_user import AbstractBaseUser, BaseUserManager
 from django.utils import timezone
+from decimal import Decimal
 
 def get_google_maps_link(latitude, longitude):
     return f"https://www.google.com/maps?q={latitude},{longitude}"
@@ -108,6 +109,11 @@ class NGO(models.Model):
 
 class Incidents(models.Model):
     INCIDENT_TYPES = [
+        ('Domestic Violence', 'Domestic Violence'),
+        ('Child Abuse', 'Child Abuse'),
+        ('Sexual Harassment', 'Sexual Harassment'),
+        ('Stalking', 'Stalking'),
+        ('Human Trafficking', 'Human Trafficking'),
         ('Fire', 'Fire'),
         ('Theft', 'Theft'),
         ('Accident', 'Accident'),
@@ -154,23 +160,30 @@ class Incidents(models.Model):
     count = models.PositiveIntegerField(default=1)
 
     def save(self, *args, **kwargs):
+        print("You have entered the save method")
         if self.reported_at and self.reported_at.tzinfo is None:
             self.reported_at = timezone.make_aware(self.reported_at)
-
+        print("timezone was made aware")
         if self.reported_by and self.reported_by.first_name == 'Anonymous':
-            self.score = 50  # Default neutral score for anonymous reports
+            self.score = Decimal(50)  # Default neutral score for anonymous reports
+            print("Anonymous user")
         else:
+            print("entered else")
             incidents = Incidents.objects.filter(reported_by=self.reported_by)
-            verified_count = incidents.filter(true_or_false=True).count()  # Verified reports
-            total_reports = incidents.count()  # Total reports submitted
-            mass_report_bonus = min(self.count * 2, 10)  # Capped bonus to prevent abuse
-
+            verified_count = incidents.filter(true_or_false=True).count() or 0  # Verified reports
+            total_reports = incidents.count() or 0  # Total reports submitted
+            mass_report_bonus = min(float(self.count * 2), 10)  # Capped bonus to prevent abuse
+            
+            print("found values")
             if total_reports > 0:
                 # Base score formula: (Verified reports %) + Mass report bonus
-                self.score = ((verified_count / total_reports) * 100)  + mass_report_bonus
-                self.score = max(0, min(self.score, 100))  # Keep score within valid range
+                print("Entered if")
+                self.score = (Decimal(verified_count) / Decimal(total_reports)) * Decimal(100) + Decimal(mass_report_bonus)
+                print("calculated score")
+                self.score = max(Decimal(0), min(self.score, Decimal(100)))  # Clamp score between 0 and 100
+                print("kept between 1-100")
             else:
-                self.score = 50  # Default for new reporters
+                self.score = Decimal(50)  # Default for new reporters
 
         # Generate maps link if location exists
         if isinstance(self.location, dict) and 'latitude' in self.location and 'longitude' in self.location:
@@ -180,8 +193,12 @@ class Incidents(models.Model):
         if self.status == "resolved" and not self.resolved_at:
             self.resolved_at = timezone.now()
         elif self.status != "resolved":
+            print("entered elif")
             self.resolved_at = None
-
+            print("Error is here")
+        print(f"resolved_at before save: {self.resolved_at}")
+        print(f"Calculated score: {self.score}")
+        print(f"Location data: {self.location}")
         super().save(*args, **kwargs)
     
 class Comment(models.Model):

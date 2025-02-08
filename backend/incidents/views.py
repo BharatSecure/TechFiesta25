@@ -40,6 +40,12 @@ from django.db.models.functions import (
     ExtractWeekDay, TruncMonth, 
     ExtractHour, ExtractYear
 )
+from django.db.models import (
+    Avg, Case, Count, F, FloatField, IntegerField, Q, Value, When, ExpressionWrapper, DurationField
+)
+from django.db.models.functions import (
+    Cast, Extract, ExtractHour, ExtractWeekDay, TruncMonth
+)
 from django.utils import timezone
 from datetime import timedelta
 
@@ -180,31 +186,34 @@ class form_report(APIView):
             user = self.authenticate_user(request)
             data = request.data.copy()
             data['severity'] = self.chain.invoke({"user_input": data.get("description", "")}).strip()
-            
+            print("data recieved",data)
             # Validate location data
-            location = self.validate_location(data.get("location"))
+            location = dict(self.validate_location(data.get("location")))
             if not location:
                 return Response({"error": "Invalid location data"}, status=status.HTTP_400_BAD_REQUEST)
             
             lat, lon = location["latitude"], location["longitude"]
-            
+            print("location gotten")
             # Check for similar existing incidents
             existing_incident = self.find_similar_incident(data, lat, lon)
             if existing_incident:
                 existing_incident.count += 1
                 existing_incident.save()
                 self.notify_existing_incident(existing_incident)
-            
-                
                 return Response({
                     "message": "Incident reported successfully!",
                     "incident_id": existing_incident.id,
                     "severity": data['severity']
                 }, status=status.HTTP_201_CREATED)
-            print(data)
+            # match = re.search(r'\{.*\}', incident, re.DOTALL)
+            # if match:
+            #     json_string = match.group()
+            #     incident = json.loads(json_string)
             # Create new incident
+            print(data)
             serializer = IncidentSerializer(data=data)
             if serializer.is_valid():
+                print("serializer is valid")
                 incident = serializer.save(reported_by=user)
                 self.assign_nearest_stations(incident, lat, lon)
                 return Response({
@@ -614,24 +623,30 @@ def all_station_incidents(request):
         token_str = auth_header.split(' ')[1]
         token = AccessToken(token_str)
         admin = get_object_or_404(Admin, id=token['user_id'])
-    except Exception as e:
+    except Exception:
         return Response(
             {"error": "Invalid or expired token"},
             status=status.HTTP_401_UNAUTHORIZED
         )
 
-    # Determine which station the admin belongs to and filter incidents accordingly
-    if admin.police_station is not None:
+    # Determine the station to filter incidents
+    incidents = Incidents.objects.none()  # Default empty queryset
+    if admin.police_station:
         incidents = Incidents.objects.filter(police_station=admin.police_station, true_or_false=True)
-    elif admin.fire_station is not None:
+    elif admin.fire_station:
         incidents = Incidents.objects.filter(fire_station=admin.fire_station, true_or_false=True)
-    elif admin.hospital is not None:
+    elif admin.hospital:
         incidents = Incidents.objects.filter(hospital_station=admin.hospital, true_or_false=True)
     else:
         return Response(
             {"error": "Admin is not associated with any station"},
             status=status.HTTP_400_BAD_REQUEST
         )
+
+    if request.method == 'GET':
+        # Serialize and return incidents that are marked true
+        serializer = IncidentSerializer(incidents, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
     # Handle toggle requests (POST method)
     if request.method == 'POST':
@@ -640,17 +655,13 @@ def all_station_incidents(request):
             return Response({"error": "Incident ID is required"}, status=status.HTTP_400_BAD_REQUEST)
 
         try:
-            incident = Incidents.objects.get(id=incident_id)
+            # Ensure the admin can only toggle incidents related to their station
+            incident = incidents.get(id=incident_id)
             incident.true_or_false = not incident.true_or_false  # Toggle flagged state
             incident.save()
             return Response({"message": f"Flagged status toggled to {incident.true_or_false}"}, status=status.HTTP_200_OK)
         except Incidents.DoesNotExist:
-            return Response({"error": "Incident not found"}, status=status.HTTP_404_NOT_FOUND)
-
-    # Serialize the incidents and return the response
-    serializer = IncidentSerializer(incidents, many=True)
-    return Response(serializer.data, status=status.HTTP_200_OK)
-    
+            return Response({"error": "Incident not found or unauthorized"}, status=status.HTTP_404_NOT_FOUND)
 
 
 class CommentListCreateView(APIView):
@@ -712,20 +723,10 @@ def save_score(request):
     allincidents = Incidents.objects.all()
     
     for incident in allincidents:
-        if incident.reported_by and incident.reported_by.first_name == 'Anonymous':
-            incident.score = 50
-        else:
-            incidents = Incidents.objects.filter(reported_by=incident.reported_by)
-            count = sum(1 for i in incidents if i.true_or_false)  # Count valid incidents
-            
-            if incidents.count() > 0:
-                incident.score = (count / incidents.count()) * 100
-            else:
-                incident.score = 0  # Prevent division by zero
-
+        incident.true_or_false = True
         incident.save()  # Save the updated score to the database
     
-    return Response({"message": "All scores updated successfully."})
+    return Response({"message": "All incidents updated successfully."})
 
 @api_view(['GET'])
 def view_incident(request, id):
@@ -780,103 +781,49 @@ class ChatbotView_Therapist(APIView):
             "chat_history": chat_history,
         }, status=status.HTTP_200_OK)
 
-@api_view(["GET"])
-def incident_chart_data(request):
-    try:
-        # Get time range from query params (default to last 12 months)
-        months = int(request.query_params.get('months', 12))
-        start_date = timezone.now() - timedelta(days=30*months)
-        
-        # Base queryset
-        queryset = Incidents.objects.filter(reported_at__gte=start_date)
-        
-        # Monthly incident count
-        monthly_incidents = (
-            queryset
-            .annotate(month=TruncMonth('reported_at'))
-            .values('month')
-            .annotate(count=Count('id'))
-            .order_by('month')
-        )
-
-        # Incident types distribution
-        type_distribution = (
-            queryset
-            .values('incidentType')
-            .annotate(count=Count('id'))
-            .order_by('-count')
-        )
-
-        # Severity distribution
-        severity_distribution = (
-            queryset
-            .values('severity')
-            .annotate(count=Count('id'))
-            .order_by('severity')
-        )
-
-        # Time of day analysis
-        hourly_distribution = (
-            queryset
-            .annotate(hour=ExtractHour('reported_at'))
-            .values('hour')
-            .annotate(count=Count('id'))
-            .order_by('hour')
-        )
-
-        # Status distribution
-        status_distribution = (
-            queryset
-            .values('status')
-            .annotate(count=Count('id'))
-            .order_by('status')
-        )
-
-        data = {
-            'monthly_incidents': list(monthly_incidents),
-            'type_distribution': list(type_distribution),
-            'severity_distribution': list(severity_distribution),
-            'hourly_distribution': list(hourly_distribution),
-            'status_distribution': list(status_distribution),
-            'total_incidents': queryset.count(),
-        }
-        
-        logger.info(f"Successfully generated chart data: {data}")
-        return Response(data)
-    
-    except Exception as e:
-        logger.error(f"Error in incident_chart_data: {str(e)}")
-        return Response(
-            {"error": str(e)}, 
-            status=500
-        )
 from django.core.serializers.json import DjangoJSONEncoder
-from datetime import datetime
+from django.utils.timezone import now, make_aware
 @api_view(['GET'])
 def advanced_incident_analysis(request):
     try:
-        # Get date range from query params or default to last 12 months
-        months = int(request.query_params.get('months', 12))
-        start_date = datetime.now() - timedelta(days=30*months)
+        print("Started function")
         
-        # Base queryset with date filter
+        try:
+            months = int(request.query_params.get('months', 12))
+            if months <= 0:
+                return Response({"error": "Invalid months parameter"}, status=status.HTTP_400_BAD_REQUEST)
+        except ValueError:
+            return Response({"error": "Invalid months parameter"}, status=status.HTTP_400_BAD_REQUEST)
+
+        start_date = now() - timedelta(days=30 * months)
+        print("Before filter")
+        
         queryset = Incidents.objects.filter(reported_at__gte=start_date)
-        
+        print(f"Queryset count: {queryset.count()}")
+        print("Start")
+
         analytics = {
             'response_time_analysis': list(
                 queryset
                 .values('incidentType', 'severity')
                 .annotate(
-                    avg_score=Avg('score'),
+                    avg_score=Cast(Avg('score'), FloatField()),
                     total_incidents=Count('id'),
-                    avg_resolution_time=Avg(
-                        Case(
-                            When(
-                                resolved_at__isnull=False,
-                                then=ExtractHour('resolved_at') - ExtractHour('reported_at')
-                            ),
-                            output_field=IntegerField(),
-                        )
+                    avg_resolution_time=Cast(
+                        Avg(
+                            Case(
+                                When(
+                                    resolved_at__isnull=False,
+                                    then=ExpressionWrapper(
+                                        F('resolved_at') - F('reported_at'),
+                                        output_field=DurationField()
+                                    )
+                                ),
+                                default=None,
+                                output_field=DurationField(),
+                            )
+                        ),
+                        FloatField()
                     )
                 )
                 .order_by('incidentType', 'severity')
@@ -891,8 +838,13 @@ def advanced_incident_analysis(request):
                     high_severity=Count('id', filter=Q(severity='high')),
                     medium_severity=Count('id', filter=Q(severity='medium')),
                     low_severity=Count('id', filter=Q(severity='low')),
-                    resolved_count=Count('id', filter=Q(status='resolved')),
-                    resolution_rate=Count('id', filter=Q(status='resolved')) * 100.0 / Count('id')
+                    resolved_count=Count('id', filter=Q(status='resolved'))
+                )
+                .annotate(
+                    resolution_rate=Cast(
+                        F('resolved_count') * 100.0 / Cast(F('total_incidents'), FloatField()),
+                        FloatField()
+                    )
                 )
                 .order_by('month')
             ),
@@ -904,7 +856,7 @@ def advanced_incident_analysis(request):
                 .annotate(
                     incident_count=Count('id'),
                     high_severity_count=Count('id', filter=Q(severity='high')),
-                    avg_response_score=Avg('score')
+                    avg_response_score=Cast(Avg('score'), FloatField())
                 )
                 .order_by('hour')
             ),
@@ -915,8 +867,14 @@ def advanced_incident_analysis(request):
                 .annotate(
                     incident_density=Count('id'),
                     high_severity_count=Count('id', filter=Q(severity='high')),
-                    avg_response_score=Avg('score'),
-                    resolution_rate=Count('id', filter=Q(status='resolved')) * 100.0 / Count('id')
+                    avg_response_score=Cast(Avg('score'), FloatField()),
+                    resolved_count=Count('id', filter=Q(status='resolved'))
+                )
+                .annotate(
+                    resolution_rate=Cast(
+                        F('resolved_count') * 100.0 / Cast(F('incident_density'), FloatField()),
+                        FloatField()
+                    )
                 )
                 .order_by('-incident_density')[:10]
             ),
@@ -929,8 +887,14 @@ def advanced_incident_analysis(request):
                     high_severity=Count('id', filter=Q(severity='high')),
                     medium_severity=Count('id', filter=Q(severity='medium')),
                     low_severity=Count('id', filter=Q(severity='low')),
-                    avg_response_score=Avg('score'),
-                    resolution_rate=Count('id', filter=Q(status='resolved')) * 100.0 / Count('id')
+                    avg_response_score=Cast(Avg('score'), FloatField()),
+                    resolved_count=Count('id', filter=Q(status='resolved'))
+                )
+                .annotate(
+                    resolution_rate=Cast(
+                        F('resolved_count') * 100.0 / Cast(F('total_count'), FloatField()),
+                        FloatField()
+                    )
                 )
                 .order_by('-total_count')
             ),
@@ -941,15 +905,24 @@ def advanced_incident_analysis(request):
                 .values('weekday')
                 .annotate(
                     total_incidents=Count('id'),
-                    avg_severity=Avg(
-                        Case(
-                            When(severity='high', then=3),
-                            When(severity='medium', then=2),
-                            When(severity='low', then=1),
-                            output_field=IntegerField(),
-                        )
+                    avg_severity=Cast(
+                        Avg(
+                            Case(
+                                When(severity='high', then=Value(3)),
+                                When(severity='medium', then=Value(2)),
+                                When(severity='low', then=Value(1)),
+                                output_field=FloatField(),
+                            )
+                        ),
+                        FloatField()
                     ),
-                    resolution_rate=Count('id', filter=Q(status='resolved')) * 100.0 / Count('id')
+                    resolved_count=Count('id', filter=Q(status='resolved'))
+                )
+                .annotate(
+                    resolution_rate=Cast(
+                        F('resolved_count') * 100.0 / Cast(F('total_incidents'), FloatField()),
+                        FloatField()
+                    )
                 )
                 .order_by('weekday')
             ),
@@ -974,41 +947,44 @@ def advanced_incident_analysis(request):
                     ))
                 )
                 .order_by('incidentType')
-            ),
-            
-            'overall_statistics': {
-                'total_incidents': queryset.count(),
-                'resolution_rate': (
-                    queryset.filter(status='resolved').count() * 100.0 / 
-                    queryset.count() if queryset.count() > 0 else 0
-                ),
-                'avg_response_score': queryset.aggregate(Avg('score'))['score__avg'] or 0,
-                'high_severity_percentage': (
-                    queryset.filter(severity='high').count() * 100.0 / 
-                    queryset.count() if queryset.count() > 0 else 0
-                ),
-                'multi_agency_percentage': (
-                    queryset.filter(
-                        Q(police_station__isnull=False) |
-                        Q(fire_station__isnull=False) |
-                        Q(hospital_station__isnull=False)
-                    ).distinct().count() * 100.0 / 
-                    queryset.count() if queryset.count() > 0 else 0
-                )
-            }
+            )
         }
-
-        return Response(
-            json.loads(json.dumps(analytics, cls=DjangoJSONEncoder)),
-            status=status.HTTP_200_OK
-        )
+        
+        # Calculate overall statistics separately to handle type conversion properly
+        total_incidents = queryset.count()
+        analytics['overall_statistics'] = {
+            'total_incidents': total_incidents,
+            'resolution_rate': float(
+                queryset.filter(status='resolved').count() * 100.0 / total_incidents
+                if total_incidents > 0 else 0
+            ),
+            'avg_response_score': float(
+                queryset.aggregate(avg_score=Cast(Avg('score'), FloatField()))['avg_score'] or 0
+            ),
+            'high_severity_percentage': float(
+                queryset.filter(severity='high').count() * 100.0 / total_incidents
+                if total_incidents > 0 else 0
+            ),
+            'multi_agency_percentage': float(
+                queryset.filter(
+                    Q(police_station__isnull=False) |
+                    Q(fire_station__isnull=False) |
+                    Q(hospital_station__isnull=False)
+                ).distinct().count() * 100.0 / total_incidents
+                if total_incidents > 0 else 0
+            )
+        }
+        
+        print("Done")
+        return Response(analytics, status=status.HTTP_200_OK)
     
     except Exception as e:
+        print(f"Error: {str(e)}")
         return Response({
             'error': 'Analysis failed',
             'details': str(e)
         }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-    
+                        
 from django.views import View
 
 class UserDetailView(View):
@@ -1027,3 +1003,96 @@ class UserDetailView(View):
             "date_joined": user.date_joined.strftime("%Y-%m-%d %H:%M:%S"),
         }
         return Response(user_data)
+    
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+from django.db.models import Count, Avg
+from django.db.models.functions import TruncMonth, ExtractMonth, ExtractYear
+from django.utils import timezone
+from datetime import timedelta
+import datetime
+
+@api_view(['GET'])
+def get_incident_statistics(request):
+    auth_header = request.headers.get('Authorization')
+    if not auth_header or not auth_header.startswith('Bearer '):
+        return Response(
+            {"error": "Authorization header missing or malformed"},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
+    try:
+        # Extract and validate the token
+        token_str = auth_header.split(' ')[1]
+        token = AccessToken(token_str)
+        user = get_object_or_404(User, id=token['user_id'])
+    except Exception:
+        return Response(
+            {"error": "Invalid or expired token"},
+            status=status.HTTP_401_UNAUTHORIZED
+        )
+    # Get date range from query params or default to last 30 days
+    days = int(request.GET.get('days', 30))
+    start_date = timezone.now() - timedelta(days=days)
+    
+    # Get user's incidents
+    user_incidents = Incidents.objects.filter(
+        reported_by=token['user_id']   ,
+        reported_at__gte=start_date
+    )
+    
+    # Incident types distribution
+    incident_types = list(user_incidents.values('incidentType')
+        .annotate(count=Count('id'))
+        .order_by('-count'))
+    
+    # Severity distribution
+    severity_dist = list(user_incidents.values('severity')
+        .annotate(count=Count('id'))
+        .order_by('severity'))
+    
+    # Status distribution
+    status_dist = list(user_incidents.values('status')
+        .annotate(count=Count('id'))
+        .order_by('status'))
+    
+    # Monthly trend - using SQLite compatible approach
+    monthly_incidents = user_incidents.annotate(
+        year=ExtractYear('reported_at'),
+        month=ExtractMonth('reported_at')
+    ).values('year', 'month').annotate(
+        count=Count('id')
+    ).order_by('year', 'month')
+
+    # Convert to the format expected by the frontend
+    monthly_trend = []
+    for entry in monthly_incidents:
+        month_date = datetime.date(year=entry['year'], month=entry['month'], day=1)
+        monthly_trend.append({
+            'month': month_date.isoformat(),
+            'count': entry['count']
+        })
+    
+    # Score trend
+    score_trend = []
+    for entry in monthly_incidents:
+        month_scores = user_incidents.filter(
+            reported_at__year=entry['year'],
+            reported_at__month=entry['month']
+        )
+        avg_score = month_scores.aggregate(Avg('score'))['score__avg'] or 0
+        month_date = datetime.date(year=entry['year'], month=entry['month'], day=1)
+        score_trend.append({
+            'month': month_date.isoformat(),
+            'avg_score': round(avg_score, 2)
+        })
+    
+    return Response({
+        'incident_types': incident_types,
+        'severity_distribution': severity_dist,
+        'status_distribution': status_dist,
+        'monthly_trend': monthly_trend,
+        'score_trend': score_trend,
+        'total_incidents': user_incidents.count(),
+        'average_score': user_incidents.aggregate(Avg('score'))['score__avg'] or 0
+    })

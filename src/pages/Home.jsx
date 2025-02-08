@@ -77,7 +77,7 @@ const Home = () => {
 
           {/* Footer */}
           <Suspense fallback={<LoadingSpinner />}>
-            <section className="relative bg-slate-800 shadow-[inset_0_20px_30px_-20px_rgba(0,0,0,0.2)]">
+          <section className="relative bg-slate-800 shadow-[inset_0_20px_30px_-20px_rgba(0,0,0,0.2)] before:absolute before:top-0 before:left-0 before:w-full before:h-2 before:bg-cyan-400 before:blur-md before:opacity-50 before:animate-glow">
               <Footer />
             </section>
           </Suspense>

@@ -648,8 +648,8 @@ const AdminDashboard = () => {
           ))}
         </div>
 
-        {/*COmpleted Incidentss */}
-        <h1 className="text-4xl font-semibold mb-5 mt-12 text-green-300 md:text-left text-center">
+        {/*Flagged Incidentss */}
+        <h1 className="text-4xl text-red-500 font-semibold mb-5 mt-12 text-green-300 md:text-left text-center">
           Flagged Incidents:
         </h1>
 

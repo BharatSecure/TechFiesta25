@@ -616,7 +616,7 @@ def all_incidents(request):
     serializer = IncidentSerializer(incidents, many=True)
     return Response(serializer.data, status=201)
 
-@api_view(['GET'])
+@api_view(['GET', 'POST'])
 def all_station_incidents(request):
     # Check for the presence and validity of the authorization header
     auth_header = request.headers.get('Authorization')
@@ -639,16 +639,30 @@ def all_station_incidents(request):
 
     # Determine which station the admin belongs to and filter incidents accordingly
     if admin.police_station is not None:
-        incidents = Incidents.objects.filter(police_station=admin.police_station)
+        incidents = Incidents.objects.filter(police_station=admin.police_station, true_or_false=True)
     elif admin.fire_station is not None:
-        incidents = Incidents.objects.filter(fire_station=admin.fire_station)
+        incidents = Incidents.objects.filter(fire_station=admin.fire_station, true_or_false=True)
     elif admin.hospital is not None:
-        incidents = Incidents.objects.filter(hospital_station=admin.hospital)
+        incidents = Incidents.objects.filter(hospital_station=admin.hospital, true_or_false=True)
     else:
         return Response(
             {"error": "Admin is not associated with any station"},
             status=status.HTTP_400_BAD_REQUEST
         )
+
+    # Handle toggle requests (POST method)
+    if request.method == 'POST':
+        incident_id = request.data.get("incident_id")
+        if not incident_id:
+            return Response({"error": "Incident ID is required"}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            incident = Incidents.objects.get(id=incident_id)
+            incident.true_or_false = not incident.true_or_false  # Toggle flagged state
+            incident.save()
+            return Response({"message": f"Flagged status toggled to {incident.true_or_false}"}, status=status.HTTP_200_OK)
+        except Incidents.DoesNotExist:
+            return Response({"error": "Incident not found"}, status=status.HTTP_404_NOT_FOUND)
 
     # Serialize the incidents and return the response
     serializer = IncidentSerializer(incidents, many=True)

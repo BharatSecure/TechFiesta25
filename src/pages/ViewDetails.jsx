@@ -145,10 +145,9 @@ const ViewDetails = () => {
               fullDetails.comments.map((comment, index) => (
                 <div key={index} className="mb-4 p-3 bg-gray-200 rounded-lg">
                   <p className="text-gray-800">
-                    <p className="text-sm font-semibold text-gray-800">
-                      {comment.commented_by.first_name}{" "}
-                      {comment.commented_by.last_name}
-                    </p>
+                  <p className="text-sm font-semibold text-gray-800 cursor-pointer hover:underline" onClick={() => navigate(`/user/${comment.commented_by.id}`)}>
+                    {comment.commented_by.first_name} {comment.commented_by.last_name}
+                  </p>
                     {comment.comment}
                   </p>
                   <p className="text-gray-600 text-sm">{comment.created_at}</p>

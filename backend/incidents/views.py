@@ -772,76 +772,6 @@ class ChatbotView_Therapist(APIView):
             "chat_history": chat_history,
         }, status=status.HTTP_200_OK)
 
-@api_view(["GET"])
-def incident_chart_data(request):
-    try:
-        # Get time range from query params (default to last 12 months)
-        months = int(request.query_params.get('months', 12))
-        start_date = timezone.now() - timedelta(days=30*months)
-        
-        # Base queryset
-        queryset = Incidents.objects.filter(reported_at__gte=start_date)
-        
-        # Monthly incident count
-        monthly_incidents = (
-            queryset
-            .annotate(month=TruncMonth('reported_at'))
-            .values('month')
-            .annotate(count=Count('id'))
-            .order_by('month')
-        )
-
-        # Incident types distribution
-        type_distribution = (
-            queryset
-            .values('incidentType')
-            .annotate(count=Count('id'))
-            .order_by('-count')
-        )
-
-        # Severity distribution
-        severity_distribution = (
-            queryset
-            .values('severity')
-            .annotate(count=Count('id'))
-            .order_by('severity')
-        )
-
-        # Time of day analysis
-        hourly_distribution = (
-            queryset
-            .annotate(hour=ExtractHour('reported_at'))
-            .values('hour')
-            .annotate(count=Count('id'))
-            .order_by('hour')
-        )
-
-        # Status distribution
-        status_distribution = (
-            queryset
-            .values('status')
-            .annotate(count=Count('id'))
-            .order_by('status')
-        )
-
-        data = {
-            'monthly_incidents': list(monthly_incidents),
-            'type_distribution': list(type_distribution),
-            'severity_distribution': list(severity_distribution),
-            'hourly_distribution': list(hourly_distribution),
-            'status_distribution': list(status_distribution),
-            'total_incidents': queryset.count(),
-        }
-        
-        logger.info(f"Successfully generated chart data: {data}")
-        return Response(data)
-    
-    except Exception as e:
-        logger.error(f"Error in incident_chart_data: {str(e)}")
-        return Response(
-            {"error": str(e)}, 
-            status=500
-        )
 from django.core.serializers.json import DjangoJSONEncoder
 from datetime import datetime
 @api_view(['GET'])
@@ -1019,3 +949,96 @@ class UserDetailView(View):
             "date_joined": user.date_joined.strftime("%Y-%m-%d %H:%M:%S"),
         }
         return Response(user_data)
+    
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+from django.db.models import Count, Avg
+from django.db.models.functions import TruncMonth, ExtractMonth, ExtractYear
+from django.utils import timezone
+from datetime import timedelta
+import datetime
+
+@api_view(['GET'])
+def get_incident_statistics(request):
+    auth_header = request.headers.get('Authorization')
+    if not auth_header or not auth_header.startswith('Bearer '):
+        return Response(
+            {"error": "Authorization header missing or malformed"},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
+    try:
+        # Extract and validate the token
+        token_str = auth_header.split(' ')[1]
+        token = AccessToken(token_str)
+        user = get_object_or_404(User, id=token['user_id'])
+    except Exception:
+        return Response(
+            {"error": "Invalid or expired token"},
+            status=status.HTTP_401_UNAUTHORIZED
+        )
+    # Get date range from query params or default to last 30 days
+    days = int(request.GET.get('days', 30))
+    start_date = timezone.now() - timedelta(days=days)
+    
+    # Get user's incidents
+    user_incidents = Incidents.objects.filter(
+        reported_by=token['user_id']   ,
+        reported_at__gte=start_date
+    )
+    
+    # Incident types distribution
+    incident_types = list(user_incidents.values('incidentType')
+        .annotate(count=Count('id'))
+        .order_by('-count'))
+    
+    # Severity distribution
+    severity_dist = list(user_incidents.values('severity')
+        .annotate(count=Count('id'))
+        .order_by('severity'))
+    
+    # Status distribution
+    status_dist = list(user_incidents.values('status')
+        .annotate(count=Count('id'))
+        .order_by('status'))
+    
+    # Monthly trend - using SQLite compatible approach
+    monthly_incidents = user_incidents.annotate(
+        year=ExtractYear('reported_at'),
+        month=ExtractMonth('reported_at')
+    ).values('year', 'month').annotate(
+        count=Count('id')
+    ).order_by('year', 'month')
+
+    # Convert to the format expected by the frontend
+    monthly_trend = []
+    for entry in monthly_incidents:
+        month_date = datetime.date(year=entry['year'], month=entry['month'], day=1)
+        monthly_trend.append({
+            'month': month_date.isoformat(),
+            'count': entry['count']
+        })
+    
+    # Score trend
+    score_trend = []
+    for entry in monthly_incidents:
+        month_scores = user_incidents.filter(
+            reported_at__year=entry['year'],
+            reported_at__month=entry['month']
+        )
+        avg_score = month_scores.aggregate(Avg('score'))['score__avg'] or 0
+        month_date = datetime.date(year=entry['year'], month=entry['month'], day=1)
+        score_trend.append({
+            'month': month_date.isoformat(),
+            'avg_score': round(avg_score, 2)
+        })
+    
+    return Response({
+        'incident_types': incident_types,
+        'severity_distribution': severity_dist,
+        'status_distribution': status_dist,
+        'monthly_trend': monthly_trend,
+        'score_trend': score_trend,
+        'total_incidents': user_incidents.count(),
+        'average_score': user_incidents.aggregate(Avg('score'))['score__avg'] or 0
+    })

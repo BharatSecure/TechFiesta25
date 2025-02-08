@@ -67,6 +67,13 @@ const Chatbot = () => {
         <p className="text-lg text-gray-300 mt-2 max-w-3xl mx-auto">
           Get real-time guidance, emotional support, and safety tips. Ask questions, seek help, or learn about your legal rights.
         </p>
+
+        <div className="relative z-10 w-full max-w-xl sm:max-w-2xl mt-4 p-3 rounded-md bg-gray-800 text-gray-300 text-xs text-center">
+  ⚠️ <strong>Disclaimer:</strong> Saathi AI offers general legal and safety information, but it is <strong>not</strong> a substitute for professional legal counsel. 
+  Please consult a licensed attorney for legal advice.
+</div>
+
+
       </div>
       
       {/* Chatbot Box */}

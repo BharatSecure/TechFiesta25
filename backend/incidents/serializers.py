@@ -1,10 +1,21 @@
 from rest_framework import serializers
 from .models import Incidents, User, Comment
+import json
 
 class IncidentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Incidents
         fields = '__all__'
+
+    def validate_location(self, value):
+        if isinstance(value, str):
+            try:
+                value = json.loads(value)  # Convert JSON string to dictionary
+            except json.JSONDecodeError:
+                raise serializers.ValidationError("Invalid location data")
+        if not isinstance(value, dict) or 'latitude' not in value or 'longitude' not in value:
+            raise serializers.ValidationError("Invalid location data")
+        return value
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:

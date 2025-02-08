@@ -176,6 +176,7 @@ const IncidentReportForm = () => {
         formDataToSend,
         {
           headers: {
+            "Content-Type": "application/json",
             Authorization: `Bearer ${token}`, // Include token in the Authorization header
           },
         }

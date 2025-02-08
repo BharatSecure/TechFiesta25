@@ -180,31 +180,34 @@ class form_report(APIView):
             user = self.authenticate_user(request)
             data = request.data.copy()
             data['severity'] = self.chain.invoke({"user_input": data.get("description", "")}).strip()
-            
+            print("data recieved",data)
             # Validate location data
-            location = self.validate_location(data.get("location"))
+            location = dict(self.validate_location(data.get("location")))
             if not location:
                 return Response({"error": "Invalid location data"}, status=status.HTTP_400_BAD_REQUEST)
             
             lat, lon = location["latitude"], location["longitude"]
-            
+            print("location gotten")
             # Check for similar existing incidents
             existing_incident = self.find_similar_incident(data, lat, lon)
             if existing_incident:
                 existing_incident.count += 1
                 existing_incident.save()
                 self.notify_existing_incident(existing_incident)
-            
-                
                 return Response({
                     "message": "Incident reported successfully!",
                     "incident_id": existing_incident.id,
                     "severity": data['severity']
                 }, status=status.HTTP_201_CREATED)
-            print(data)
+            # match = re.search(r'\{.*\}', incident, re.DOTALL)
+            # if match:
+            #     json_string = match.group()
+            #     incident = json.loads(json_string)
             # Create new incident
+            print(data)
             serializer = IncidentSerializer(data=data)
             if serializer.is_valid():
+                print("serializer is valid")
                 incident = serializer.save(reported_by=user)
                 self.assign_nearest_stations(incident, lat, lon)
                 return Response({
@@ -778,12 +781,13 @@ from datetime import datetime
 def advanced_incident_analysis(request):
     try:
         # Get date range from query params or default to last 12 months
+        print("started function")
         months = int(request.query_params.get('months', 12))
         start_date = datetime.now() - timedelta(days=30*months)
-        
+        print("before filter")
         # Base queryset with date filter
         queryset = Incidents.objects.filter(reported_at__gte=start_date)
-        
+        print("start")
         analytics = {
             'response_time_analysis': list(
                 queryset
@@ -919,7 +923,7 @@ def advanced_incident_analysis(request):
                 )
             }
         }
-
+        print("done")
         return Response(
             json.loads(json.dumps(analytics, cls=DjangoJSONEncoder)),
             status=status.HTTP_200_OK

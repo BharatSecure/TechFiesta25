@@ -8,6 +8,42 @@ body {
 }
 
 
+/* Apply these styles to the whole body or any container with overflow */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #60a5fa transparent; /* Light blue thumb, transparent track */
+}
+
+/* For webkit browsers like Chrome, Safari */
+*::-webkit-scrollbar {
+  width: 6px; /* Made thinner */
+  height: 6px;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+  border-radius: 290px;
+}
+
+*::-webkit-scrollbar-thumb {
+  background-color: #60a5fa; /* Light blue color */
+  border-radius: 220px;
+  border: 2px solid transparent; /* Creates padding effect */
+  background-clip: padding-box;
+  transition: background-color 0.2s ease;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background-color: #3b82f6; /* Slightly darker on hover */
+}
+
+*::-webkit-scrollbar-button {
+  display: none; /* Removes the scroll buttons */
+}
+
+
+
+
 .loader {
   display: flex;
   align-self: center;

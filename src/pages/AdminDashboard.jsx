@@ -59,12 +59,14 @@ const AdminDashboard = () => {
     getincidents();
   }, []);
 
-  const getSeverityColor = (severity) => {
+  const getSeverityColor = (severity,count=1) => {
     if (severity === "low") return "text-blue-700 border-blue-600 bg-blue-200";
     if (severity === "medium")
       return "text-yellow-700 border-yellow-600";
-    if (severity === "high") return "text-red-700 border-red-600 bg-red-200";
-    return "text-gray-700 border-gray-600 bg-gray-200";
+    if (severity === "high") return "text-red-700 border-red-600 bg-red-200 ";
+    // if(severity==="high"&&count>1) return "text-red-700 border-red-600 bg-red-200  ";
+    
+    
   };
 
   const { logout } = useAuth();
@@ -230,6 +232,9 @@ const AdminDashboard = () => {
       console.error("Error marking report as false:", error);
     }
   };
+
+  console.log('admin incidents',incidents);
+  
   
 
   return (
@@ -270,7 +275,7 @@ const AdminDashboard = () => {
           </div>
 
           {/* Unresolved Incidents Card */}
-          <div className="bg-white/5 backdrop-blur-sm p-6 cursor-pointer rounded-2xl border-[1px] border-yellow-900 shadow-[0px_5px_15px_rgba(255,255,255,0.1),0px_10px_25px_rgba(0,0,0,0.7)] transition-all hover:scale-105 hover:shadow-[0px_10px_30px_rgba(255,204,0,0.2),0px_15px_50px_rgba(0,0,0,0.8)] flex items-center justify-between group w-64 md:w-80">
+          <div className="bg-white/5  p-6 cursor-pointer rounded-2xl border-[1px] border-yellow-900 shadow-[0px_5px_15px_rgba(255,255,255,0.1),0px_10px_25px_rgba(0,0,0,0.7)] transition-all hover:scale-105 hover:shadow-[0px_10px_30px_rgba(255,204,0,0.2),0px_15px_50px_rgba(0,0,0,0.8)] flex items-center justify-between group w-64 md:w-80">
             <div>
               <h3 className="text-gray-400 font-medium mb-1">Unresolved</h3>
               <p className="text-3xl font-bold text-white">{unresolved}</p>
@@ -299,9 +304,16 @@ const AdminDashboard = () => {
                   className={`p-6 rounded-2xl bg-transparent  border ${getSeverityColor(
                     incident.severity
                   )} shadow-[0px_5px_15px_rgba(255,255,255,0.1),0px_10px_25px_rgba(0,0,0,0.7)] transition-all hover:scale-105 hover:shadow-[0px_10px_30px_rgba(255,255,255,0.15),0px_15px_50px_rgba(0,0,0,0.8)] ${getSeverityColor(
-                    incident.severity
-                  )} w-full`}
+                    incident.severity,incident.count
+                  )} ${incident.count>1?'border-4 border-red-500 rounded-3xl shadow-xl shadow-red-500 animate-[pulse_0.8s_infinite] ring-2 ring-red-500 ring-opacity-100':''} w-full`}
                 >
+                  {incident.count > 1 ? (
+  <div>
+    <h2 className="text-red-500 font-bold text-center">Mass Report!</h2>
+  </div>
+) : null}
+
+                  
                   <div className="flex justify-between items-center mb-4">
                     <span
                       className={`px-3 py-1 rounded-full font-bold text-lg ${getSeverityColor(
@@ -408,8 +420,13 @@ const AdminDashboard = () => {
                 incident.severity
               )} shadow-[0px_5px_15px_rgba(255,255,255,0.1),0px_10px_25px_rgba(0,0,0,0.7)] transition-all hover:scale-105 hover:shadow-[0px_10px_30px_rgba(255,255,255,0.15),0px_15px_50px_rgba(0,0,0,0.8)] ${getSeverityColor(
                 incident.severity
-              )} w-full`}
+              )} ${incident.count>1?'border-4 border-red-500 rounded-3xl shadow-xl shadow-red-500 animate-[pulse_0.8s_infinite] ring-2 ring-red-500 ring-opacity-100':''} w-full`}
             >
+              {incident.count > 1 ? (
+  <div>
+    <h2 className="text-red-500 text-center font-bold">Mass Report!</h2>
+  </div>
+) : null}
               <div className="flex justify-between items-center mb-4">
                 <span
                   className={`px-3 py-1 rounded-full font-bold text-lg ${getSeverityColor(

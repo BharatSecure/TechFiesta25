@@ -13,7 +13,6 @@ import Footer from "@/components/Footer";
 import { useAuth } from "@/context/AuthContext";
 import { useNavigate } from "react-router-dom";
 
-
 const AdminDashboard = () => {
   const [total, setTotal] = useState(0);
   const [resolved, setResolved] = useState(0);
@@ -48,9 +47,7 @@ const AdminDashboard = () => {
       console.error("Error fetching incidents:", error);
     }
   };
-  useEffect(() => {
-    console.log("all incidents admin", incidents);
-  }, [incidents]);
+  useEffect(() => {}, [incidents]);
 
   useEffect(() => {
     getincidents();
@@ -58,8 +55,7 @@ const AdminDashboard = () => {
 
   const getSeverityColor = (severity) => {
     if (severity === "low") return "text-blue-700 border-blue-600 bg-blue-200";
-    if (severity === "medium")
-      return "text-yellow-700 border-yellow-600 bg-yellow-200";
+    if (severity === "medium") return "text-yellow-700 border-yellow-600";
     if (severity === "high") return "text-red-700 border-red-600 bg-red-200";
     return "text-gray-700 border-gray-600 bg-gray-200";
   };
@@ -129,7 +125,7 @@ const AdminDashboard = () => {
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ status: "processing" }),
+          body: JSON.stringify({ status: "under investigation" }),
         }
       );
 
@@ -152,7 +148,7 @@ const AdminDashboard = () => {
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ status: "Resolved" }),
+          body: JSON.stringify({ status: "resolved" }),
         }
       );
 
@@ -172,7 +168,7 @@ const AdminDashboard = () => {
     );
 
     setCompletedId(completedmarked);
-    console.log("completed ids:", completedId);
+    console.log("completed", completedmarked);
   }, [filter, incidents]);
 
   return (
@@ -270,7 +266,6 @@ const AdminDashboard = () => {
                     </span>
                   </p>
                   <div className="flex gap-2 items-center ">
-                    
                     <a
                       href={incident.maps_link}
                       target="_blank"

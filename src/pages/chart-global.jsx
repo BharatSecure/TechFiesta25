@@ -13,7 +13,6 @@ import {
 } from "chart.js";
 import { Line, Bar, Pie } from "react-chartjs-2";
 
-// Register ChartJS components
 ChartJS.register(
   CategoryScale,
   LinearScale,
@@ -26,13 +25,33 @@ ChartJS.register(
   Legend
 );
 
-// Chart options and styles
 const chartOptions = {
   responsive: true,
   maintainAspectRatio: false,
   plugins: {
     legend: {
       position: "top",
+      labels: {
+        color: "#94ecf7", // Cyan text for legends
+      },
+    },
+  },
+  scales: {
+    x: {
+      grid: {
+        color: "rgba(148, 236, 247, 0.1)", // Subtle cyan grid
+      },
+      ticks: {
+        color: "#94ecf7", // Cyan text for x-axis
+      },
+    },
+    y: {
+      grid: {
+        color: "rgba(148, 236, 247, 0.1)", // Subtle cyan grid
+      },
+      ticks: {
+        color: "#94ecf7", // Cyan text for y-axis
+      },
     },
   },
 };
@@ -183,8 +202,8 @@ const IncidentAnalyticsDashboard = () => {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-screen">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+      <div className="flex items-center justify-center h-screen bg-slate-900">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-cyan-400"></div>
       </div>
     );
   }
@@ -196,93 +215,107 @@ const IncidentAnalyticsDashboard = () => {
   if (!data) return null;
 
   return (
-    <div className="p-4 space-y-4">
+    <div className="p-4 pt-10 space-y-6 bg-slate-900 min-h-screen">
+      {/* Title */}
+      <h1 className="text-5xl font-bold text-cyan-400 mb-6 text-center drop-shadow-[0_0_8px_rgba(34,211,238,0.5)]">
+        Incident Analytics Dashboard
+      </h1>
+
       {/* Overall Statistics */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="bg-white rounded-lg shadow p-4">
-          <h3 className="text-lg font-semibold mb-2">Resolution Rate</h3>
-          <div className="text-3xl font-bold">
-            {Number(data.overall_statistics.resolution_rate).toFixed(1)}%
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {[
+          {
+            title: "Resolution Rate",
+            value: `${Number(data.overall_statistics.resolution_rate).toFixed(
+              1
+            )}%`,
+          },
+          {
+            title: "Average Response Score",
+            value: Number(data.overall_statistics.avg_response_score).toFixed(
+              1
+            ),
+          },
+          {
+            title: "Total Incidents",
+            value: data.overall_statistics.total_incidents,
+          },
+        ].map((stat, index) => (
+          <div
+            key={index}
+            className="bg-slate-800 rounded-xl p-6 shadow-[inset_-8px_-8px_12px_rgba(0,0,0,0.3),inset_8px_8px_12px_rgba(255,255,255,0.1)] hover:shadow-[0_0_15px_rgba(34,211,238,0.3)] transition-all duration-300"
+          >
+            <h3 className="text-lg font-semibold text-cyan-400 mb-2 drop-shadow-[0_0_5px_rgba(34,211,238,0.3)]">
+              {stat.title}
+            </h3>
+            <div className="text-3xl font-bold text-white">{stat.value}</div>
+          </div>
+        ))}
+      </div>
+
+      {/* Chart Sections */}
+      {[
+        // {
+        //   title: "Monthly Trends",
+        //   chart: <Line options={chartOptions} data={monthlyTrendsData} />,
+        // },
+        {
+          title: "Hourly Distribution",
+          chart: <Bar options={chartOptions} data={hourlyDistributionData} />,
+        },
+        {
+          title: "Incident Type Distribution",
+          chart: <Pie options={chartOptions} data={incidentTypeData} />,
+        },
+        {
+          title: "Weekly Pattern",
+          chart: <Bar options={chartOptions} data={weeklyPatternData} />,
+        },
+        {
+          title: "Emergency Services Response",
+          chart: <Bar options={chartOptions} data={emergencyServicesData} />,
+        },
+      ].map((section, index) => (
+        <div
+          key={index}
+          className="bg-slate-800 rounded-xl p-6 shadow-[inset_-8px_-8px_12px_rgba(0,0,0,0.3),inset_8px_8px_12px_rgba(255,255,255,0.1)] hover:shadow-[0_0_15px_rgba(34,211,238,0.3)] transition-all duration-300"
+        >
+          <h3 className="text-lg font-semibold text-cyan-400 mb-4 drop-shadow-[0_0_5px_rgba(34,211,238,0.3)]">
+            {section.title}
+          </h3>
+          <div className="h-96 bg-slate-900 rounded-lg p-4 shadow-[inset_-4px_-4px_8px_rgba(0,0,0,0.3),inset_4px_4px_8px_rgba(255,255,255,0.1)]">
+            {section.chart}
           </div>
         </div>
-        <div className="bg-white rounded-lg shadow p-4">
-          <h3 className="text-lg font-semibold mb-2">Average Response Score</h3>
-          <div className="text-3xl font-bold">
-            {Number(data.overall_statistics.avg_response_score).toFixed(1)}
-          </div>
-        </div>
-        <div className="bg-white rounded-lg shadow p-4">
-          <h3 className="text-lg font-semibold mb-2">Total Incidents</h3>
-          <div className="text-3xl font-bold">
-            {data.overall_statistics.total_incidents}
-          </div>
-        </div>
-      </div>
-
-      {/* Monthly Trends */}
-      <div className="bg-white rounded-lg shadow p-4">
-        <h3 className="text-lg font-semibold mb-2">Monthly Trends</h3>
-        <div className="h-96">
-          <Line options={chartOptions} data={monthlyTrendsData} />
-        </div>
-      </div>
-
-      {/* Hourly Distribution */}
-      <div className="bg-white rounded-lg shadow p-4">
-        <h3 className="text-lg font-semibold mb-2">Hourly Distribution</h3>
-        <div className="h-96">
-          <Bar options={chartOptions} data={hourlyDistributionData} />
-        </div>
-      </div>
-
-      {/* Incident Type Analysis */}
-      <div className="bg-white rounded-lg shadow p-4">
-        <h3 className="text-lg font-semibold mb-2">
-          Incident Type Distribution
-        </h3>
-        <div className="h-96">
-          <Pie options={chartOptions} data={incidentTypeData} />
-        </div>
-      </div>
-
-      {/* Weekly Pattern */}
-      <div className="bg-white rounded-lg shadow p-4">
-        <h3 className="text-lg font-semibold mb-2">Weekly Pattern</h3>
-        <div className="h-96">
-          <Bar options={chartOptions} data={weeklyPatternData} />
-        </div>
-      </div>
-
-      {/* Emergency Services */}
-      <div className="bg-white rounded-lg shadow p-4">
-        <h3 className="text-lg font-semibold mb-2">
-          Emergency Services Response
-        </h3>
-        <div className="h-96">
-          <Bar options={chartOptions} data={emergencyServicesData} />
-        </div>
-      </div>
+      ))}
 
       {/* Risk Hotspots Table */}
-      <div className="bg-white rounded-lg shadow p-4">
-        <h3 className="text-lg font-semibold mb-2">Top Risk Hotspots</h3>
+      {/* <div className="bg-slate-800 rounded-xl p-6 shadow-[inset_-8px_-8px_12px_rgba(0,0,0,0.3),inset_8px_8px_12px_rgba(255,255,255,0.1)] hover:shadow-[0_0_15px_rgba(34,211,238,0.3)] transition-all duration-300">
+        <h3 className="text-lg font-semibold text-cyan-400 mb-4 drop-shadow-[0_0_5px_rgba(34,211,238,0.3)]">
+          Top Risk Hotspots
+        </h3>
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
-              <tr className="border-b">
-                <th className="p-2 text-left">Location</th>
-                <th className="p-2 text-right">Incidents</th>
-                <th className="p-2 text-right">High Severity</th>
-                <th className="p-2 text-right">Resolution Rate</th>
+              <tr className="border-b border-cyan-400/30">
+                <th className="p-3 text-left text-cyan-400">Location</th>
+                <th className="p-3 text-right text-cyan-400">Incidents</th>
+                <th className="p-3 text-right text-cyan-400">High Severity</th>
+                <th className="p-3 text-right text-cyan-400">
+                  Resolution Rate
+                </th>
               </tr>
             </thead>
             <tbody>
               {data.risk_hotspots.map((spot, index) => (
-                <tr key={index} className="border-b">
-                  <td className="p-2">{JSON.stringify(spot.location)}</td>
-                  <td className="p-2 text-right">{spot.incident_density}</td>
-                  <td className="p-2 text-right">{spot.high_severity_count}</td>
-                  <td className="p-2 text-right">
+                <tr
+                  key={index}
+                  className="border-b border-cyan-400/10 text-gray-300"
+                >
+                  <td className="p-3">{JSON.stringify(spot.location)}</td>
+                  <td className="p-3 text-right">{spot.incident_density}</td>
+                  <td className="p-3 text-right">{spot.high_severity_count}</td>
+                  <td className="p-3 text-right">
                     {spot.resolution_rate.toFixed(1)}%
                   </td>
                 </tr>
@@ -290,7 +323,7 @@ const IncidentAnalyticsDashboard = () => {
             </tbody>
           </table>
         </div>
-      </div>
+      </div> */}
     </div>
   );
 };

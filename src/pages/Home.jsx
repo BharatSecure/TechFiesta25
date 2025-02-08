@@ -78,12 +78,12 @@ const Home = () => {
               <OurFeatures />
             </section>
           </FadeInComponent>
-          <FadeInComponent>
+          {/* <FadeInComponent> */}
             {/* Features Section */}
             <section className="relative shadow-[inset_0_-20px_30px_-20px_rgba(0,0,0,0.2)]">
               <Chartglobal />
             </section>
-          </FadeInComponent>
+          {/* </FadeInComponent> */}
 
           {/* Testimonials Section */}
           <Suspense fallback={<LoadingSpinner />}>

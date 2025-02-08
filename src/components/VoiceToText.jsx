@@ -172,8 +172,8 @@ const VoiceInput = () => {
 
   return (
     <>
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-blue-950 to-black p-6 ">
-        <div className="max-w-2xl mx-auto border border-cyan-500 ">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-blue-950 to-black p-6  ">
+        <div className="max-w-2xl mx-auto border border-cyan-500  ">
           {/* Main Card */}
           <div className="max-w-2xl p-8 mx-auto border bg-gray-900 border-cyan-500 shadow-[0_0_15px_#00ffff] transition-all duration-300 hover:shadow-[0_0_25px_#00ffff]">
             {/* Header */}
@@ -258,7 +258,7 @@ const VoiceInput = () => {
               <textarea
                 value={text}
                 onChange={(e) => setText(e.target.value)}
-                placeholder="Your voice input will appear here..."
+                placeholder="Please describe the incident clearly. Include details like the type of incident, location, time, and any relevant observations."
                 className="w-full bg-slate-900/50 text-gray-200 px-4 py-3 rounded-xl border border-slate-600 focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400 shadow-[inset_2px_2px_8px_rgba(0,0,0,0.3)] min-h-[120px] resize-none"
                 rows="4"
               />

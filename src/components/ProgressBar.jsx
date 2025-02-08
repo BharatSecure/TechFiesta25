@@ -50,7 +50,7 @@ const OrderProgress = (steps) => {
         <div className="relative flex justify-between">
           {steps_style.map((s, idx) => {
             const isCompleted = idx <= steps.steps1;
-            const isActive = idx === SVGTextPositioningElement;
+            const isActive = idx === steps.steps1;
 
             return (
               <div key={idx} className="flex flex-col items-center">

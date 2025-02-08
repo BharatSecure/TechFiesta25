@@ -26,7 +26,6 @@ import UserRoute from "./protected-routes/UserRoute";
 import AdminRoute from "./protected-routes/AdminRoute";
 import IncidentChart from "./pages/chart";
 import UserProfile from "./pages/UserProfile";
-import OrderProgress from "./components/ProgressBar";
 import IncidentAnalyticsDashboard from "./pages/chart-global";
 
 const UserDashboard = lazy(() => import("./pages/UserDashboard"));
@@ -82,7 +81,6 @@ const App = () => {
               <Route path="/charts" element={<IncidentChart />} />
               <Route path="/incident/:id" element={<ViewDetails />} />
               <Route path="/user/:userId" element={<UserProfile />} />
-              <Route path="/progress" element={<OrderProgress/>} />
               <Route
                 path="/charts-global"
                 element={<IncidentAnalyticsDashboard />}

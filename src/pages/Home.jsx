@@ -4,6 +4,7 @@ import Sos from "../components/Sos";
 import OurFeatures from "../components/OurFeatures";
 import FadeInComponent from "../lib/FadeInComponent";
 import FloatingChatbot from "@/components/FloatingChatbot";
+import Chartglobal from "./Chart-global";
 
 const Testimonials = lazy(() => import("@/components/Testimonials"));
 const FAQSection = lazy(() => import("@/components/FAQ"));
@@ -53,6 +54,12 @@ const Home = () => {
               <OurFeatures />
             </section>
           </FadeInComponent>
+          <FadeInComponent>
+            {/* Features Section */}
+            <section className="relative shadow-[inset_0_-20px_30px_-20px_rgba(0,0,0,0.2)]">
+              <Chartglobal />
+            </section>
+          </FadeInComponent>
 
           {/* Testimonials Section */}
           <Suspense fallback={<LoadingSpinner />}>
@@ -77,7 +84,7 @@ const Home = () => {
 
           {/* Footer */}
           <Suspense fallback={<LoadingSpinner />}>
-          <section className="relative bg-slate-800 shadow-[inset_0_20px_30px_-20px_rgba(0,0,0,0.2)] before:absolute before:top-0 before:left-0 before:w-full before:h-2 before:bg-cyan-400 before:blur-md before:opacity-50 before:animate-glow">
+            <section className="relative bg-slate-800 shadow-[inset_0_20px_30px_-20px_rgba(0,0,0,0.2)] before:absolute before:top-0 before:left-0 before:w-full before:h-2 before:bg-cyan-400 before:blur-md before:opacity-50 before:animate-glow">
               <Footer />
             </section>
           </Suspense>

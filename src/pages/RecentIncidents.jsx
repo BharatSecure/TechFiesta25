@@ -160,12 +160,12 @@ const IncidentCard = ({
       textColor: "text-red-400",
       borderColor: "border-red-600/50",
     },
-    default: {
-      tag: "Unknown",
-      bgGradient: "from-gray-400/50 to-gray-600/50",
-      textColor: "text-gray-400",
-      borderColor: "border-gray-600/50",
-    },
+      default: {
+        tag: "Unknown",
+        bgGradient: "from-gray-400/50 to-gray-600/50",
+        textColor: "text-gray-400",
+        borderColor: "border-gray-600/50",
+      },
   };
 
   const status = statusConfig[incident.status] || statusConfig.default;

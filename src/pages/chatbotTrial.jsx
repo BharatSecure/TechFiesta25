@@ -1,6 +1,7 @@
 import Footer from "@/components/Footer";
 import React, { useState, useEffect, useRef } from "react";
 import { AnimatedBackground } from "animated-backgrounds";
+import PageTransition from '@/components/PageTransition';
 
 const Chatbot = () => {
   const [userInput, setUserInput] = useState("");
@@ -54,6 +55,7 @@ const Chatbot = () => {
   };
 
   return (
+    <PageTransition>
     <>
     <div className="relative min-h-screen flex flex-col items-center justify-center p-6 bg-gradient-to-br from-gray-900 to-black"
       style={{
@@ -77,7 +79,7 @@ const Chatbot = () => {
           questions, seek help, or learn about your legal rights.
         </p>
 
-        <div className="relative w-full max-w-xl sm:max-w-2xl mt-4 p-4 rounded-xl bg-gradient-to-r from-blue-900/20 to-cyan-900/20 border border-blue-500/20 backdrop-blur-sm">
+        <div className="relative w-full max-w-xl sm:max-w-2xl mt-4 p-4 rounded-xl bg-gradient-to-r from-blue-900/20 to-cyan-900/20 border border-blue-500/20 ">
           <p className="text-blue-200 text-sm">
             ⚠️ <strong>Disclaimer:</strong> Saathi AI offers general legal and
             safety information, but it is <strong>not</strong> a substitute for
@@ -89,7 +91,7 @@ const Chatbot = () => {
 
       {/* Chatbot Box */}
 <div className="relative z-10 w-full max-w-xl sm:max-w-2xl mt-6">
-  <div className="w-full p-6 sm:p-8 rounded-3xl border border-blue-500/30 bg-gradient-to-b from-gray-900/90 to-black/90 backdrop-blur-lg shadow-[0_0_15px_rgba(0,255,255,0.1)] transition-all duration-300 hover:shadow-[0_0_25px_rgba(0,255,255,0.2)] hover:border-blue-400/40 hover:scale-[1.02]">
+  <div className="w-full p-6 sm:p-8 rounded-3xl border border-blue-500/30 bg-gradient-to-b from-gray-900/90 to-black/90  shadow-[0_0_15px_rgba(0,255,255,0.1)] transition-all duration-300 hover:shadow-[0_0_25px_rgba(0,255,255,0.2)] hover:border-blue-400/40 ">
     <h2 className="text-2xl font-bold bg-gradient-to-r from-blue-400 to-cyan-300 bg-clip-text text-transparent text-center mb-6 ">
       💬 Chat with Saathi
     </h2>
@@ -117,8 +119,8 @@ const Chatbot = () => {
               key={index}
               className={`p-4 my-3 max-w-[85%] sm:max-w-[75%] text-sm sm:text-base break-words rounded-xl shadow-lg transition-all duration-300 ${
                 message.startsWith("User:")
-                  ? "bg-gradient-to-r from-blue-500 to-cyan-400 text-white ml-auto hover:shadow-[0_0_15px_rgba(0,255,255,0.15)] hover:scale-[1.02]"
-                  : "bg-gradient-to-r from-purple-500 to-blue-500 text-white mr-auto hover:shadow-[0_0_15px_rgba(147,51,234,0.15)] hover:scale-[1.02] animate-fadeIn"
+                  ? "bg-gradient-to-r from-blue-500 to-cyan-400 text-white ml-auto hover:shadow-[0_0_15px_rgba(0,255,255,0.15)]"
+                  : "bg-gradient-to-r from-purple-500 to-blue-500 text-white mr-auto hover:shadow-[0_0_15px_rgba(147,51,234,0.15)]  animate-fadeIn"
               }`}
               style={{
                 animationDelay: message.startsWith("Saathi AI:") ? "300ms" : "0ms",
@@ -210,12 +212,14 @@ const Chatbot = () => {
   }
 `}</style>
 
-      {/* Footer */}
-      <div className="relative z-10 mt-6">
+      
+    </div>
+    {/* Footer */}
+    <div className="relative z-10">
         <Footer />
       </div>
-    </div>
   </>
+  </PageTransition>
   );
 };
 

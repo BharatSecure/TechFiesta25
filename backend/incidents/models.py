@@ -105,7 +105,6 @@ class NGO(models.Model):
 
     def __str__(self):
         return f"NGO Station: {self.id}"
-
 class Incidents(models.Model):
     INCIDENT_TYPES = [
         ('Fire', 'Fire'),
@@ -129,11 +128,7 @@ class Incidents(models.Model):
         ("resolved", "Resolved")
     ]
 
-    incidentType = models.CharField(
-        max_length=100, 
-        choices=INCIDENT_TYPES, 
-        default='Other'
-    )
+    incidentType = models.CharField(max_length=100, choices=INCIDENT_TYPES, default='Other')
     location = models.JSONField()   
     description = models.TextField()
     severity = models.CharField(choices=SEVERITY_CHOICES, default='low', max_length=20)
@@ -145,7 +140,7 @@ class Incidents(models.Model):
         null=True,
         blank=True
     )
-    reported_at = models.DateTimeField(auto_now_add=True)
+    reported_at = models.DateTimeField(default=timezone.now)  # Ensuring timezone-aware datetime
     police_station = models.ForeignKey(PoliceStations, on_delete=models.DO_NOTHING, null=True, blank=True)
     fire_station = models.ForeignKey(FireStations, on_delete=models.DO_NOTHING, null=True, blank=True)
     hospital_station = models.ForeignKey(Hospital, on_delete=models.DO_NOTHING, null=True, blank=True)
@@ -157,20 +152,30 @@ class Incidents(models.Model):
     true_or_false = models.BooleanField(default=False)
 
     def save(self, *args, **kwargs):
+        # Ensure reported_at is timezone-aware
+        if self.reported_at and self.reported_at.tzinfo is None:
+            self.reported_at = timezone.make_aware(self.reported_at)
+
+        # Handle anonymous user score
         if self.reported_by and self.reported_by.first_name == 'Anonymous':
             self.score = 50
         else:
+            # Efficiently calculate the score
             incidents = Incidents.objects.filter(reported_by=self.reported_by)
-            count = sum(1 for incident in incidents if incident.true_or_false)  # Fixed count initialization
+            count = incidents.filter(true_or_false=True).count()
+            total = incidents.count()
             
-            if incidents.count() > 0:
-                self.score = (count / incidents.count()) * 100
-            else:
-                self.score = 80  # Prevent division by zero
-        self.maps_link = get_google_maps_link(self.location['latitude'], self.location["longitude"])
-        if self.status == "Resolved":
-            self.resolved_at = timezone.now()
+            self.score = (count / total) * 100 if total > 0 else 80  # Prevent division by zero
 
+        # Generate Google Maps link safely
+        if isinstance(self.location, dict) and 'latitude' in self.location and 'longitude' in self.location:
+            self.maps_link = get_google_maps_link(self.location['latitude'], self.location['longitude'])
+
+        # Only set resolved_at when status is updated to "Resolved"
+        if self.status == "resolved" and not self.resolved_at:
+            self.resolved_at = timezone.now()
+        elif self.status != "resolved":
+            self.resolved_at = None  # Reset if not resolved
 
         super().save(*args, **kwargs)
 

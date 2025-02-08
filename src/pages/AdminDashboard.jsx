@@ -12,7 +12,6 @@ import {
 import Footer from "@/components/Footer";
 import { useAuth } from "@/context/AuthContext";
 import { useNavigate } from "react-router-dom";
-import LocationDisplay from "@/components/LocationDisplay";
 
 const AdminDashboard = () => {
   const [total, setTotal] = useState(0);
@@ -48,9 +47,7 @@ const AdminDashboard = () => {
       console.error("Error fetching incidents:", error);
     }
   };
-  useEffect(() => {
-    console.log("all incidents admin", incidents);
-  }, [incidents]);
+  useEffect(() => {}, [incidents]);
 
   useEffect(() => {
     getincidents();
@@ -59,7 +56,7 @@ const AdminDashboard = () => {
   const getSeverityColor = (severity) => {
     if (severity === "low") return "text-blue-700 border-blue-600 bg-blue-200";
     if (severity === "medium")
-      return "text-yellow-700 border-yellow-600 bg-yellow-200";
+      return "text-yellow-700 border-yellow-600";
     if (severity === "high") return "text-red-700 border-red-600 bg-red-200";
     return "text-gray-700 border-gray-600 bg-gray-200";
   };
@@ -129,7 +126,7 @@ const AdminDashboard = () => {
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ status: "processing" }),
+          body: JSON.stringify({ status: "under investigation" }),
         }
       );
 
@@ -152,7 +149,7 @@ const AdminDashboard = () => {
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ status: "Resolved" }),
+          body: JSON.stringify({ status: "resolved" }),
         }
       );
 
@@ -172,7 +169,7 @@ const AdminDashboard = () => {
     );
 
     setCompletedId(completedmarked);
-    console.log("completed ids:", completedId);
+    console.log("completed", completedmarked);
   }, [filter, incidents]);
 
   return (
@@ -192,7 +189,7 @@ const AdminDashboard = () => {
 
         <div className="flex flex-col md:flex-row  items-center gap-6  mb-8 justify-center ">
           {/* Total Incidents Card */}
-          <div className="bg-white/5 backdrop-blur-sm p-6 rounded-2xl cursor-pointer border border-white/10 shadow-[0px_5px_15px_rgba(255,255,255,0.1),0px_10px_25px_rgba(0,0,0,0.7)] transition-all hover:scale-105 hover:shadow-[0px_10px_30px_rgba(255,80,80,0.15),0px_15px_50px_rgba(0,0,0,0.8)] flex items-center justify-between group w-64 md:w-80">
+          <div className="bg-white/5  p-6 rounded-2xl cursor-pointer border-[1px] border-red-900 shadow-[0px_5px_15px_rgba(255,255,255,0.1),0px_10px_25px_rgba(0,0,0,0.7)] transition-all hover:scale-105 hover:shadow-[0px_10px_30px_rgba(255,80,80,0.15),0px_15px_50px_rgba(0,0,0,0.8)] flex items-center justify-between group w-64 md:w-80">
             <div>
               <h3 className="text-gray-400 font-medium mb-1">
                 Total Incidents
@@ -204,7 +201,7 @@ const AdminDashboard = () => {
 
           {/* Resolved Incidents Card */}
 
-          <div className="bg-white/5 cursor-pointer backdrop-blur-sm p-6 rounded-2xl border border-white/10 shadow-[0px_5px_15px_rgba(255,255,255,0.1),0px_10px_25px_rgba(0,0,0,0.7)] transition-all hover:scale-105 hover:shadow-[0px_10px_30px_rgba(100,255,100,0.2),0px_15px_50px_rgba(0,0,0,0.8)] flex items-center justify-between group w-64 md:w-80">
+          <div className="bg-white/5 cursor-pointer  p-6 rounded-2xl border-[1px] border-green-900 shadow-[0px_5px_15px_rgba(255,255,255,0.1),0px_10px_25px_rgba(0,0,0,0.7)] transition-all hover:scale-105 hover:shadow-[0px_10px_30px_rgba(100,255,100,0.2),0px_15px_50px_rgba(0,0,0,0.8)] flex items-center justify-between group w-64 md:w-80">
             <div>
               <h3 className="text-gray-400 font-medium mb-1">Resolved</h3>
               <p className="text-3xl font-bold text-white">{resolved}</p>
@@ -213,7 +210,7 @@ const AdminDashboard = () => {
           </div>
 
           {/* Unresolved Incidents Card */}
-          <div className="bg-white/5 backdrop-blur-sm p-6 cursor-pointer rounded-2xl border border-white/10 shadow-[0px_5px_15px_rgba(255,255,255,0.1),0px_10px_25px_rgba(0,0,0,0.7)] transition-all hover:scale-105 hover:shadow-[0px_10px_30px_rgba(255,204,0,0.2),0px_15px_50px_rgba(0,0,0,0.8)] flex items-center justify-between group w-64 md:w-80">
+          <div className="bg-white/5 backdrop-blur-sm p-6 cursor-pointer rounded-2xl border-[1px] border-yellow-900 shadow-[0px_5px_15px_rgba(255,255,255,0.1),0px_10px_25px_rgba(0,0,0,0.7)] transition-all hover:scale-105 hover:shadow-[0px_10px_30px_rgba(255,204,0,0.2),0px_15px_50px_rgba(0,0,0,0.8)] flex items-center justify-between group w-64 md:w-80">
             <div>
               <h3 className="text-gray-400 font-medium mb-1">Unresolved</h3>
               <p className="text-3xl font-bold text-white">{unresolved}</p>
@@ -270,7 +267,6 @@ const AdminDashboard = () => {
                     </span>
                   </p>
                   <div className="flex gap-2 items-center ">
-                    <LocationDisplay location={incident.location} />
                     <a
                       href={incident.maps_link}
                       target="_blank"

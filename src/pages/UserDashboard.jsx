@@ -15,7 +15,7 @@ import Footer from "@/components/Footer";
 import { useAuth } from "@/context/AuthContext";
 import FloatingChatbot from "@/components/FloatingChatbot";
 import { Navigate, useNavigate } from "react-router-dom";
-import LocationDisplay from "@/components/LocationDisplay";
+import OrderProgress from "@/components/ProgressBar";
 
 const UserDashboard = () => {
   const navigate = useNavigate();
@@ -26,6 +26,7 @@ const UserDashboard = () => {
   const [resolved, setResolved] = useState(0);
   const [unresolved, setUnResolved] = useState(0);
   const [incidents, setIncidents] = useState([]);
+
   const token = localStorage.getItem("accessToken");
 
   const getSeverityColor = (severity) => {
@@ -67,6 +68,9 @@ const UserDashboard = () => {
     setResolved(resolvedIncidents);
     setUnResolved(unresolvedIncidents);
   }, [incidents]);
+
+
+ 
 
   useEffect(() => {
     const fetchIncidents = async () => {
@@ -196,76 +200,78 @@ const UserDashboard = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {incidents.map((incident) => (
-                    <tr
-                      key={incident.id}
-                      className="border-b border-white/10 hover:bg-white/5 transition-color text-center"
-                    >
-                      <td className="p-4 text-gray-300">#{incident.id}</td>
-                      <td className="p-4 text-white font-medium">
-                        {incident.incidentType}
-                      </td>
-                      <td className="p-4 text-gray-300 max-w-xs">
-                        <div className="line-clamp-2 overflow-y-auto">
-                          {incident.description}
-                        </div>
-                      </td>
-                      <td className="p-4">
-                        <span
-                          className={` rounded-lg px-4 py-2 bg-transparent w-28 text-center  font-bold ${getSeverityColor(
-                            incident.severity
-                          )}`}
-                        >
-                          {incident.severity?.charAt(0).toUpperCase() +
-                            incident.severity?.slice(1)}
-                        </span>
-                      </td>
-                      <td className="p-4">
-                        <span
-                          className={`inline-flex  bg-transparent px-3 py-1 rounded-full border-2 border-gray-500 font-semibold text-base ${getStatusColor(
-                            incident.status
-                          )}`}
-                        >
-                          {incident.status?.charAt(0).toUpperCase() +
-                            incident.status?.slice(1)}
-                        </span>
-                      </td>
-                      <td className="p-4">
-                        <LocationDisplay location={incident.location} />
-                        <a
-                          href={incident.maps_link}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="inline-flex items-center text-sky-400 hover:text-sky-300 transition-colors"
-                        >
-                          <MapPin className="text-xl" />
-                        </a>
-                      </td>
-                      <td className="p-4">
-                        <Popover>
-                          <PopoverTrigger>
-                            <button className="inline-flex items-center text-sky-400 hover:text-sky-300 transition-colors">
-                              <MessageCircle className="text-xl" />
-                            </button>
-                          </PopoverTrigger>
-                          <PopoverContent className="bg-gradient-to-b from-slate-900 via-blue-950 to-slate-900">
-                            <div className="p-4 bg-transparent  rounded-xl border border-white/20">
-                              <h3 className="text-lg font-semibold text-white mb-2">
-                                Chat with Authorities
-                              </h3>
-                              <p className="text-gray-300 mb-4 text-sm">
-                                Start a conversation with authorities to discuss
-                                this incident.
-                              </p>
-                              <button className="w-full px-4 py-2 bg-sky-500 text-white rounded-lg hover:bg-sky-600 transition-all">
-                                Start Chat
-                              </button>
-                            </div>
-                          </PopoverContent>
-                        </Popover>
-                      </td>
-                    </tr>
-                  ))}
+                {incidents.map((incident) => {
+  let step = 0; // Default value
+  
+  if (incident?.status === "Resolved") {
+    step = 2;
+  } else if (incident?.status === "under investigation") {
+    step = 1;
+  }
+
+  return ( // Add return statement here
+    <tr
+      key={incident.id}
+      className="border-b border-white/10 hover:bg-white/5 transition-color text-center"
+    >
+      <td className="p-4 text-gray-300">#{incident.id}</td>
+      <td className="p-4 text-white font-medium">{incident.incidentType}</td>
+      <td className="p-4 text-gray-300 max-w-xs">
+        <div className="line-clamp-2 overflow-y-auto">
+          {incident.description}
+        </div>
+      </td>
+      <td className="p-4">
+        <span
+          className={`rounded-lg px-4 py-2 bg-transparent w-28 text-center font-bold ${getSeverityColor(
+            incident.severity
+          )}`}
+        >
+          {incident.severity?.charAt(0).toUpperCase() + incident.severity?.slice(1)}
+        </span>
+      </td>
+      <td className="p-4">
+        <div className="flex items-center justify-center">
+          <OrderProgress steps1={step} />
+        </div>
+      </td>
+      <td className="p-4">
+        <a
+          href={incident.maps_link}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center text-sky-400 hover:text-sky-300 transition-colors"
+        >
+          <MapPin className="text-xl" />
+        </a>
+      </td>
+      <td className="p-4">
+        <Popover>
+          <PopoverTrigger>
+            <button className="inline-flex items-center text-sky-400 hover:text-sky-300 transition-colors">
+              <MessageCircle className="text-xl" />
+            </button>
+          </PopoverTrigger>
+          <PopoverContent className="bg-gradient-to-b from-slate-900 via-blue-950 to-slate-900">
+            <div className="p-4 bg-transparent rounded-xl border border-white/20">
+              <h3 className="text-lg font-semibold text-white mb-2">
+                Chat with Authorities
+              </h3>
+              <p className="text-gray-300 mb-4 text-sm">
+                Start a conversation with authorities to discuss this incident.
+              </p>
+              <button className="w-full px-4 py-2 bg-sky-500 text-white rounded-lg hover:bg-sky-600 transition-all">
+                Start Chat
+              </button>
+            </div>
+          </PopoverContent>
+        </Popover>
+      </td>
+    </tr>
+  );
+})}
+
+                
                 </tbody>
               </table>
             </div>

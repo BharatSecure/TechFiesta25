@@ -471,13 +471,13 @@ def update_incident(request, id):
         incident.save()
         serializer = IncidentSerializer(incident)
         user = incident.reported_by
-        
+        print("information gotten")
         # Send Email Notification
-        subject = f"Incident Status Updated: {incident.id}"
-        message = f"Dear {user.username},\n\nThe status of your reported incident (ID: {incident.id}) has been updated to: {status}.\n\nThank you,\nIncident Management Team"
-        recipient_email = user.email  # Get user email
-
-        send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, [recipient_email])
+        #subject = f"Incident Status Updated: {incident.id}"
+        # message = f"Dear {user.first_name},\n\nThe status of your reported incident (ID: {incident.id}) has been updated to: {status}.\n\nThank you,\nIncident Management Team"
+        # recipient_email = user.email  # Get user email
+        # print("Information recieved")
+        # send_email_example(subject, message, email=recipient_email)
         return Response(serializer.data, status=200)
     except Exception as e:
         return Response({"message": f"Error Occurred: {e}"}, status=400)      
@@ -826,17 +826,34 @@ def incident_chart_data(request):
             status=500
         )
 from django.core.serializers.json import DjangoJSONEncoder
-
+from datetime import datetime
 @api_view(['GET'])
 def advanced_incident_analysis(request):
     try:
-        queryset = Incidents.objects.all()
+        # Get date range from query params or default to last 12 months
+        months = int(request.query_params.get('months', 12))
+        start_date = datetime.now() - timedelta(days=30*months)
+        
+        # Base queryset with date filter
+        queryset = Incidents.objects.filter(reported_at__gte=start_date)
         
         analytics = {
             'response_time_analysis': list(
                 queryset
                 .values('incidentType', 'severity')
-                .annotate(avg_score=Avg('score'))
+                .annotate(
+                    avg_score=Avg('score'),
+                    total_incidents=Count('id'),
+                    avg_resolution_time=Avg(
+                        Case(
+                            When(
+                                resolved_at__isnull=False,
+                                then=ExtractHour('resolved_at') - ExtractHour('reported_at')
+                            ),
+                            output_field=IntegerField(),
+                        )
+                    )
+                )
                 .order_by('incidentType', 'severity')
             ),
             
@@ -846,7 +863,11 @@ def advanced_incident_analysis(request):
                 .values('month')
                 .annotate(
                     total_incidents=Count('id'),
-                    high_severity_incidents=Count('id', filter=Q(severity='high'))
+                    high_severity=Count('id', filter=Q(severity='high')),
+                    medium_severity=Count('id', filter=Q(severity='medium')),
+                    low_severity=Count('id', filter=Q(severity='low')),
+                    resolved_count=Count('id', filter=Q(status='resolved')),
+                    resolution_rate=Count('id', filter=Q(status='resolved')) * 100.0 / Count('id')
                 )
                 .order_by('month')
             ),
@@ -856,7 +877,9 @@ def advanced_incident_analysis(request):
                 .annotate(hour=ExtractHour('reported_at'))
                 .values('hour')
                 .annotate(
-                    incident_count=Count('id')
+                    incident_count=Count('id'),
+                    high_severity_count=Count('id', filter=Q(severity='high')),
+                    avg_response_score=Avg('score')
                 )
                 .order_by('hour')
             ),
@@ -866,7 +889,9 @@ def advanced_incident_analysis(request):
                 .values('location')
                 .annotate(
                     incident_density=Count('id'),
-                    high_severity_count=Count('id', filter=Q(severity='high'))
+                    high_severity_count=Count('id', filter=Q(severity='high')),
+                    avg_response_score=Avg('score'),
+                    resolution_rate=Count('id', filter=Q(status='resolved')) * 100.0 / Count('id')
                 )
                 .order_by('-incident_density')[:10]
             ),
@@ -876,57 +901,107 @@ def advanced_incident_analysis(request):
                 .values('incidentType')
                 .annotate(
                     total_count=Count('id'),
-                    severity_breakdown=Count(
-                        Case(
-                            When(severity='high', then=1),
-                            When(severity='medium', then=2),
-                            When(severity='low', then=3),
-                            output_field=IntegerField()
-                        )
-                    )
+                    high_severity=Count('id', filter=Q(severity='high')),
+                    medium_severity=Count('id', filter=Q(severity='medium')),
+                    low_severity=Count('id', filter=Q(severity='low')),
+                    avg_response_score=Avg('score'),
+                    resolution_rate=Count('id', filter=Q(status='resolved')) * 100.0 / Count('id')
                 )
                 .order_by('-total_count')
-            ),
-            
-            'prediction_factors': list(
-                queryset
-                .values('incidentType')
-                .annotate(
-                    recurrence_rate=Count('id')
-                )
-                .order_by('-recurrence_rate')
             ),
             
             'weekly_pattern': list(
                 queryset
                 .annotate(weekday=ExtractWeekDay('reported_at'))
                 .values('weekday')
-                .annotate(count=Count('id'))
+                .annotate(
+                    total_incidents=Count('id'),
+                    avg_severity=Avg(
+                        Case(
+                            When(severity='high', then=3),
+                            When(severity='medium', then=2),
+                            When(severity='low', then=1),
+                            output_field=IntegerField(),
+                        )
+                    ),
+                    resolution_rate=Count('id', filter=Q(status='resolved')) * 100.0 / Count('id')
+                )
                 .order_by('weekday')
             ),
             
-            'emergency_services': {
-                'police_involved': queryset.filter(police_station__isnull=False).count(),
-                'fire_involved': queryset.filter(fire_station__isnull=False).count(),
-                'hospital_involved': queryset.filter(hospital_station__isnull=False).count()
-            },
-            
-            'severity_by_location': list(
+            'emergency_services_summary': list(
                 queryset
-                .values('location')
+                .values('incidentType')
                 .annotate(
-                    incident_count=Count('id'),
-                    high_severity=Count('id', filter=Q(severity='high')),
-                    medium_severity=Count('id', filter=Q(severity='medium')),
-                    low_severity=Count('id', filter=Q(severity='low'))
+                    total_incidents=Count('id'),
+                    police_involved=Count('police_station', filter=Q(police_station__isnull=False)),
+                    fire_involved=Count('fire_station', filter=Q(fire_station__isnull=False)),
+                    hospital_involved=Count('hospital_station', filter=Q(hospital_station__isnull=False)),
+                    multi_agency_response=Count('id', filter=Q(
+                        police_station__isnull=False,
+                        fire_station__isnull=False
+                    ) | Q(
+                        police_station__isnull=False,
+                        hospital_station__isnull=False
+                    ) | Q(
+                        fire_station__isnull=False,
+                        hospital_station__isnull=False
+                    ))
                 )
+                .order_by('incidentType')
             ),
+            
+            'overall_statistics': {
+                'total_incidents': queryset.count(),
+                'resolution_rate': (
+                    queryset.filter(status='resolved').count() * 100.0 / 
+                    queryset.count() if queryset.count() > 0 else 0
+                ),
+                'avg_response_score': queryset.aggregate(Avg('score'))['score__avg'] or 0,
+                'high_severity_percentage': (
+                    queryset.filter(severity='high').count() * 100.0 / 
+                    queryset.count() if queryset.count() > 0 else 0
+                ),
+                'multi_agency_percentage': (
+                    queryset.filter(
+                        Q(police_station__isnull=False) |
+                        Q(fire_station__isnull=False) |
+                        Q(hospital_station__isnull=False)
+                    ).distinct().count() * 100.0 / 
+                    queryset.count() if queryset.count() > 0 else 0
+                )
+            }
         }
 
-        return Response(json.loads(json.dumps(analytics, cls=DjangoJSONEncoder)), status=status.HTTP_200_OK)
+        return Response(
+            json.loads(json.dumps(analytics, cls=DjangoJSONEncoder)),
+            status=status.HTTP_200_OK
+        )
     
     except Exception as e:
         return Response({
             'error': 'Analysis failed',
             'details': str(e)
         }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
+from django.http import JsonResponse
+from django.shortcuts import get_object_or_404
+from .models import User
+from django.views import View
+
+class UserDetailView(View):
+    def get(self, request, user_id):
+        user = get_object_or_404(User, id=user_id)
+        user_data = {
+            "id": user.id,
+            "first_name": user.first_name,
+            "last_name": user.last_name,
+            "email": user.email,
+            "phone_number": user.phone_number,
+            "address": user.address,
+            "aadhar_number": user.aadhar_number,
+            "emergency_contact1": user.emergency_contact1,
+            "emergency_contact2": user.emergency_contact2,
+            "date_joined": user.date_joined.strftime("%Y-%m-%d %H:%M:%S"),
+        }
+        return JsonResponse(user_data)

@@ -1,10 +1,14 @@
 import React, { useState, useEffect, lazy, Suspense } from "react";
 import axios from "axios";
 import { FaCommentDots } from "react-icons/fa";
-import Footer from "@/components/Footer";
+import { Loader2, AlertTriangle } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
+import Footer from "@/components/Footer";
 import FloatingChatbot from "@/components/FloatingChatbot";
-import { AnimatedBackground } from 'animated-backgrounds';
+import { AnimatedBackground } from "animated-backgrounds";
+import LocationDisplay from "@/components/LocationDisplay";
+
+// Lazy load comment form
 const AddCommentForm = lazy(() => import("../components/AddCommentForm"));
 
 const RecentIncidents = () => {
@@ -19,10 +23,11 @@ const RecentIncidents = () => {
     const fetchIncidents = async () => {
       try {
         setLoading(true);
-        const response = await axios.get("http://127.0.0.1:8000/api/latest-incidents/");
-        
+        const response = await axios.get(
+          "http://127.0.0.1:8000/api/latest-incidents/"
+        );
+
         if (response.status === 200) {
-          console.log("Fetched Data:", response.data); // Log API response
           setIncidents(response.data);
         } else {
           throw new Error(`Unexpected response: ${response.status}`);
@@ -45,136 +50,79 @@ const RecentIncidents = () => {
   };
 
   return (
-    <>
-      <div className=" min-h-screen flex flex-col items-center py-10">
-      <AnimatedBackground animationName="cosmicDust" blendMode="normal"/>
-        <h1 className="text-center text-sky-600 font-extrabold text-3xl sm:text-4xl lg:text-5xl mb-8 drop-shadow-lg">
-          Recently Reported Incidents 
+    <div className="min-h-screen relative overflow-hidden">
+      <AnimatedBackground animationName="cosmicDust" blendMode="normal" />
+
+      <div className="container mx-auto px-4 py-10 relative z-10">
+        {/* Page Title */}
+        <h1
+          className="
+          text-center 
+          font-extrabold 
+          text-3xl sm:text-4xl lg:text-5xl 
+          mb-12
+          bg-gradient-to-r from-cyan-400 to-blue-500 
+          bg-clip-text text-transparent
+          drop-shadow-[0_0_15px_rgba(34,211,238,0.4)]
+        "
+        >
+          Recently Reported Incidents
         </h1>
 
-        {/* Show loading or error message */}
-        {loading ? (
-          <p className="text-gray-600">Loading incidents...</p>
-        ) : error ? (
-          <p className="text-red-500">{error}</p>
-        ) : (
-          <div className="p-6 max-w-4xl mx-auto">
+        {/* Loading State */}
+        {loading && (
+          <div className="flex justify-center items-center">
+            <Loader2 className="animate-spin text-cyan-400" size={48} />
+          </div>
+        )}
+
+        {/* Error State */}
+        {error && (
+          <div className="flex justify-center items-center">
+            <div
+              className="
+              bg-[#2a2f4a] 
+              p-6 
+              rounded-xl 
+              shadow-lg 
+              flex 
+              items-center 
+              text-red-400
+            "
+            >
+              <AlertTriangle className="mr-3" />
+              {error}
+            </div>
+          </div>
+        )}
+
+        {/* Incidents Grid */}
+        {!loading && !error && (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 relative">
             {incidents.length === 0 ? (
-              <p className="text-gray-500">No incidents reported yet.</p>
+              <div
+                className="
+                col-span-full 
+                text-center 
+                bg-[#2a2f4a] 
+                p-6 
+                rounded-xl 
+                text-gray-400
+                shadow-lg
+              "
+              >
+                No incidents reported yet.
+              </div>
             ) : (
-              incidents.map((incident) => {
-                // Neumorphic styles
-                let bgColor = "";
-                let statusTag = "";
-                let tagStyles = "";
-
-                switch (incident.status) {
-                  case "Resolved":
-                    statusTag = "Completed";
-                    tagStyles = "bg-green-200 text-green-800";
-                    bgColor = "bg-green-200";
-                    break;
-                  case "processing":
-                    statusTag = "Ongoing";
-                    tagStyles = "bg-yellow-200 text-yellow-800";
-                    bgColor = "bg-yellow-200";
-                    break;
-                  case "submitted":
-                    statusTag = "Reported";
-                    tagStyles = "bg-red-200 text-red-800";
-                    bgColor = "bg-red-200";
-                    break;
-                  default:
-                    statusTag = "Unknown";
-                    tagStyles = "bg-gray-300 text-gray-700";
-                }
-
-                return (
-                  <div
-                    key={incident.id}
-                    className={`mb-6 p-6 rounded-xl ${bgColor} shadow-[4px_4px_10px_#333] transition-transform hover:scale-105`}
-                  >
-                    {/* Incident Title & Status */}
-                    <div className="flex justify-between items-center mb-4">
-                      <h2 className="text-xl font-semibold text-gray-800">{incident.incidentType}</h2>
-                      <span className={`px-3 py-1 text-sm font-semibold rounded-full shadow-md ${tagStyles}`}>
-                        {statusTag}
-                      </span>
-                    </div>
-
-                    {/* Incident Details */}
-                    <p className="text-black mb-1">{incident.description}</p>
-                    <p className="text-sm text-black font-semibold">
-                      Reported at: {new Date(incident.reported_at).toLocaleString()}
-                    </p>
-                    <p className="text-sm text-black font-semibold">
-                      Location:{" "}
-                      {incident.location ? `${incident.location.latitude}, ${incident.location.longitude}` : "N/A"}
-                    </p>
-
-                    {/* Comment Section */}
-                    <button
-                      onClick={() => toggleComments(incident.id)}
-                      className="flex items-center gap-2 mt-4 text-blue-500 hover:text-blue-700 transition-all bg-blue-200 font-semibold  px-4 py-2 rounded-lg  hover:scale-105"
-                    >
-                      <FaCommentDots className="text-lg drop-shadow-sm" />
-                      {openCommentSection[incident.id] ? "Hide Comments" : "Comments"}
-                    </button>
-
-                    <div
-                      className={`transition-all duration-300 overflow-hidden ${
-                        openCommentSection[incident.id] ? "max-h-screen" : "max-h-0"
-                      }`}
-                    >
-                      {openCommentSection[incident.id] && (
-                        <Suspense fallback={<p>Loading comments...</p>}>
-                          <div className="mt-4 p-4 bg-blue-50 rounded-xl shadow-[inset_4px_4px_10px_#c1d5ff,inset_-4px_-4px_10px_#ffffff]">
-                            <h3 className="text-lg font-semibold mb-4 text-gray-700">Comments</h3>
-                            <ul className="space-y-4">
-                              {incident.comments && incident.comments.length > 0 ? (
-                                incident.comments.map((comment, index) => (
-                                  <li key={index} className="flex items-start gap-3">
-                                    <div className="w-10 h-10 rounded-full flex-shrink-0 shadow-md">
-                                      <img
-                                        className="rounded-full"
-                                        src="https://cdn.pfps.gg/pfps/2301-default-2.png"
-                                        alt="pfp"
-                                      />
-                                    </div>
-                                    <div className="flex-1 bg-gray-50 p-3 rounded-lg shadow-[inset_4px_4px_8px_#d1d1d1,inset_-4px_-4px_8px_#ffffff]">
-                                      <p className="text-sm font-semibold text-gray-800">
-                                        {comment.commented_by.first_name} {comment.commented_by.last_name}
-                                      </p>
-                                      <p className="text-sm text-gray-600">{comment.comment}</p>
-                                    </div>
-                                  </li>
-                                ))
-                              ) : (
-                                <p className="text-gray-500">No comments yet.</p>
-                              )}
-                            </ul>
-                            <AddCommentForm
-                              incidentId={incident.id}
-                              onAddComment={(newComment) => {
-                                setIncidents((prev) =>
-                                  prev.map((inc) =>
-                                    inc.id === incident.id
-                                      ? {
-                                          ...inc,
-                                          comments: [...(inc.comments || []), newComment],
-                                        }
-                                      : inc
-                                  )
-                                );
-                              }}
-                            />
-                          </div>
-                        </Suspense>
-                      )}
-                    </div>
-                  </div>
-                );
-              })
+              incidents.map((incident) => (
+                <IncidentCard
+                  key={incident.id}
+                  incident={incident}
+                  toggleComments={toggleComments}
+                  openCommentSection={openCommentSection}
+                  setIncidents={setIncidents}
+                />
+              ))
             )}
           </div>
         )}
@@ -182,8 +130,236 @@ const RecentIncidents = () => {
 
       <Footer />
       <FloatingChatbot />
-    </>
+    </div>
   );
 };
+
+const IncidentCard = ({
+  incident,
+  toggleComments,
+  openCommentSection,
+  setIncidents,
+}) => {
+  // Status configuration
+  const statusConfig = {
+    Resolved: {
+      tag: "Completed",
+      bgGradient: "from-green-400/50 to-green-600/50",
+      textColor: "text-green-400",
+      borderColor: "border-green-600/50",
+    },
+    processing: {
+      tag: "Ongoing",
+      bgGradient: "from-yellow-400/50 to-yellow-600/50",
+      textColor: "text-yellow-400",
+      borderColor: "border-yellow-600/50",
+    },
+    submitted: {
+      tag: "Reported",
+      bgGradient: "from-red-400/50 to-red-600/50",
+      textColor: "text-red-400",
+      borderColor: "border-red-600/50",
+    },
+    default: {
+      tag: "Unknown",
+      bgGradient: "from-gray-400/50 to-gray-600/50",
+      textColor: "text-gray-400",
+      borderColor: "border-gray-600/50",
+    },
+  };
+
+  const status = statusConfig[incident.status] || statusConfig.default;
+
+  return (
+    <div
+      className={`
+        relative
+        bg-gradient-to-br ${status.bgGradient}
+        border ${status.borderColor}
+        rounded-2xl 
+        p-6 
+        transform 
+        transition-all 
+        duration-300 
+        hover:scale-105 
+        hover:shadow-2xl
+        shadow-[0_10px_25px_rgba(8,_112,_184,_0.2)]
+        backdrop-blur-sm
+      `}
+    >
+      {/* Incident Header */}
+      <div className="flex justify-between items-center mb-4">
+        <h2 className="text-xl font-bold text-cyan-300">
+          {incident.incidentType}
+        </h2>
+        <span
+          className={`
+          px-3 py-1 
+          text-sm 
+          font-semibold 
+          rounded-full 
+          ${status.textColor} 
+          bg-[#1a2238]/50 
+          border ${status.borderColor}
+        `}
+        >
+          {status.tag}
+        </span>
+      </div>
+
+      {/* Incident Details */}
+      <div className="space-y-2 mb-4">
+        <p className="text-gray-300 line-clamp-2">{incident.description}</p>
+        <p className="text-sm text-gray-400">
+          Reported: {new Date(incident.reported_at).toLocaleString()}
+        </p>
+       <LocationDisplay location={incident.location} />
+      </div>
+
+      {/* Comments Toggle */}
+      <button
+        onClick={() => toggleComments(incident.id)}
+        className={`
+          w-full 
+          flex 
+          items-center 
+          justify-center 
+          gap-2 
+          py-2 
+          rounded-lg 
+          bg-[#1a2238]/50 
+          text-cyan-400 
+          hover:bg-cyan-500/20 
+          transition-all 
+          duration-300
+          border 
+          border-cyan-500/30
+          hover:text-cyan-300
+          relative
+          z-20
+        `}
+      >
+        <FaCommentDots />
+        {openCommentSection[incident.id] ? "Hide Comments" : "View Comments"}
+      </button>
+
+      {/* Comments Section - Fixed Positioning */}
+      {openCommentSection[incident.id] && (
+        <div
+          className="
+            fixed 
+            inset-0 
+            bg-black/50 
+            z-50 
+            flex 
+            items-center 
+            justify-center 
+            p-4
+          "
+          onClick={(e) => {
+            if (e.target === e.currentTarget) {
+              toggleComments(incident.id);
+            }
+          }}
+        >
+          <div
+            className="
+              w-full 
+              max-w-md 
+              max-h-[80vh] 
+              overflow-y-auto
+            "
+          >
+            <Suspense
+              fallback={<p className="text-gray-500">Loading comments...</p>}
+            >
+              <CommentsSection
+                incident={incident}
+                setIncidents={setIncidents}
+                onClose={() => toggleComments(incident.id)}
+              />
+            </Suspense>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+const CommentsSection = ({ incident, setIncidents, onClose }) => (
+  <div
+    className="
+      bg-[#2a2f4a] 
+      rounded-lg 
+      p-4 
+      shadow-2xl 
+      border 
+      border-cyan-500/30
+      relative
+    "
+  >
+    <button
+      onClick={onClose}
+      className="
+        absolute 
+        top-2 
+        right-2 
+        text-cyan-400 
+        hover:text-cyan-300 
+        z-10
+      "
+    >
+      ✕
+    </button>
+
+    <h3 className="text-lg font-semibold text-cyan-400 border-b border-cyan-500/30 pb-2 pr-8">
+      Comments
+    </h3>
+
+    {incident.comments && incident.comments.length > 0 ? (
+      <ul className="space-y-3 max-h-64 overflow-y-auto scrollbar-thin scrollbar-track-[#1a2238] scrollbar-thumb-cyan-500/50 mt-4">
+        {incident.comments.map((comment, index) => (
+          <li key={index} className="flex items-start gap-3">
+            <img
+              src="https://cdn.pfps.gg/pfps/2301-default-2.png"
+              alt="Profile"
+              className="w-10 h-10 rounded-full border-2 border-cyan-500/30"
+            />
+            <div className="flex-1 bg-[#1a2238]/50 p-3 rounded-lg">
+              <p className="text-sm font-semibold text-cyan-400">
+                {comment.commented_by.first_name}{" "}
+                {comment.commented_by.last_name}
+              </p>
+              <p className="text-sm text-gray-300">{comment.comment}</p>
+            </div>
+          </li>
+        ))}
+      </ul>
+    ) : (
+      <p className="text-gray-500 text-center mt-4">No comments yet.</p>
+    )}
+
+    {/* Add Comment Form */}
+    <Suspense
+      fallback={<div className="text-gray-500 mt-4">Loading form...</div>}
+    >
+      <AddCommentForm
+        incidentId={incident.id}
+        onAddComment={(newComment) => {
+          setIncidents((prev) =>
+            prev.map((inc) =>
+              inc.id === incident.id
+                ? {
+                    ...inc,
+                    comments: [...(inc.comments || []), newComment],
+                  }
+                : inc
+            )
+          );
+        }}
+      />
+    </Suspense>
+  </div>
+);
 
 export default RecentIncidents;

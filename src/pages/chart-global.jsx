@@ -65,7 +65,7 @@ const IncidentAnalyticsDashboard = () => {
     };
 
     fetchData();
-  }, [timeframe]);
+  }, []);
 
   const monthlyTrendsData = {
     labels:

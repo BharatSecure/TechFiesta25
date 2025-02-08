@@ -185,7 +185,6 @@ class form_report(APIView):
             location = self.validate_location(data.get("location"))
             if not location:
                 return Response({"error": "Invalid location data"}, status=status.HTTP_400_BAD_REQUEST)
-            print("Location check")
             
             lat, lon = location["latitude"], location["longitude"]
             

@@ -60,7 +60,11 @@ const teamMembers = [
 
 const MeetTheTeam = () => {
   return (
-    <Box sx={{ py: 6, px: 2 }}>
+    <Box sx={{ 
+      py: 6, 
+      px: 2,
+      background: '#001a2f'
+    }}>
       <Typography
         variant="h3"
         align="center"
@@ -68,7 +72,12 @@ const MeetTheTeam = () => {
           fontWeight: "bold",
           mb: 4,
           fontFamily: "ubuntu",
-          color: "#003366",
+          color: "#00ffff",
+          textShadow: '0 0 10px #00ffff',
+          transition: '0.3s',
+          '&:hover': {
+            textShadow: '0 0 20px #00ffff'
+          }
         }}
       >
         Meet the Team
@@ -80,8 +89,13 @@ const MeetTheTeam = () => {
             <Card
               sx={{
                 textAlign: "center",
-                boxShadow: 3,
-                backgroundColor: "#f9f9f9",
+                background: '#002240',
+                transition: 'all 0.3s ease',
+                boxShadow: '8px 8px 16px #001527, -8px -8px 16px #002f59',
+                '&:hover': {
+                  transform: 'translateY(-5px)',
+                  boxShadow: '12px 12px 24px #001527, -12px -12px 24px #002f59, 0 0 20px rgba(0, 255, 255, 0.2)'
+                }
               }}
             >
               <CardMedia
@@ -89,35 +103,56 @@ const MeetTheTeam = () => {
                 sx={{
                   width: "100%",
                   height: "auto",
-                  aspectRatio: "1 / 1", // Maintain a square aspect ratio
-                  objectFit: "cover", // Ensure the image fills the space properly
+                  aspectRatio: "1 / 1",
+                  objectFit: "cover",
+                  filter: 'brightness(0.9)',
+                  transition: '0.3s',
+                  '&:hover': {
+                    filter: 'brightness(1.1)',
+                  }
                 }}
                 image={member.imageUrl}
                 alt={member.name}
                 onError={(e) => {
-                  e.target.onerror = null; // Prevent infinite loop
-                  e.target.src = dummy_address; // Set the fallback image
+                  e.target.onerror = null;
+                  e.target.src = dummy_address;
                 }}
               />
               <CardContent>
-                <Typography variant="h6" sx={{ fontWeight: "bold" }}>
+                <Typography variant="h6" sx={{ 
+                  fontWeight: "bold",
+                  color: '#00ffff',
+                  textShadow: '0 0 5px rgba(0, 255, 255, 0.3)'
+                }}>
                   {member.name}
                 </Typography>
-                <Typography variant="body2" color="text.secondary">
+                <Typography variant="body2" sx={{ color: '#80ffff' }}>
                   {member.role}
                 </Typography>
                 <Box sx={{ mt: 2 }}>
                   <IconButton
                     href={member.github}
                     target="_blank"
-                    sx={{ color: "inherit" }}
+                    sx={{ 
+                      color: '#00ffff',
+                      '&:hover': {
+                        color: '#80ffff',
+                        transform: 'scale(1.1)',
+                      }
+                    }}
                   >
                     <GitHub />
                   </IconButton>
                   <IconButton
                     href={member.linkedin}
                     target="_blank"
-                    sx={{ color: "inherit" }}
+                    sx={{ 
+                      color: '#00ffff',
+                      '&:hover': {
+                        color: '#80ffff',
+                        transform: 'scale(1.1)',
+                      }
+                    }}
                   >
                     <LinkedIn />
                   </IconButton>

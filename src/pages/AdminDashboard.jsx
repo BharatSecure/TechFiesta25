@@ -56,7 +56,7 @@ const AdminDashboard = () => {
   const getSeverityColor = (severity) => {
     if (severity === "low") return "text-blue-700 border-blue-600 bg-blue-200";
     if (severity === "medium")
-      return "text-yellow-700 border-yellow-600 bg-yellow-200";
+      return "text-yellow-700 border-yellow-600";
     if (severity === "high") return "text-red-700 border-red-600 bg-red-200";
     return "text-gray-700 border-gray-600 bg-gray-200";
   };

@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect} from "react";
+import React, { useState, useRef, useEffect } from "react";
 // import { FaMicrophone } from "react-icons/fa";
 import { Mic, Send, Repeat, StopCircle } from "lucide-react";
 import axios from "axios";
@@ -77,7 +77,7 @@ const VoiceInput = () => {
       window.SpeechRecognition || window.webkitSpeechRecognition;
     if (SpeechRecognition) {
       recognitionRef.current = new SpeechRecognition();
-      recognitionRef.current.continuous = false;
+      recognitionRef.current.continuous = true;
       recognitionRef.current.interimResults = false;
 
       recognitionRef.current.onresult = (event) => {
@@ -99,19 +99,19 @@ const VoiceInput = () => {
   useEffect(() => {
     const SpeechRecognition =
       window.SpeechRecognition || window.webkitSpeechRecognition;
-    
+
     if (SpeechRecognition) {
       recognitionRef.current = new SpeechRecognition();
-      recognitionRef.current.continuous = false;
+      recognitionRef.current.continuous = true;
       recognitionRef.current.interimResults = false;
-  
+
       recognitionRef.current.onresult = (event) => {
         const transcript = Array.from(event.results)
           .map((result) => result[0].transcript)
           .join("");
         setText(transcript);
       };
-  
+
       recognitionRef.current.onerror = (event) => {
         console.error("Speech recognition error:", event.error);
         setError("Speech recognition error. Please try again.");
@@ -123,38 +123,35 @@ const VoiceInput = () => {
 
   useEffect(() => {
     if (!recognitionRef.current) return;
-  
+
     recognitionRef.current.lang = language;
-  
+
     const handleEnd = () => {
       if (isListening && !isStopped) {
         setTimeout(() => recognitionRef.current.start(), 500); // Restart with a delay to prevent looping issues
       }
     };
-  
+
     recognitionRef.current.onend = handleEnd;
-  
+
     return () => {
       recognitionRef.current.onend = null;
     };
   }, [language, isListening, isStopped]);
-  
-  
+
   const startListening = () => {
     if (!recognitionRef.current) return;
     setIsListening(true);
     setIsStopped(false);
     recognitionRef.current.start();
   };
-  
+
   const stopListening = () => {
     if (!recognitionRef.current) return;
     setIsListening(false);
     setIsStopped(true);
     recognitionRef.current.stop();
   };
-  
-  
 
   const analyzeAndSubmit = async () => {
     if (!text) {
@@ -168,13 +165,13 @@ const VoiceInput = () => {
 
     try {
       const extractedData = {
-        type: extractIncidentType(text),
-        location: extractLocation(text),
-        severity: extractSeverity(text),
-        description: text,
+        user_input: text,
       };
 
-      await axios.post("http://127.0.0.1:8000/api/report-incident/", extractedData);
+      await axios.post(
+        "http://127.0.0.1:8000/api/voice-report/",
+        extractedData
+      );
 
       setSuccess(true);
       setText(""); // Reset transcript manually
@@ -189,7 +186,7 @@ const VoiceInput = () => {
     setText(""); // Clear the text
     setIsStopped(false);
     startListening(); // Restart listening
-  };  
+  };
 
   const extractIncidentType = (text) => {
     const types = ["fire", "theft", "accident", "medical emergency", "assault"];

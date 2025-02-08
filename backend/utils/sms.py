@@ -1,4 +1,18 @@
-token1 = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzM3OTE3ODY3LCJpYXQiOjE3Mzc5MTY5NjcsImp0aSI6IjA1MzljYzY3MWUzZjQwODE5N2NiZjYzMzE4NWQ0MzcwIiwidXNlcl9pZCI6NX0.pbzU4sZxUjTbmDSRcCbm8tV6slnLqukrQu5YY-BjtTM'
-from rest_framework_simplejwt.tokens import AccessToken
-token = AccessToken(token1)
-print(token)
+import requests
+
+def get_coordinates_from_address(address):
+    base_url = "https://nominatim.openstreetmap.org/search"
+    params = {
+        "q": address,
+        "format": "json",
+        "limit": 1  # Get only the first result
+    }
+
+    response = requests.get(base_url, params=params)
+    if response.status_code == 200 and response.json():
+        data = response.json()[0]  # Get the first matching result
+        return {
+            "latitude": data["lat"],
+            "longitude": data["lon"]
+        }
+    return None  # Return None if no results are found

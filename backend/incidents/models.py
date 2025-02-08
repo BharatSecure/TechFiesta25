@@ -166,7 +166,7 @@ class Incidents(models.Model):
             mass_report_bonus = min(self.count * 2, 10)  # Capped bonus to prevent abuse
 
             if total_reports > 0:
-                # Base score formula: (Verified reports % - Penalty for false reports) + Mass report bonus
+                # Base score formula: (Verified reports %) + Mass report bonus
                 self.score = ((verified_count / total_reports) * 100)  + mass_report_bonus
                 self.score = max(0, min(self.score, 100))  # Keep score within valid range
             else:

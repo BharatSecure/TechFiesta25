@@ -19,6 +19,6 @@ urlpatterns = [
     path('incident-chart-data/', views.incident_chart_data, name='incident-chart-data'),
     path('advanced-incident-analysis/', views.advanced_incident_analysis, name='advanced-incident-analysis'),
     path("api/user/<int:user_id>/", views.UserDetailView.as_view(), name="user-detail"),
-
+    path("voice-report/", views.voicereport.as_view(), name="user-detail"),
 ]
 

@@ -14,14 +14,13 @@ import {
   Cell,
 } from "recharts";
 
-// Add the missing COLORS constant
 const COLORS = [
-  "#0088FE",
-  "#00C49F",
-  "#FFBB28",
-  "#FF8042",
-  "#8884d8",
-  "#82ca9d",
+  "#00ffff", // cyan
+  "#00ccff", // light blue
+  "#0099ff", // blue
+  "#0066ff", // darker blue
+  "#0033ff", // even darker blue
+  "#00ff99", // mint
 ];
 
 const IncidentDashboardUser = () => {
@@ -52,7 +51,6 @@ const IncidentDashboardUser = () => {
           }
         );
         const data = await response.json();
-        // Ensure all required properties exist
         setStats({
           incident_types: data.incident_types || [],
           monthly_trend: data.monthly_trend || [],
@@ -63,7 +61,6 @@ const IncidentDashboardUser = () => {
         });
       } catch (error) {
         console.error("Error fetching statistics:", error);
-        // Set empty data on error
         setStats({
           incident_types: [],
           monthly_trend: [],
@@ -82,18 +79,26 @@ const IncidentDashboardUser = () => {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <p className="text-lg">Loading statistics...</p>
+      <div className="flex items-center justify-center h-64 bg-[#001830] text-cyan-400">
+        <div className="text-lg">Loading statistics...</div>
       </div>
     );
   }
 
   return (
-    <div className="p-6 space-y-6">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Incident Statistics Dashboard</h1>
+    <div className="p-8 bg-[#001830] min-h-screen">
+      {/* Header Section */}
+      <div className="mb-8">
+        <h1 className="text-4xl font-bold text-cyan-400 mb-2 p-4 rounded-xl shadow-[inset_-5px_-5px_15px_rgba(0,0,0,0.3),_inset_5px_5px_15px_rgba(0,255,255,0.1)] border border-cyan-400/20">
+          Your Analytics
+        </h1>
+        <p className="text-cyan-300/80">Track and analyze your incident data</p>
+      </div>
+
+      {/* Controls Section */}
+      <div className="flex justify-end mb-8">
         <select
-          className="p-2 border rounded"
+          className="px-4 py-2 bg-[#002345] text-cyan-400 border border-cyan-400/30 rounded-lg shadow-[inset_-2px_-2px_8px_rgba(0,0,0,0.3),_inset_2px_2px_8px_rgba(0,255,255,0.1)] focus:outline-none focus:ring-2 focus:ring-cyan-400/50"
           value={timeRange}
           onChange={(e) => setTimeRange(Number(e.target.value))}
         >
@@ -104,106 +109,147 @@ const IncidentDashboardUser = () => {
         </select>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* Incident Types Chart */}
-        <div className="bg-white p-4 rounded-lg shadow">
-          <h2 className="text-xl font-semibold mb-4">
-            Incident Types Distribution
-          </h2>
-          <PieChart width={400} height={300}>
-            <Pie
-              data={stats.incident_types}
-              dataKey="count"
-              nameKey="incidentType"
-              cx="50%"
-              cy="50%"
-              outerRadius={100}
-              label
-            >
-              {stats.incident_types.map((entry, index) => (
-                <Cell key={index} fill={COLORS[index % COLORS.length]} />
-              ))}
-            </Pie>
-            <Tooltip />
-            <Legend />
-          </PieChart>
+      {/* Summary Statistics Cards */}
+      <div className="grid grid-cols-2 gap-6 mb-8">
+        <div className="bg-[#002345] rounded-xl p-6 shadow-[5px_5px_15px_rgba(0,0,0,0.3),-5px_-5px_15px_rgba(0,255,255,0.1)] border border-cyan-400/20 transform transition-all hover:shadow-[inset_5px_5px_15px_rgba(0,0,0,0.2),inset_-5px_-5px_15px_rgba(0,255,255,0.1)]">
+          <div className="text-3xl font-bold text-cyan-400">
+            {stats.total_incidents}
+          </div>
+          <div className="text-sm font-medium text-cyan-300/80">
+            Total Incidents
+          </div>
         </div>
-
-        {/* Monthly Trend Chart */}
-        <div className="bg-white p-4 rounded-lg shadow">
-          <h2 className="text-xl font-semibold mb-4">Monthly Incident Trend</h2>
-          <LineChart width={400} height={300} data={stats.monthly_trend}>
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis
-              dataKey="month"
-              tickFormatter={(date) => new Date(date).toLocaleDateString()}
-            />
-            <YAxis />
-            <Tooltip
-              labelFormatter={(date) => new Date(date).toLocaleDateString()}
-            />
-            <Legend />
-            <Line
-              type="monotone"
-              dataKey="count"
-              stroke="#8884d8"
-              name="Incidents"
-            />
-          </LineChart>
-        </div>
-
-        {/* Severity Distribution */}
-        <div className="bg-white p-4 rounded-lg shadow">
-          <h2 className="text-xl font-semibold mb-4">Severity Distribution</h2>
-          <BarChart width={400} height={300} data={stats.severity_distribution}>
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="severity" />
-            <YAxis />
-            <Tooltip />
-            <Bar dataKey="count" fill="#82ca9d">
-              {stats.severity_distribution.map((entry, index) => (
-                <Cell key={index} fill={COLORS[index % COLORS.length]} />
-              ))}
-            </Bar>
-          </BarChart>
-        </div>
-
-        {/* Score Trend */}
-        <div className="bg-white p-4 rounded-lg shadow">
-          <h2 className="text-xl font-semibold mb-4">Average Score Trend</h2>
-          <LineChart width={400} height={300} data={stats.score_trend}>
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis
-              dataKey="month"
-              tickFormatter={(date) => new Date(date).toLocaleDateString()}
-            />
-            <YAxis domain={[0, 100]} />
-            <Tooltip
-              labelFormatter={(date) => new Date(date).toLocaleDateString()}
-            />
-            <Legend />
-            <Line
-              type="monotone"
-              dataKey="avg_score"
-              stroke="#FF8042"
-              name="Average Score"
-            />
-          </LineChart>
+        <div className="bg-[#002345] rounded-xl p-6 shadow-[5px_5px_15px_rgba(0,0,0,0.3),-5px_-5px_15px_rgba(0,255,255,0.1)] border border-cyan-400/20 transform transition-all hover:shadow-[inset_5px_5px_15px_rgba(0,0,0,0.2),inset_-5px_-5px_15px_rgba(0,255,255,0.1)]">
+          <div className="text-3xl font-bold text-cyan-400">
+            {stats.average_score?.toFixed(1) || "N/A"}
+          </div>
+          <div className="text-sm font-medium text-cyan-300/80">
+            Average Score
+          </div>
         </div>
       </div>
 
-      {/* Summary Statistics */}
-      <div className="grid grid-cols-2 gap-4">
-        <div className="bg-white p-6 rounded-lg shadow">
-          <div className="text-2xl font-bold">{stats.total_incidents}</div>
-          <div className="text-sm text-gray-500">Total Incidents</div>
-        </div>
-        <div className="bg-white p-6 rounded-lg shadow">
-          <div className="text-2xl font-bold">
-            {stats.average_score?.toFixed(1) || "N/A"}
+      {/* Charts Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        {/* Chart containers with neuromorphic styling */}
+        {[
+          "Incident Types Distribution",
+          "Monthly Incident Trend",
+          "Severity Distribution",
+          "Average Score Trend",
+        ].map((title, index) => (
+          <div
+            key={title}
+            className="bg-[#002345] rounded-xl p-6 shadow-[5px_5px_15px_rgba(0,0,0,0.3),-5px_-5px_15px_rgba(0,255,255,0.1)] border border-cyan-400/20"
+          >
+            <h2 className="text-xl font-semibold text-cyan-400 mb-6 p-2 rounded-lg shadow-[inset_-2px_-2px_8px_rgba(0,0,0,0.2),_inset_2px_2px_8px_rgba(0,255,255,0.1)]">
+              {title}
+            </h2>
+            {index === 0 && (
+              <PieChart width={400} height={300}>
+                <Pie
+                  data={stats.incident_types}
+                  dataKey="count"
+                  nameKey="incidentType"
+                  cx="50%"
+                  cy="50%"
+                  outerRadius={100}
+                  label
+                >
+                  {stats.incident_types.map((entry, index) => (
+                    <Cell key={index} fill={COLORS[index % COLORS.length]} />
+                  ))}
+                </Pie>
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: "#002345",
+                    border: "1px solid rgba(0,255,255,0.2)",
+                  }}
+                />
+                <Legend />
+              </PieChart>
+            )}
+            {index === 1 && (
+              <LineChart width={400} height={300} data={stats.monthly_trend}>
+                <CartesianGrid
+                  strokeDasharray="3 3"
+                  stroke="rgba(0,255,255,0.1)"
+                />
+                <XAxis
+                  dataKey="month"
+                  tickFormatter={(date) => new Date(date).toLocaleDateString()}
+                  stroke="#00ffff"
+                />
+                <YAxis stroke="#00ffff" />
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: "#002345",
+                    border: "1px solid rgba(0,255,255,0.2)",
+                  }}
+                />
+                <Legend />
+                <Line
+                  type="monotone"
+                  dataKey="count"
+                  stroke="#00ffff"
+                  name="Incidents"
+                />
+              </LineChart>
+            )}
+            {index === 2 && (
+              <BarChart
+                width={400}
+                height={300}
+                data={stats.severity_distribution}
+              >
+                <CartesianGrid
+                  strokeDasharray="3 3"
+                  stroke="rgba(0,255,255,0.1)"
+                />
+                <XAxis dataKey="severity" stroke="#00ffff" />
+                <YAxis stroke="#00ffff" />
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: "#002345",
+                    border: "1px solid rgba(0,255,255,0.2)",
+                  }}
+                />
+                <Bar dataKey="count">
+                  {stats.severity_distribution.map((entry, index) => (
+                    <Cell key={index} fill={COLORS[index % COLORS.length]} />
+                  ))}
+                </Bar>
+              </BarChart>
+            )}
+            {index === 3 && (
+              <LineChart width={400} height={300} data={stats.score_trend}>
+                <CartesianGrid
+                  strokeDasharray="3 3"
+                  stroke="rgba(0,255,255,0.1)"
+                />
+                <XAxis
+                  dataKey="month"
+                  tickFormatter={(date) => new Date(date).toLocaleDateString()}
+                  stroke="#00ffff"
+                />
+                <YAxis domain={[0, 100]} stroke="#00ffff" />
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: "#002345",
+                    border: "1px solid rgba(0,255,255,0.2)",
+                  }}
+                />
+                <Legend />
+                <Line
+                  type="monotone"
+                  dataKey="avg_score"
+                  stroke="#00ffff"
+                  name="Average Score"
+                />
+              </LineChart>
+            )}
           </div>
-          <div className="text-sm text-gray-500">Average Score</div>
-        </div>
+        ))}
       </div>
     </div>
   );

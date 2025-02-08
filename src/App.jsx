@@ -24,7 +24,6 @@ import ViewDetails from "./pages/ViewDetails";
 // import Chatbot from "./pages/chatbotTrial";
 import UserRoute from "./protected-routes/UserRoute";
 import AdminRoute from "./protected-routes/AdminRoute";
-import IncidentChart from "./pages/chart";
 import UserProfile from "./pages/UserProfile";
 import IncidentDashboardUser from "./pages/charts-user";
 import IncidentAnalyticsDashboard from "./pages/chart-global";
@@ -83,7 +82,6 @@ const App = () => {
                 path="/charts-global"
                 element={<IncidentAnalyticsDashboard />}
               />
-              <Route path="/charts-user" element={<IncidentDashboardUser />} />
               <Route path="/incident/:id" element={<ViewDetails />} />
               <Route path="/user/:userId" element={<UserProfile />} />
               {/* Redirect all unknown routes to Home */}

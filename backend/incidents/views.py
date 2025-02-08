@@ -40,6 +40,12 @@ from django.db.models.functions import (
     ExtractWeekDay, TruncMonth, 
     ExtractHour, ExtractYear
 )
+from django.db.models import (
+    Avg, Case, Count, F, FloatField, IntegerField, Q, Value, When, ExpressionWrapper, DurationField
+)
+from django.db.models.functions import (
+    Cast, Extract, ExtractHour, ExtractWeekDay, TruncMonth
+)
 from django.utils import timezone
 from datetime import timedelta
 
@@ -776,33 +782,48 @@ class ChatbotView_Therapist(APIView):
         }, status=status.HTTP_200_OK)
 
 from django.core.serializers.json import DjangoJSONEncoder
-from datetime import datetime
+from django.utils.timezone import now, make_aware
 @api_view(['GET'])
 def advanced_incident_analysis(request):
     try:
-        # Get date range from query params or default to last 12 months
-        print("started function")
-        months = int(request.query_params.get('months', 12))
-        start_date = datetime.now() - timedelta(days=30*months)
-        print("before filter")
-        # Base queryset with date filter
+        print("Started function")
+        
+        try:
+            months = int(request.query_params.get('months', 12))
+            if months <= 0:
+                return Response({"error": "Invalid months parameter"}, status=status.HTTP_400_BAD_REQUEST)
+        except ValueError:
+            return Response({"error": "Invalid months parameter"}, status=status.HTTP_400_BAD_REQUEST)
+
+        start_date = now() - timedelta(days=30 * months)
+        print("Before filter")
+        
         queryset = Incidents.objects.filter(reported_at__gte=start_date)
-        print("start")
+        print(f"Queryset count: {queryset.count()}")
+        print("Start")
+
         analytics = {
             'response_time_analysis': list(
                 queryset
                 .values('incidentType', 'severity')
                 .annotate(
-                    avg_score=Avg('score'),
+                    avg_score=Cast(Avg('score'), FloatField()),
                     total_incidents=Count('id'),
-                    avg_resolution_time=Avg(
-                        Case(
-                            When(
-                                resolved_at__isnull=False,
-                                then=ExtractHour('resolved_at') - ExtractHour('reported_at')
-                            ),
-                            output_field=IntegerField(),
-                        )
+                    avg_resolution_time=Cast(
+                        Avg(
+                            Case(
+                                When(
+                                    resolved_at__isnull=False,
+                                    then=ExpressionWrapper(
+                                        F('resolved_at') - F('reported_at'),
+                                        output_field=DurationField()
+                                    )
+                                ),
+                                default=None,
+                                output_field=DurationField(),
+                            )
+                        ),
+                        FloatField()
                     )
                 )
                 .order_by('incidentType', 'severity')
@@ -817,8 +838,13 @@ def advanced_incident_analysis(request):
                     high_severity=Count('id', filter=Q(severity='high')),
                     medium_severity=Count('id', filter=Q(severity='medium')),
                     low_severity=Count('id', filter=Q(severity='low')),
-                    resolved_count=Count('id', filter=Q(status='resolved')),
-                    resolution_rate=Count('id', filter=Q(status='resolved')) * 100.0 / Count('id')
+                    resolved_count=Count('id', filter=Q(status='resolved'))
+                )
+                .annotate(
+                    resolution_rate=Cast(
+                        F('resolved_count') * 100.0 / Cast(F('total_incidents'), FloatField()),
+                        FloatField()
+                    )
                 )
                 .order_by('month')
             ),
@@ -830,7 +856,7 @@ def advanced_incident_analysis(request):
                 .annotate(
                     incident_count=Count('id'),
                     high_severity_count=Count('id', filter=Q(severity='high')),
-                    avg_response_score=Avg('score')
+                    avg_response_score=Cast(Avg('score'), FloatField())
                 )
                 .order_by('hour')
             ),
@@ -841,8 +867,14 @@ def advanced_incident_analysis(request):
                 .annotate(
                     incident_density=Count('id'),
                     high_severity_count=Count('id', filter=Q(severity='high')),
-                    avg_response_score=Avg('score'),
-                    resolution_rate=Count('id', filter=Q(status='resolved')) * 100.0 / Count('id')
+                    avg_response_score=Cast(Avg('score'), FloatField()),
+                    resolved_count=Count('id', filter=Q(status='resolved'))
+                )
+                .annotate(
+                    resolution_rate=Cast(
+                        F('resolved_count') * 100.0 / Cast(F('incident_density'), FloatField()),
+                        FloatField()
+                    )
                 )
                 .order_by('-incident_density')[:10]
             ),
@@ -855,8 +887,14 @@ def advanced_incident_analysis(request):
                     high_severity=Count('id', filter=Q(severity='high')),
                     medium_severity=Count('id', filter=Q(severity='medium')),
                     low_severity=Count('id', filter=Q(severity='low')),
-                    avg_response_score=Avg('score'),
-                    resolution_rate=Count('id', filter=Q(status='resolved')) * 100.0 / Count('id')
+                    avg_response_score=Cast(Avg('score'), FloatField()),
+                    resolved_count=Count('id', filter=Q(status='resolved'))
+                )
+                .annotate(
+                    resolution_rate=Cast(
+                        F('resolved_count') * 100.0 / Cast(F('total_count'), FloatField()),
+                        FloatField()
+                    )
                 )
                 .order_by('-total_count')
             ),
@@ -867,15 +905,24 @@ def advanced_incident_analysis(request):
                 .values('weekday')
                 .annotate(
                     total_incidents=Count('id'),
-                    avg_severity=Avg(
-                        Case(
-                            When(severity='high', then=3),
-                            When(severity='medium', then=2),
-                            When(severity='low', then=1),
-                            output_field=IntegerField(),
-                        )
+                    avg_severity=Cast(
+                        Avg(
+                            Case(
+                                When(severity='high', then=Value(3)),
+                                When(severity='medium', then=Value(2)),
+                                When(severity='low', then=Value(1)),
+                                output_field=FloatField(),
+                            )
+                        ),
+                        FloatField()
                     ),
-                    resolution_rate=Count('id', filter=Q(status='resolved')) * 100.0 / Count('id')
+                    resolved_count=Count('id', filter=Q(status='resolved'))
+                )
+                .annotate(
+                    resolution_rate=Cast(
+                        F('resolved_count') * 100.0 / Cast(F('total_incidents'), FloatField()),
+                        FloatField()
+                    )
                 )
                 .order_by('weekday')
             ),
@@ -900,41 +947,44 @@ def advanced_incident_analysis(request):
                     ))
                 )
                 .order_by('incidentType')
-            ),
-            
-            'overall_statistics': {
-                'total_incidents': queryset.count(),
-                'resolution_rate': (
-                    queryset.filter(status='resolved').count() * 100.0 / 
-                    queryset.count() if queryset.count() > 0 else 0
-                ),
-                'avg_response_score': queryset.aggregate(Avg('score'))['score__avg'] or 0,
-                'high_severity_percentage': (
-                    queryset.filter(severity='high').count() * 100.0 / 
-                    queryset.count() if queryset.count() > 0 else 0
-                ),
-                'multi_agency_percentage': (
-                    queryset.filter(
-                        Q(police_station__isnull=False) |
-                        Q(fire_station__isnull=False) |
-                        Q(hospital_station__isnull=False)
-                    ).distinct().count() * 100.0 / 
-                    queryset.count() if queryset.count() > 0 else 0
-                )
-            }
+            )
         }
-        print("done")
-        return Response(
-            json.loads(json.dumps(analytics, cls=DjangoJSONEncoder)),
-            status=status.HTTP_200_OK
-        )
+        
+        # Calculate overall statistics separately to handle type conversion properly
+        total_incidents = queryset.count()
+        analytics['overall_statistics'] = {
+            'total_incidents': total_incidents,
+            'resolution_rate': float(
+                queryset.filter(status='resolved').count() * 100.0 / total_incidents
+                if total_incidents > 0 else 0
+            ),
+            'avg_response_score': float(
+                queryset.aggregate(avg_score=Cast(Avg('score'), FloatField()))['avg_score'] or 0
+            ),
+            'high_severity_percentage': float(
+                queryset.filter(severity='high').count() * 100.0 / total_incidents
+                if total_incidents > 0 else 0
+            ),
+            'multi_agency_percentage': float(
+                queryset.filter(
+                    Q(police_station__isnull=False) |
+                    Q(fire_station__isnull=False) |
+                    Q(hospital_station__isnull=False)
+                ).distinct().count() * 100.0 / total_incidents
+                if total_incidents > 0 else 0
+            )
+        }
+        
+        print("Done")
+        return Response(analytics, status=status.HTTP_200_OK)
     
     except Exception as e:
+        print(f"Error: {str(e)}")
         return Response({
             'error': 'Analysis failed',
             'details': str(e)
         }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-    
+                        
 from django.views import View
 
 class UserDetailView(View):

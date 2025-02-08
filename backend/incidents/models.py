@@ -4,6 +4,7 @@ from django.contrib.auth.hashers import make_password
 from django.contrib.auth.base_user import AbstractBaseUser, BaseUserManager
 from django.utils import timezone
 from decimal import Decimal
+from django.db.models import Count
 
 def get_google_maps_link(latitude, longitude):
     return f"https://www.google.com/maps?q={latitude},{longitude}"
@@ -107,6 +108,10 @@ class NGO(models.Model):
     def __str__(self):
         return f"NGO Station: {self.id}"
 
+import logging
+
+logger = logging.getLogger(__name__)
+
 class Incidents(models.Model):
     INCIDENT_TYPES = [
         ('Domestic Violence', 'Domestic Violence'),
@@ -120,6 +125,7 @@ class Incidents(models.Model):
         ("Injury", "Injury"),
         ("Missing Persons", "Missing Persons"),
         ("Natural Disaster", "Natural Disaster"),
+        ("Medical Emergency", "Medical Emergency"),
         ('Other', 'Other'),
     ]
     
@@ -136,69 +142,61 @@ class Incidents(models.Model):
     ]
 
     incidentType = models.CharField(max_length=100, choices=INCIDENT_TYPES, default='Other')
-    location = models.JSONField()   
+    location = models.JSONField()
     description = models.TextField()
     severity = models.CharField(choices=SEVERITY_CHOICES, default='low', max_length=20)
     file = models.FileField(upload_to='incident_files/', blank=True, null=True)
-    reported_by = models.ForeignKey(
-        User, 
-        on_delete=models.CASCADE, 
-        related_name='incidents',
-        null=True,
-        blank=True
-    )
-    reported_at = models.DateTimeField(default=timezone.now) 
-    police_station = models.ForeignKey(PoliceStations, on_delete=models.DO_NOTHING, null=True, blank=True)
-    fire_station = models.ForeignKey(FireStations, on_delete=models.DO_NOTHING, null=True, blank=True)
-    hospital_station = models.ForeignKey(Hospital, on_delete=models.DO_NOTHING, null=True, blank=True)
+    reported_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='incidents', null=True, blank=True)
+    reported_at = models.DateTimeField(default=timezone.now)
+    police_station = models.ForeignKey('PoliceStations', on_delete=models.DO_NOTHING, null=True, blank=True)
+    fire_station = models.ForeignKey('FireStations', on_delete=models.DO_NOTHING, null=True, blank=True)
+    hospital_station = models.ForeignKey('Hospital', on_delete=models.DO_NOTHING, null=True, blank=True)
     status = models.CharField(default='submitted', choices=STATUS_CHOICES, max_length=50)
     remarks = models.CharField(default='None', max_length=300)
     maps_link = models.CharField(default="None", max_length=100)
-    score = models.DecimalField(decimal_places=2, default=0, max_digits=4)
+    score = models.DecimalField(decimal_places=2, default=0, max_digits=7)
     resolved_at = models.DateTimeField(null=True, blank=True)
     true_or_false = models.BooleanField(default=False)
     count = models.PositiveIntegerField(default=1)
 
     def save(self, *args, **kwargs):
-        print("You have entered the save method")
+        logger.info("Entering save method")
+        
         if self.reported_at and self.reported_at.tzinfo is None:
             self.reported_at = timezone.make_aware(self.reported_at)
-        print("timezone was made aware")
+            logger.info("Timezone made aware")
+        
         if self.reported_by and self.reported_by.first_name == 'Anonymous':
             self.score = Decimal(50)  # Default neutral score for anonymous reports
-            print("Anonymous user")
+            logger.info("Anonymous user detected")
         else:
-            print("entered else")
             incidents = Incidents.objects.filter(reported_by=self.reported_by)
-            verified_count = incidents.filter(true_or_false=True).count() or 0  # Verified reports
-            total_reports = incidents.count() or 0  # Total reports submitted
-            mass_report_bonus = min(float(self.count * 2), 10)  # Capped bonus to prevent abuse
+            aggregated_data = incidents.aggregate(
+                total_reports=Count('id'), 
+                verified_count=Count('id', filter=models.Q(true_or_false=True))
+            )
+            verified_count = Decimal(aggregated_data['verified_count'] or 0)
+            total_reports = Decimal(aggregated_data['total_reports'] or 0)
+            mass_report_bonus = min(self.count * 2, 10)  # Capped bonus
             
-            print("found values")
             if total_reports > 0:
-                # Base score formula: (Verified reports %) + Mass report bonus
-                print("Entered if")
-                self.score = (Decimal(verified_count) / Decimal(total_reports)) * Decimal(100) + Decimal(mass_report_bonus)
-                print("calculated score")
-                self.score = max(Decimal(0), min(self.score, Decimal(100)))  # Clamp score between 0 and 100
-                print("kept between 1-100")
+                self.score = (verified_count / total_reports * 100) + Decimal(mass_report_bonus)
+                self.score = max(Decimal(0), min(self.score, Decimal(100)))  # Clamp score
             else:
-                self.score = Decimal(50)  # Default for new reporters
-
-        # Generate maps link if location exists
+                self.score = Decimal(50)
+        
+        # Generate Google Maps link if location is valid
         if isinstance(self.location, dict) and 'latitude' in self.location and 'longitude' in self.location:
             self.maps_link = get_google_maps_link(self.location['latitude'], self.location['longitude'])
-
+        
         # Handle resolution timestamp
         if self.status == "resolved" and not self.resolved_at:
             self.resolved_at = timezone.now()
         elif self.status != "resolved":
-            print("entered elif")
             self.resolved_at = None
-            print("Error is here")
-        print(f"resolved_at before save: {self.resolved_at}")
-        print(f"Calculated score: {self.score}")
-        print(f"Location data: {self.location}")
+        
+        logger.info(f"Final resolved_at: {self.resolved_at}")
+        logger.info(f"Final calculated score: {self.score}")
         super().save(*args, **kwargs)
     
 class Comment(models.Model):

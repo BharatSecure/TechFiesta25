@@ -21,7 +21,7 @@ const AdminDashboard = () => {
   const [unresolved, setUnResolved] = useState(0);
   const [newTasks, setNewTasks] = useState([]);
   const [filter, setFilter] = useState("All");
-  const [filternew, setFilterNew] = useState([]);
+  const [filternew, setFilterNew] = useState([]); 
   const [incidents, setIncidents] = useState([]);
   const [completedId, setCompletedId] = useState([]);
   const [falseReport,setFalseReport]= useState([{}])
@@ -300,7 +300,7 @@ const AdminDashboard = () => {
                     incident.severity
                   )} shadow-[0px_5px_15px_rgba(255,255,255,0.1),0px_10px_25px_rgba(0,0,0,0.7)] transition-all hover:scale-105 hover:shadow-[0px_10px_30px_rgba(255,255,255,0.15),0px_15px_50px_rgba(0,0,0,0.8)] ${getSeverityColor(
                     incident.severity
-                  )} w-full`}
+                  )}  w-full`}
                 >
                   <div className="flex justify-between items-center mb-4">
                     <span

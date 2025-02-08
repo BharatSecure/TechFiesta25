@@ -205,11 +205,10 @@ class form_report(APIView):
                     "incident_id": existing_incident.id,
                     "severity": data['severity']
                 }, status=status.HTTP_201_CREATED)
-            # match = re.search(r'\{.*\}', incident, re.DOTALL)
-            # if match:
-            #     json_string = match.group()
-            #     incident = json.loads(json_string)
-            # Create new incident
+            match = re.search(r'\{.*\}', data['location'], re.DOTALL)
+            if match:
+                json_string = match.group()
+                data['location'] = json.loads(json_string)
             print(data)
             serializer = IncidentSerializer(data=data)
             if serializer.is_valid():
@@ -311,6 +310,7 @@ class form_report(APIView):
             'Theft': [PoliceStations],
             'Accident': [PoliceStations, Hospital],
             'Missing Persons': [PoliceStations],
+            'Medical Emergency': [Hospital],
             'Other': [PoliceStations]  
         }
 
@@ -436,7 +436,8 @@ class voicereport(APIView):
             'Fire': [FireStations, PoliceStations, Hospital],
             'Theft': [PoliceStations],
             'Accident': [PoliceStations, Hospital],
-            'Missing Persons': [PoliceStations],
+            'Missing Persons': [PoliceStations], 
+            'Medical Emergency': [Hospital], 
             'Other': [None]
         }
         station_models = station_map.get(incident.get('incidentType'), [])

@@ -25,9 +25,6 @@ import ViewDetails from "./pages/ViewDetails";
 import UserRoute from "./protected-routes/UserRoute";
 import AdminRoute from "./protected-routes/AdminRoute";
 import UserProfile from "./pages/UserProfile";
-import IncidentDashboardUser from "./pages/charts-user";
-import IncidentAnalyticsDashboard from "./pages/chart-global";
-import AnalyticsDashboard from "./pages/chart";
 
 const UserDashboard = lazy(() => import("./pages/UserDashboard"));
 const AdminDashboard = lazy(() => import("./pages/AdminDashboard"));
@@ -79,11 +76,6 @@ const App = () => {
               <Route path="/view-details/:id" element={<ViewDetails />} />
               <Route path="/feedback" element={<FeedbackForm />} />
               <Route path="chatbot" element={<Chatbot />} />
-              <Route
-                path="/charts-global"
-                element={<IncidentAnalyticsDashboard />}
-              />
-              <Route path="/charts" element={<AnalyticsDashboard />} />
               <Route path="/incident/:id" element={<ViewDetails />} />
               <Route path="/user/:userId" element={<UserProfile />} />
               {/* Redirect all unknown routes to Home */}

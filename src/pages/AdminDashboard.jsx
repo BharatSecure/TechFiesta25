@@ -14,6 +14,7 @@ import { useAuth } from "@/context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { MdOutlineReport } from "react-icons/md";
 import { MdReport } from "react-icons/md";
+import AdminCharts from "./chart";
 
 const AdminDashboard = () => {
   const [total, setTotal] = useState(0);
@@ -669,7 +670,7 @@ const AdminDashboard = () => {
         </div>
 
         {/*Flagged Incidentss */}
-        <h1 className="text-4xl text-red-500 font-semibold mb-5 mt-12 text-green-300 md:text-left text-center">
+        <h1 className="text-4xl text-red-500 font-semibold mb-5 mt-12  md:text-left text-center">
           Flagged Incidents:
         </h1>
 
@@ -767,6 +768,7 @@ const AdminDashboard = () => {
             </div>
           ))}
         </div>
+        <AdminCharts />
       </div>
       <Footer />
     </div>

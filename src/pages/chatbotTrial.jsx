@@ -7,6 +7,7 @@ const Chatbot = () => {
   const [userInput, setUserInput] = useState("");
   const [chatHistory, setChatHistory] = useState([]);
   const [loading, setLoading] = useState(false);
+  const[micClick,setMicClick]=useState(false)
   const chatContainerRef = useRef(null);
 
   useEffect(() => {
@@ -15,6 +16,43 @@ const Chatbot = () => {
         chatContainerRef.current.scrollHeight;
     }
   }, [chatHistory]);
+
+
+
+    const [messages, setMessages] = useState([]);
+    const [input, setInput] = useState("");
+  
+    const handleSend = () => {
+      if (input.trim() === "") return;
+      setMessages([...messages, { text: input, sender: "user" }]);
+      setInput("");
+    };
+  
+    const handleVoiceInput = () => {
+      const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+      recognition.lang = "en-US";
+      recognition.start();
+      
+       setMicClick(!micClick)
+       
+    
+      recognition.onresult = (event) => {
+        const transcript = event.results[0][0].transcript;
+        setUserInput(transcript);
+      };
+    
+      recognition.onerror = (event) => {
+        console.error("Voice recognition error:", event.error);
+      };
+    
+      recognition.onend = () => {
+        console.log("Voice recognition ended.");
+      };
+    };
+
+    
+    
+    
 
   const sendMessage = async () => {
     if (!userInput.trim()) return;
@@ -188,6 +226,7 @@ const Chatbot = () => {
       >
         {loading ? "Sending..." : "Send"}
       </button>
+      <button className={`${micClick===true?'bg-green-500 rounded-lg px-2 py-2':'bg-white px-2 py-2 rounded-lg'}`} onClick={handleVoiceInput}>🎤</button>
     </div>
   </div>
 </div>

@@ -156,7 +156,7 @@ class Incidents(models.Model):
     maps_link = models.CharField(default="None", max_length=100)
     score = models.DecimalField(decimal_places=2, default=0, max_digits=7)
     resolved_at = models.DateTimeField(null=True, blank=True)
-    true_or_false = models.BooleanField(default=False)
+    true_or_false = models.BooleanField(default=True)
     count = models.PositiveIntegerField(default=1)
 
     def save(self, *args, **kwargs):

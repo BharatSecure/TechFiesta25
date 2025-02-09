@@ -249,7 +249,7 @@ const AdminDashboard = () => {
 
         <div className="flex flex-col md:flex-row  items-center gap-6  mb-8 justify-center ">
           {/* Total Incidents Card */}
-          <div className="bg-white/5  p-6 rounded-2xl cursor-pointer border-[1px] border-red-900 shadow-[0px_5px_15px_rgba(255,255,255,0.1),0px_10px_25px_rgba(0,0,0,0.7)] transition-all hover:scale-105 hover:shadow-[0px_10px_30px_rgba(255,80,80,0.15),0px_15px_50px_rgba(0,0,0,0.8)] flex items-center justify-between group w-64 md:w-80">
+          <div className="bg-white/5  p-6 rounded-2xl cursor-pointer border-[4px] border-red-700 shadow-[0px_5px_15px_rgba(255,255,255,0.1),0px_10px_25px_rgba(0,0,0,0.7)] transition-all hover:scale-105 hover:shadow-[0px_10px_30px_rgba(255,80,80,0.15),0px_15px_50px_rgba(0,0,0,0.8)] flex items-center justify-between group w-64 md:w-80">
             <div>
               <h3 className="text-gray-400 font-medium mb-1">
                 Total Incidents
@@ -261,7 +261,7 @@ const AdminDashboard = () => {
 
           {/* Resolved Incidents Card */}
 
-          <div className="bg-white/5 cursor-pointer  p-6 rounded-2xl border-[1px] border-green-900 shadow-[0px_5px_15px_rgba(255,255,255,0.1),0px_10px_25px_rgba(0,0,0,0.7)] transition-all hover:scale-105 hover:shadow-[0px_10px_30px_rgba(100,255,100,0.2),0px_15px_50px_rgba(0,0,0,0.8)] flex items-center justify-between group w-64 md:w-80">
+          <div className="bg-white/5 cursor-pointer  p-6 rounded-2xl border-[4px] border-green-700 shadow-[0px_5px_15px_rgba(255,255,255,0.1),0px_10px_25px_rgba(0,0,0,0.7)] transition-all hover:scale-105 hover:shadow-[0px_10px_30px_rgba(100,255,100,0.2),0px_15px_50px_rgba(0,0,0,0.8)] flex items-center justify-between group w-64 md:w-80">
             <div>
               <h3 className="text-gray-400 font-medium mb-1">Resolved</h3>
               <p className="text-3xl font-bold text-white">{resolved}</p>
@@ -270,7 +270,7 @@ const AdminDashboard = () => {
           </div>
 
           {/* Unresolved Incidents Card */}
-          <div className="bg-white/5 backdrop-blur-sm p-6 cursor-pointer rounded-2xl border-[1px] border-yellow-900 shadow-[0px_5px_15px_rgba(255,255,255,0.1),0px_10px_25px_rgba(0,0,0,0.7)] transition-all hover:scale-105 hover:shadow-[0px_10px_30px_rgba(255,204,0,0.2),0px_15px_50px_rgba(0,0,0,0.8)] flex items-center justify-between group w-64 md:w-80">
+          <div className="bg-white/5 backdrop-blur-sm p-6 cursor-pointer rounded-2xl border-[4px] border-yellow-700 shadow-[0px_5px_15px_rgba(255,255,255,0.1),0px_10px_25px_rgba(0,0,0,0.7)] transition-all hover:scale-105 hover:shadow-[0px_10px_30px_rgba(255,204,0,0.2),0px_15px_50px_rgba(0,0,0,0.8)] flex items-center justify-between group w-64 md:w-80">
             <div>
               <h3 className="text-gray-400 font-medium mb-1">Unresolved</h3>
               <p className="text-3xl font-bold text-white">{unresolved}</p>

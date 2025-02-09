@@ -164,6 +164,10 @@ const IncidentDashboardUser = () => {
                   contentStyle={{
                     backgroundColor: "#002345",
                     border: "1px solid rgba(0,255,255,0.2)",
+                    color: "cyan", // Doesn't affect text inside tooltip
+                  }}
+                  itemStyle={{
+                    color: "cyan", // This actually changes text color
                   }}
                 />
                 <Legend />
@@ -185,6 +189,10 @@ const IncidentDashboardUser = () => {
                   contentStyle={{
                     backgroundColor: "#002345",
                     border: "1px solid rgba(0,255,255,0.2)",
+                    color: "cyan", // Doesn't affect text inside tooltip
+                  }}
+                  itemStyle={{
+                    color: "cyan", // This actually changes text color
                   }}
                 />
                 <Legend />
@@ -212,6 +220,10 @@ const IncidentDashboardUser = () => {
                   contentStyle={{
                     backgroundColor: "#002345",
                     border: "1px solid rgba(0,255,255,0.2)",
+                    color: "cyan", // Doesn't affect text inside tooltip
+                  }}
+                  itemStyle={{
+                    color: "cyan", // This actually changes text color
                   }}
                 />
                 <Bar dataKey="count">
@@ -237,6 +249,10 @@ const IncidentDashboardUser = () => {
                   contentStyle={{
                     backgroundColor: "#002345",
                     border: "1px solid rgba(0,255,255,0.2)",
+                    color: "cyan", // Doesn't affect text inside tooltip
+                  }}
+                  itemStyle={{
+                    color: "cyan", // This actually changes text color
                   }}
                 />
                 <Legend />

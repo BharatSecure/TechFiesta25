@@ -26,7 +26,7 @@ const COLORS = [
 // Neuromorphic Card Components
 const Card = ({ children, className = "" }) => (
   <div
-    className={`bg-[#002345] rounded-xl p-6 shadow-[5px_5px_15px_rgba(0,0,0,0.3),-5px_-5px_15px_rgba(0,255,255,0.1)] border border-cyan-400/20 transform transition-all duration-300 hover:shadow-[0_0_20px_rgba(34,211,238,0.3)] ${className}`}
+    className={`text-cyan-300 bg-[#002345] rounded-xl p-6 shadow-[5px_5px_15px_rgba(0,0,0,0.3),-5px_-5px_15px_rgba(0,255,255,0.1)] border border-cyan-400/20 transform transition-all duration-300 hover:shadow-[0_0_20px_rgba(34,211,238,0.3)] group ${className}`}
   >
     {children}
   </div>
@@ -39,13 +39,17 @@ const CardHeader = ({ children }) => (
 );
 
 const CardTitle = ({ children }) => (
-  <h3 className="text-lg font-semibold text-cyan-400 drop-shadow-[0_0_5px_rgba(34,211,238,0.3)]">
+  <h3 className="text-lg font-semibold text-cyan-400 drop-shadow-[0_0_5px_rgba(34,211,238,0.3)] group-hover:text-cyan-300 transition-colors duration-300">
     {children}
   </h3>
 );
 
 const CardContent = ({ children, className = "" }) => (
-  <div className={`${className} text-white`}>{children}</div>
+  <div
+    className={`${className} text-white group-hover:text-cyan-300 transition-colors duration-300`}
+  >
+    {children}
+  </div>
 );
 
 const AnalyticsDashboard = () => {
@@ -112,55 +116,11 @@ const AnalyticsDashboard = () => {
   };
 
   return (
-    <div className="p-8 space-y-8 bg-[#001830] min-h-screen">
+    <div className="p-8 pt-28 space-y-8 bg-[#001830] min-h-screen">
       {/* Dashboard Title */}
-      <h1 className="text-4xl font-bold text-cyan-400 mb-8 text-center drop-shadow-[0_0_8px_rgba(34,211,238,0.5)]">
+      <h1 className="text-4xl font-bold text-cyan-400 mb-8 text-center drop-shadow-[0_0_8px_rgba(34,211,238,0.5)] hover:text-cyan-300 transition-colors duration-300">
         Incident Analytics Dashboard
       </h1>
-
-      {/* Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        {[
-          {
-            title: "Total Incidents",
-            value: analyticsData.total_incidents,
-            color: "text-cyan-400",
-            icon: "📊",
-          },
-          {
-            title: "Pending",
-            value: analyticsData.pending_incidents,
-            color: "text-yellow-400",
-            icon: "⏳",
-          },
-          {
-            title: "Resolved",
-            value: analyticsData.resolved_incidents,
-            color: "text-green-400",
-            icon: "✅",
-          },
-          {
-            title: "Avg. Resolution Time",
-            value: `${analyticsData.avg_resolution_time}h`,
-            color: "text-blue-400",
-            icon: "⏱️",
-          },
-        ].map((item, index) => (
-          <Card key={index}>
-            <CardHeader>
-              <div className="flex items-center space-x-3">
-                <span className="text-2xl">{item.icon}</span>
-                <CardTitle>{item.title}</CardTitle>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className={`text-3xl font-bold ${item.color}`}>
-                {item.value}
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
 
       {/* Charts */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -182,7 +142,7 @@ const AnalyticsDashboard = () => {
                 />
                 <YAxis {...chartConfig.yAxis} />
                 <Tooltip {...chartConfig.tooltip} />
-                <Bar dataKey="count" fill="#00ffff">
+                <Bar dataKey="count" fill="#94ecf7">
                   {analyticsData.incidents_by_type.map((entry, index) => (
                     <Cell
                       key={`cell-${index}`}
@@ -243,10 +203,21 @@ const AnalyticsDashboard = () => {
                     />
                   ))}
                 </Pie>
-                <Tooltip {...chartConfig.tooltip} />
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: "#002345",
+                    border: "1px solid rgba(0,255,255,0.2)",
+                    color: "cyan", // Doesn't affect text inside tooltip
+                  }}
+                  itemStyle={{
+                    color: "cyan", // This actually changes text color
+                  }}
+                />
                 <Legend
                   formatter={(value) => (
-                    <span className="text-cyan-400">{value}</span>
+                    <span className="text-cyan-400 hover:text-cyan-300 transition-colors duration-300">
+                      {value}
+                    </span>
                   )}
                 />
               </PieChart>
@@ -278,10 +249,21 @@ const AnalyticsDashboard = () => {
                     />
                   ))}
                 </Pie>
-                <Tooltip {...chartConfig.tooltip} />
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: "#002345",
+                    border: "1px solid rgba(0,255,255,0.2)",
+                    color: "cyan", // Doesn't affect text inside tooltip
+                  }}
+                  itemStyle={{
+                    color: "cyan", // This actually changes text color
+                  }}
+                />
                 <Legend
                   formatter={(value) => (
-                    <span className="text-cyan-400">{value}</span>
+                    <span className="text-cyan-400 hover:text-cyan-300 transition-colors duration-300">
+                      {value}
+                    </span>
                   )}
                 />
               </PieChart>

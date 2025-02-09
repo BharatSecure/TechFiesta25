@@ -15,7 +15,7 @@ def is_spam(text):
     # Common spam patterns
     spam_patterns = [
         r"(https?://\S+)",   # URLs
-        r"(free money|win cash|click here)",  # Scam phrases
+        r"(free money|win cash|click here|giveaway)",  # Scam phrases
         r"(buy now|subscribe|discount)",  # Marketing phrases
     ]
     

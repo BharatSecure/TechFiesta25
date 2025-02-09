@@ -1,4 +1,25 @@
-token1 = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzM3OTE3ODY3LCJpYXQiOjE3Mzc5MTY5NjcsImp0aSI6IjA1MzljYzY3MWUzZjQwODE5N2NiZjYzMzE4NWQ0MzcwIiwidXNlcl9pZCI6NX0.pbzU4sZxUjTbmDSRcCbm8tV6slnLqukrQu5YY-BjtTM'
-from rest_framework_simplejwt.tokens import AccessToken
-token = AccessToken(token1)
-print(token)
+import requests
+
+def get_coordinates_geoapify(address):
+    api_key = "YOUR_GEOAPIFY_API_KEY"  # Replace with your API key
+    base_url = "https://api.geoapify.com/v1/geocode/search"
+    
+    params = {
+        "text": address,
+        "format": "json",
+        "apiKey": api_key
+    }
+
+    response = requests.get(base_url, params=params)
+
+    if response.status_code == 200:
+        data = response.json()
+        if data["features"]:
+            location = data["features"][0]["geometry"]["coordinates"]
+            return {"latitude": location[1], "longitude": location[0]}
+    
+    print(f"Error: {response.status_code}, {response.text}")
+    return None
+
+# Test the function
+print(get_coordinates_geoapify("Ganesh Chowk, Kandivali West, Mumbai"))

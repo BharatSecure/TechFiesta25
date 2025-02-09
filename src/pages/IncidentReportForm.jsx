@@ -4,6 +4,8 @@ import axios from "axios";
 import { Modal, Box, Button, Typography } from "@mui/material";
 import { BarLoader } from "react-spinners";
 import FloatingChatbot from "@/components/FloatingChatbot";
+import { motion } from "framer-motion";
+import { Camera, MapPin, AlertTriangle, FileText, Upload } from "lucide-react";
 
 const SimpleModal = ({ open, handleClose, message }) => {
   return (
@@ -57,7 +59,7 @@ const IncidentReportForm = () => {
       longitude: "",
     },
     description: "",
-    severity: "low", // Default severity
+    // severity: "low", // Default severity
     reportAnonymously: false, // Initial checkbox value
   });
 
@@ -231,11 +233,11 @@ const IncidentReportForm = () => {
         : formData.incidentType;
 
     // Map severity levels to numeric values
-    const severityMap = {
-      Low: "low",
-      Medium: "medium",
-      High: "high",
-    };
+    // const severityMap = {
+    //   Low: "low",
+    //   Medium: "medium",
+    //   High: "high",
+    // };
 
     // Serialize location properly before sending
     let locationToSend;
@@ -252,7 +254,7 @@ const IncidentReportForm = () => {
       incidentType: incidentType,
       location: locationToSend, // Serialized location
       description: formData.description,
-      severity: severityMap[formData.severity] || "low", // Default to 'low' if undefined
+      // severity: severityMap[formData.severity] || "low", // Default to 'low' if undefined
       // reportAnonymously: formData.reportAnonymously,
       file: file ? file.name : null,
     };
@@ -269,7 +271,7 @@ const IncidentReportForm = () => {
     formDataToSend.append("incidentType", submittedData.incidentType);
     formDataToSend.append("location", submittedData.location);
     formDataToSend.append("description", submittedData.description);
-    formDataToSend.append("severity", submittedData.severity);
+    // formDataToSend.append("severity", submittedData.severity);
     // formDataToSend.append("reportAnonymously", submittedData.reportAnonymously);
 
     if (file) {
@@ -300,7 +302,7 @@ const IncidentReportForm = () => {
         customIncidentType: "",
         location: "",
         description: "",
-        severity: "Low",
+        // severity: "Low",
       });
       setFile(null);
       // Try submitting any pending offline data
@@ -320,223 +322,252 @@ const IncidentReportForm = () => {
   };
 
   return (
-    <>
-      <div className="min-h-screen bg-gradient-to-b from-gray-100 via-gray-200 to-gray-300 flex flex-col items-center py-10 px-4">
-        {/* Heading and Description */}
-        <SimpleModal
-          open={offlineModalOpen}
-          handleClose={handleModalClose}
-          message="You are offline. Your report has been saved and will be submitted automatically when you are back online."
-        />
-        <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-sky-600 mb-2">
+    <div className="min-h-screen bg-gradient-to-b from-slate-900 via-blue-950 to-black">
+      <SimpleModal
+        open={offlineModalOpen}
+        handleClose={handleModalClose}
+        message="You are offline. Your report has been saved and will be submitted automatically when you are back online."
+      />
+
+      <div className="container mx-auto px-4 py-12">
+        {/* Header Section */}
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="text-center mb-10"
+        >
+          <h1 className="text-5xl font-bold bg-gradient-to-r from-blue-400 to-cyan-300 bg-clip-text text-transparent mb-4 drop-shadow-[0_0_10px_cyan]">
             Report an Incident
           </h1>
-          <p className="text-gray-700 text-lg">
-            Fill out the form below to report an incident. Your information will
-            help authorities take swift action.
+
+          <p className="text-gray-400 text-lg max-w-2xl mx-auto">
+            Help us maintain safety and security by reporting incidents. Your
+            information will be handled with utmost confidentiality.
           </p>
-        </div>
+        </motion.div>
 
-        {/* Form */}
-        <div className="w-full max-w-lg bg-cyan-200 p-8 shadow-lg rounded-lg">
-          <form onSubmit={handleSubmit}>
-            {/* Incident Type */}
-            <div className="mb-6">
-              <label
-                htmlFor="incidentType"
-                className="block text-gray-600 font-medium mb-2"
-              >
-                Incident Type
-              </label>
-              <select
-                id="incidentType"
-                name="incidentType"
-                value={formData.incidentType}
-                onChange={handleChange}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500"
-                required
-              >
-                <option value="">Select an incident type</option>
-                <option value="Fire">Fire</option>
-                <option value="Accident">Accident</option>
-                <option value="Theft">Theft</option>
-                <option value="Medical Emergency">Medical Emergency</option>
-                <option value="Other">Other</option>
-              </select>
-            </div>
-
-            {/* Custom Incident Type */}
-            {formData.incidentType === "Other" && (
-              <div className="mb-6">
-                <label
-                  htmlFor="customIncidentType"
-                  className="block text-gray-600 font-medium mb-2"
-                >
-                  Specify Incident Type
+        {/* Main Form */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="max-w-2xl mx-auto"
+        >
+          <div className="bg-slate-900 rounded-2xl p-8 border border-cyan-500 shadow-[0_0_10px_cyan] transition-all duration-300 hover:shadow-[0_0_20px_cyan]">
+            <form onSubmit={handleSubmit} className="space-y-6">
+              {/* Incident Type Section */}
+              <div className="relative">
+                <label className="text-gray-300 text-sm font-medium mb-2 block">
+                  <AlertTriangle className="w-4 h-4 inline-block mr-2 text-cyan-400" />
+                  Incident Type
                 </label>
-                <input
-                  type="text"
-                  id="customIncidentType"
-                  name="customIncidentType"
-                  value={formData.customIncidentType}
+                <select
+                  name="incidentType"
+                  value={formData.incidentType}
                   onChange={handleChange}
-                  placeholder="Enter the incident type"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500"
-                  required
+                  className="w-full bg-slate-800 text-gray-100 px-4 py-3 rounded-xl border border-slate-700 focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400 shadow-[inset_0_2px_4px_rgba(0,0,0,0.2)] transition-all duration-200"
+                >
+                  <option value="">Select an incident type</option>
+                  <option value="Fire">Fire</option>
+                  <option value="Accident">Accident</option>
+                  <option value="Theft">Theft</option>
+                  <option value="Medical Emergency">Medical Emergency</option>
+                  <option value="Other">Other</option>
+                </select>
+              </div>
+
+              {/* Custom Incident Type */}
+              {formData.incidentType === "Other" && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: "auto" }}
+                  className="relative"
+                >
+                  <label className="text-gray-300 text-sm font-medium mb-2 block">
+                    <FileText className="w-4 h-4 inline-block mr-2 text-cyan-400" />
+                    Specify Incident Type
+                  </label>
+                  <input
+                    type="text"
+                    name="customIncidentType"
+                    value={formData.customIncidentType}
+                    onChange={handleChange}
+                    className="w-full bg-slate-800 text-gray-100 px-4 py-3 rounded-xl border border-slate-700 focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400 shadow-[inset_0_2px_4px_rgba(0,0,0,0.2)]"
+                    placeholder="Enter the incident type"
+                  />
+                </motion.div>
+              )}
+
+              {/* Location Section */}
+              <div className="relative">
+                <label className="text-gray-300 text-sm font-medium mb-2 block">
+                  <MapPin className="w-4 h-4 inline-block mr-2 text-cyan-400" />
+                  Location of Incident
+                </label>
+                <div className="flex flex-wrap gap-2">
+                  <input
+                    type="text"
+                    name="location"
+                    value={
+                      typeof formData.location === "string"
+                        ? formData.location
+                        : formData.location.latitude &&
+                          formData.location.longitude
+                        ? `Latitude: ${formData.location.latitude}, Longitude: ${formData.location.longitude}`
+                        : ""
+                    }
+                    onChange={handleChange}
+                    className="flex-1 bg-slate-800 text-gray-100 px-4 py-3 rounded-xl border border-slate-700 focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400 shadow-[inset_0_2px_4px_rgba(0,0,0,0.2)]"
+                    placeholder="Enter location details"
+                  />
+                  <button
+                    type="button"
+                    onClick={getLocation}
+                    disabled={loadingLocation}
+                    className="px-4 py-2 bg-cyan-500 hover:bg-cyan-600 text-white rounded-xl transition-colors duration-200 flex items-center gap-2 shadow-lg hover:shadow-cyan-500/20"
+                  >
+                    <MapPin className="w-4 h-4" />
+                    {loadingLocation ? "Fetching..." : "Get Location"}
+                  </button>
+                </div>
+              </div>
+
+              {/* Description Section */}
+              <div className="relative">
+                <label className="text-gray-300 text-sm font-medium mb-2 block">
+                  <FileText className="w-4 h-4 inline-block mr-2 text-cyan-400" />
+                  Description
+                </label>
+                <textarea
+                  name="description"
+                  value={formData.description}
+                  onChange={handleChange}
+                  rows={4}
+                  className="w-full bg-slate-800 text-gray-100 px-4 py-3 rounded-xl border border-slate-700 focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400 shadow-[inset_0_2px_4px_rgba(0,0,0,0.2)]"
+                  placeholder="Provide detailed description of the incident"
                 />
               </div>
-            )}
 
-            {/* Location */}
-            <div className="mb-6">
-              <label
-                htmlFor="location"
-                className="block text-gray-600 font-medium mb-2"
+              {/* Severity Section */}
+              {/* <div className="relative">
+                <label className="text-gray-300 text-sm font-medium mb-2 block">
+                  <AlertTriangle className="w-4 h-4 inline-block mr-2 text-cyan-400" />
+                  Severity Level
+                </label>
+                <div className="grid grid-cols-3 gap-4">
+                  {["Low", "Medium", "High"].map((level) => (
+                    <button
+                      key={level}
+                      type="button"
+                      onClick={() =>
+                        handleChange({
+                          target: { name: "severity", value: level },
+                        })
+                      }
+                      className={`py-2 px-4 rounded-xl transition-all duration-200 ${
+                        formData.severity === level
+                          ? "bg-cyan-500 text-white shadow-lg shadow-cyan-500/20"
+                          : "bg-slate-800 text-gray-400 hover:bg-slate-700"
+                      }`}
+                    >
+                      {level}
+                    </button>
+                  ))}
+                </div>
+              </div> */}
+
+              {/* File Upload Section */}
+              <div className="relative">
+                <label className="text-gray-300 text-sm font-medium mb-2 block">
+                  <Upload className="w-4 h-4 inline-block mr-2 text-cyan-400" />
+                  Attach Evidence
+                </label>
+                <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-slate-700 border-dashed rounded-xl hover:border-cyan-400 transition-colors duration-200">
+                  <div className="space-y-1 text-center">
+                    <Camera className="mx-auto h-12 w-12 text-gray-400" />
+                    <div className="flex text-sm text-gray-400">
+                      <label className="relative cursor-pointer rounded-md font-medium text-cyan-400 hover:text-cyan-300">
+                        <span>Upload a file</span>
+                        <input
+                          type="file"
+                          name="file"
+                          onChange={handleFileChange}
+                          className="sr-only"
+                        />
+                      </label>
+                      <p className="pl-1">or drag and drop</p>
+                    </div>
+                    <p className="text-xs text-gray-500">
+                      PNG, JPG, PDF up to 10MB
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Submit Button */}
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                type="submit"
+                className="w-full py-4 bg-gradient-to-r from-cyan-500 to-blue-500 text-white rounded-xl font-medium shadow-lg hover:shadow-cyan-500/20 transition-all duration-200"
               >
-                Location/Address
-              </label>
-              <input
-                type="text"
-                id="location"
-                name="location"
-                value={
-                  typeof formData.location === "string"
-                    ? formData.location
-                    : formData.location.latitude && formData.location.longitude
-                    ? `Latitude: ${formData.location.latitude}, Longitude: ${formData.location.longitude}`
-                    : ""
-                }
-                onChange={handleChange}
-                placeholder="Enter or fetch location"
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500"
-              />
+                Submit Report
+              </motion.button>
+
+              {loadingSpinner && (
+                <div className="flex justify-center mt-4">
+                  <BarLoader color="#06b6d4" />
+                </div>
+              )}
+            </form>
+          </div>
+        </motion.div>
+      </div>
+
+      {/* Success Modal */}
+      {modalOpen && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center">
+          <motion.div
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            className="bg-slate-800 p-6 rounded-2xl shadow-2xl border border-slate-700 max-w-md w-full mx-4"
+          >
+            <div className="text-center">
+              <div className="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg
+                  className="w-8 h-8 text-white"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M5 13l4 4L19 7"
+                  />
+                </svg>
+              </div>
+              <h2 className="text-2xl font-bold text-white mb-2">
+                Report Submitted!
+              </h2>
+              <p className="text-gray-400 mb-6">
+                Your incident has been reported successfully. We'll process it
+                right away.
+              </p>
               <button
-                type="button"
-                onClick={getLocation}
-                className="mt-2 px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 focus:outline-none"
-                disabled={loadingLocation}
+                onClick={() => setModalOpen(false)}
+                className="px-6 py-2 bg-cyan-500 text-white rounded-xl hover:bg-cyan-600 transition-colors duration-200"
               >
-                {loadingLocation
-                  ? "Fetching Location..."
-                  : "Get Current Location"}
+                Close
               </button>
             </div>
-
-            {/* Description */}
-            <div className="mb-6">
-              <label
-                htmlFor="description"
-                className="block text-gray-600 font-medium mb-2"
-              >
-                Description
-              </label>
-              <textarea
-                id="description"
-                name="description"
-                value={formData.description}
-                onChange={handleChange}
-                placeholder="Describe the incident"
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500"
-                required
-              />
-            </div>
-
-            {/* Severity */}
-            <div className="mb-6">
-              <label
-                htmlFor="severity"
-                className="block text-gray-600 font-medium mb-2"
-              >
-                Severity Level
-              </label>
-              <select
-                id="severity"
-                name="severity"
-                value={formData.severity}
-                onChange={handleChange}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500"
-                required
-              >
-                <option value="Low">Low</option>
-                <option value="Medium">Medium</option>
-                <option value="High">High</option>
-              </select>
-            </div>
-
-            {/* Report Anonymously */}
-            {/* <div className="mb-6">
-              <label className="inline-flex items-center">
-                <input
-                  type="checkbox"
-                  name="reportAnonymously"
-                  checked={formData.reportAnonymously || false}
-                  onChange={handleCheckboxChange}
-                  className="form-checkbox h-5 w-5 text-sky-600"
-                />
-                <span className="ml-2 text-gray-600">Report Anonymously</span>
-              </label>
-            </div> */}
-
-            {/* File Upload */}
-            <div className="mb-6">
-              <label
-                htmlFor="file"
-                className="block text-gray-600 font-medium mb-2"
-              >
-                Attach Document/Evidence (Optional)
-              </label>
-              <input
-                type="file"
-                id="file"
-                name="file"
-                onChange={handleFileChange}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500"
-              />
-            </div>
-
-            {/* Submit Button */}
-            <button
-              type="submit"
-              className="w-full px-4 py-2 bg-sky-600 text-white font-bold rounded-lg hover:bg-sky-700 focus:outline-none focus:ring-2 focus:ring-sky-500"
-            >
-              Submit
-            </button>
-            {loadingSpinner && (
-              <div
-                style={{
-                  margin: "auto",
-                  marginTop: "5px",
-                  display: "flex",
-                  justifyContent: "center",
-                }}
-              >
-                <BarLoader />
-              </div>
-            )}
-          </form>
-          {/* Modal */}
-          {modalOpen && (
-            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-              <div className="bg-white p-6 rounded-lg shadow-lg">
-                <h2 className="text-xl font-semibold mb-4">
-                  Incident Reported!
-                </h2>
-                <p>Your incident has been reported successfully.</p>
-                <button
-                  onClick={() => setModalOpen(false)}
-                  className="mt-4 px-4 py-2 bg-blue-500 text-white rounded-lg"
-                >
-                  Close
-                </button>
-              </div>
-            </div>
-          )}
+          </motion.div>
         </div>
-      </div>
+      )}
+
       <Footer />
-      <FloatingChatbot/>
-    </>
+      <FloatingChatbot />
+    </div>
   );
 };
 

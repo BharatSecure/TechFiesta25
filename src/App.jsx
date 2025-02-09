@@ -24,13 +24,17 @@ import ViewDetails from "./pages/ViewDetails";
 // import Chatbot from "./pages/chatbotTrial";
 import UserRoute from "./protected-routes/UserRoute";
 import AdminRoute from "./protected-routes/AdminRoute";
+import UserProfile from "./pages/UserProfile";
+import IncidentDashboardUser from "./pages/charts-user";
+import IncidentAnalyticsDashboard from "./pages/chart-global";
+import AnalyticsDashboard from "./pages/chart";
 
 const UserDashboard = lazy(() => import("./pages/UserDashboard"));
 const AdminDashboard = lazy(() => import("./pages/AdminDashboard"));
 const AboutUs = lazy(() => import("./pages/AboutUs"));
-const RecentIncidents = lazy(() => import("./pages/RecentIncidents"));
+const RecentIncidents = lazy(() => import("./pages/RecentIncidents1"));
 const HeatMap2 = lazy(() => import("./components/Heatmap2"));
-const IncidentReportForm = lazy(() => import("./pages/IncidentReportForm"));
+const IncidentReportForm = lazy(() => import("./pages/IncidentReportForm2"));
 const FeedbackForm = lazy(() => import("./pages/FeedbackForm"));
 const Chatbot = lazy(() => import("./pages/chatbotTrial"));
 
@@ -66,15 +70,22 @@ const App = () => {
               </Route>
               <Route path="/my-reports" element={<UserDashboard />} />
               <Route path="/admin" element={<AdminDashboard />} />
-              <Route path="/about" element={<AboutUs />} />
+              <Route path="/About" element={<AboutUs />} />
               <Route path="/heatmap" element={<HeatMap2 />} />
               <Route path="/voice-report" element={<VoiceToText />} />
               <Route path="/signUp" element={<SignUp />} />
               <Route path="/login" element={<Login />} />
-              <Route path="/blogs" element={<RecentIncidents />} />
+              <Route path="/InciLog" element={<RecentIncidents />} />
               <Route path="/view-details/:id" element={<ViewDetails />} />
               <Route path="/feedback" element={<FeedbackForm />} />
               <Route path="chatbot" element={<Chatbot />} />
+              <Route
+                path="/charts-global"
+                element={<IncidentAnalyticsDashboard />}
+              />
+              <Route path="/charts" element={<AnalyticsDashboard />} />
+              <Route path="/incident/:id" element={<ViewDetails />} />
+              <Route path="/user/:userId" element={<UserProfile />} />
               {/* Redirect all unknown routes to Home */}
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>

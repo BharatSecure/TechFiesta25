@@ -1,4 +1,5 @@
 import React, { forwardRef } from "react";
+
 import {
   Box,
   Typography,
@@ -73,113 +74,58 @@ const features = [
 
 const Features = forwardRef((props, ref) => {
   return (
-    <div ref={ref}>
-      <ThemeProvider theme={theme}>
-        <CssBaseline /> {/* Apply baseline styles */}
-        <Box
-          sx={{ py: 6, px: 2, backgroundColor: "#f9f9f9", overflow: "hidden" }}
-        >
-          <Typography
-            variant="h3"
-            align="center"
-            sx={{
-              fontWeight: "bold",
-              mb: 4,
-              color: "#003366", // Dark blue for a more professional look
-            }}
-          >
-            Our Features
-          </Typography>
+   <div ref={ref} className="min-h-screen bg-slate-900 py-12 px-4 overflow-hidden">
+  <h1 className="text-4xl font-bold text-center mb-8 text-cyan-400 font-['Smooch_Sans'] drop-shadow-[0_0_10px_rgba(34,211,238,0.5)]">
+    Our Features
+  </h1>
 
-          <Stack spacing={6}>
-            {features.map((feature, index) => (
-              <Box
-                key={feature.id}
-                sx={{
-                  display: "flex",
-                  flexDirection: {
-                    xs: "column", // Column layout for small screens
-                    sm: index % 2 === 0 ? "row" : "row-reverse", // Row layout for medium+ screens
-                  },
-                  alignItems: "center",
-                  gap: 2,
-                  transition: "transform 0.3s ease",
-                  "&:hover": {
-                    transform: "scale(1.02)",
-                  },
-                }}
-              >
-                <FadeInComponent>
-                  <Link to={feature.linkTo} style={{ textDecoration: "none" }}>
-                    <Card
-                      sx={{
-                        display: "flex",
-                        flexDirection: {
-                          xs: "column", // Column layout for mobile
-                          sm: "row", // Row layout for larger screens
-                        },
-                        boxShadow: 5,
-                        width: "100%",
-                        backgroundColor: "#ffffff",
-                        borderRadius: 3,
-                        transition: "transform 0.3s ease, box-shadow 0.3s ease",
-                        "&:hover": {
-                          transform: "scale(0.95)",
-                          boxShadow: 10,
-                        },
-                      }}
-                    >
-                      <CardMedia
-                        component="img"
-                        sx={{
-                          width: { xs: "100%", sm: "40%" }, // Full width on mobile
-                          objectFit: "cover",
-                          height: { xs: "auto", sm: "100%" },
-                          borderRadius: 2,
-                        }}
-                        image={feature.imageUrl}
-                        alt={feature.title}
-                      />
-                      <CardContent
-                        sx={{
-                          display: "flex",
-                          flexDirection: "column",
-                          justifyContent: "center",
-                          px: { xs: 2, sm: 4 }, // Adjust padding for mobile
-                          py: { xs: 2, sm: 3 },
-                          backgroundColor: "#f0f0f0",
-                          borderRadius: 2,
-                        }}
-                      >
-                        <Typography
-                          variant="h5"
-                          sx={{
-                            fontWeight: "bold",
-                            mb: 2,
-                            color: "#0066cc",
-                          }}
-                        >
-                          {feature.title}
-                        </Typography>
-                        <Typography variant="body1" sx={{ color: "#666" }}>
-                          {feature.description}
-                        </Typography>
-                        <button
-                          className="mt-3 w-full sm:w-1/2 self-center rounded-md bg-gradient-to-r from-sky-500 to-sky-700 py-2 px-6 text-white text-sm font-semibold shadow-md hover:shadow-lg hover:from-sky-700 hover:to-sky-900 transition-all"
-                          type="button"
-                        >
-                          Try Now
-                        </button>
-                      </CardContent>
-                    </Card>
-                  </Link>
-                </FadeInComponent>
-              </Box>
-            ))}
-          </Stack>
-        </Box>
-      </ThemeProvider>
-    </div>
+  <div className="space-y-12">
+    {features.map((feature, index) => (
+      <div
+        key={feature.id}
+        className={`flex flex-col sm:${
+          index % 2 === 0 ? 'flex-row' : 'flex-row-reverse'
+        } items-center gap-4 transition-transform duration-300 hover:scale-102`}
+      >
+        <div className="w-full">
+          <a href={feature.linkTo} className="w-full no-underline block">
+            <div className="flex flex-col sm:flex-row bg-slate-800 rounded-xl shadow-[inset_-12px_-12px_24px_#1e293b,inset_12px_12px_24px_#0f172a] overflow-hidden transition-all duration-300 hover:scale-95 
+              hover:shadow-[0_0_20px_rgba(34,211,238,0.5)]">
+              <div className="w-full sm:w-4/5 min-h-[300px] sm:min-h-[400px] relative">
+                <img
+                  src={feature.imageUrl}
+                  alt={feature.title}
+                  className="absolute inset-0 w-full h-full object-cover rounded-t-xl sm:rounded-l-xl sm:rounded-tr-none"
+                />
+              </div>
+
+              <div className="flex flex-col justify-center p-6 sm:p-8 bg-slate-800 rounded-b-xl sm:rounded-r-xl sm:rounded-bl-none flex-grow">
+                <h2 className="text-2xl font-bold mb-4 text-cyan-400 drop-shadow-[0_0_8px_rgba(34,211,238,0.5)]">
+                  {feature.title}
+                </h2>
+                <p className="text-gray-300 mb-6">
+                  {feature.description}
+                </p>
+                <button
+                  className="mt-3 w-full sm:w-1/2 self-center rounded-xl bg-cyan-900 py-3 px-6 text-cyan-100 text-sm font-semibold 
+                  shadow-[inset_-4px_-4px_8px_#164e63,inset_4px_4px_8px_#083344] 
+                  hover:shadow-[inset_-6px_-6px_12px_#164e63,inset_6px_6px_12px_#083344] 
+                  hover:bg-cyan-800
+                  transition-all duration-300"
+                  type="button"
+                >
+                  Try Now
+                </button>
+              </div>
+            </div>
+          </a>
+        </div>
+      </div>
+    ))}
+  </div>
+</div>
+
+  
   );
 });
 

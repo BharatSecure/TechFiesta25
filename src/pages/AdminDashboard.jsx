@@ -236,7 +236,7 @@ const AdminDashboard = () => {
     <div className="min-h-screen bg-gradient-to-b from-slate-900 via-blue-950 to-slate-900">
       <div className="flex-grow p-8 pb-24">
         <div className="mb-10">
-          <h1 className="text-xl text-left md:text-center md:text-5xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-sky-400 to-blue-600">
+          <h1 className="text-xl text-left md:text-center md:text-5xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-sky-400 to-blue-600 [text-shadow:_0_0_30px_rgb(6_182_212_/_45%)]">
             Admin Dashboard
           </h1>
           <button

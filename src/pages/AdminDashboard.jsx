@@ -669,7 +669,7 @@ const AdminDashboard = () => {
           ))}
         </div>
 
-        {/*Flagged Incidentss */}
+        {/* Flagged Incidentss
         <h1 className="text-4xl text-red-500 font-semibold mb-5 mt-12  md:text-left text-center">
           Flagged Incidents:
         </h1>
@@ -767,7 +767,7 @@ const AdminDashboard = () => {
               </button>
             </div>
           ))}
-        </div>
+        </div> */}
         <AdminCharts />
       </div>
       <Footer />

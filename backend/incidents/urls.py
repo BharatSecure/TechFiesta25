@@ -18,6 +18,7 @@ urlpatterns = [
     path("all_station_incidents/", views.all_station_incidents, name="station-incident"),
     path('incident-chart-user/', views.get_incident_statistics, name='incident-chart-data'),
     path('advanced-incident-analysis/', views.advanced_incident_analysis, name='advanced-incident-analysis'),
+    path('incident-analysis/', views.get_incident_analytics, name='incident-analytics'),
     path("api/user/<int:user_id>/", views.UserDetailView.as_view(), name="user-detail"),
     path("voice-report/", views.voicereport.as_view(), name="user-detail"),
 ]

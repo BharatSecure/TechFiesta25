@@ -956,7 +956,7 @@ def advanced_incident_analysis(request):
         analytics['overall_statistics'] = {
             'total_incidents': total_incidents,
             'resolution_rate': float(
-                queryset.filter(status='resolved').count() * 100.0 / total_incidents
+                queryset.filter(status='Resolved').count() * 100.0 / total_incidents
                 if total_incidents > 0 else 0
             ),
             'avg_response_score': float(
@@ -1096,4 +1096,87 @@ def get_incident_statistics(request):
         'score_trend': score_trend,
         'total_incidents': user_incidents.count(),
         'average_score': user_incidents.aggregate(Avg('score'))['score__avg'] or 0
+    })
+
+
+@api_view(['GET'])
+def get_incident_analytics(request):
+    auth_header = request.headers.get('Authorization')
+    if not auth_header or not auth_header.startswith('Bearer '):
+        return Response(
+            {"error": "Authorization header missing or malformed"},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
+    try:
+        # Extract and validate the token
+        token_str = auth_header.split(' ')[1]
+        token = AccessToken(token_str)
+        admin = get_object_or_404(Admin, id=token['user_id'])
+    except Exception:
+        return Response(
+            {"error": "Invalid or expired token"},
+            status=status.HTTP_401_UNAUTHORIZED
+        )
+    # Get the admin user
+    admin = Admin.objects.get(id=token['user_id'])
+    
+    # Base queryset filtered by admin's station
+    base_queryset = Incidents.objects.all()
+    if admin.police_station:
+        base_queryset = base_queryset.filter(police_station=admin.police_station)
+    elif admin.fire_station:
+        base_queryset = base_queryset.filter(fire_station=admin.fire_station)
+    elif admin.hospital:
+        base_queryset = base_queryset.filter(hospital_station=admin.hospital)
+    
+    # Get date range for last 30 days
+    end_date = timezone.now()
+    start_date = end_date - timedelta(days=30)
+    
+    # Get incidents by type
+    incidents_by_type = base_queryset.values('incidentType')\
+        .annotate(count=Count('id'))\
+        .order_by('-count')
+
+    # Get incidents by severity
+    incidents_by_severity = base_queryset.values('severity')\
+        .annotate(count=Count('id'))
+
+    # Get incidents by status
+    incidents_by_status = base_queryset.values('status')\
+        .annotate(count=Count('id'))
+
+    # Get daily incidents for the last 30 days
+    daily_incidents = base_queryset.filter(
+        reported_at__range=[start_date, end_date]
+    ).extra(
+        select={'date': 'DATE(reported_at)'}
+    ).values('date').annotate(
+        count=Count('id')
+    ).order_by('date')
+
+    # Calculate average resolution time
+    resolved_incidents = base_queryset.filter(
+        status='resolved',
+        resolved_at__isnull=False
+    )
+    
+    avg_resolution_time = 0
+    if resolved_incidents.exists():
+        total_time = sum(
+            (incident.resolved_at - incident.reported_at).total_seconds()
+            for incident in resolved_incidents
+        )
+        avg_resolution_time = total_time / resolved_incidents.count() / 3600  # in hours
+
+    return Response({
+        'incidents_by_type': incidents_by_type,
+        'incidents_by_severity': incidents_by_severity,
+        'incidents_by_status': incidents_by_status,
+        'daily_incidents': daily_incidents,
+        'total_incidents': base_queryset.count(),
+        'avg_resolution_time': round(avg_resolution_time, 2),
+        'pending_incidents': base_queryset.filter(status='submitted').count(),
+        'resolved_incidents': base_queryset.filter(status='resolved').count()
     })

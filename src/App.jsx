@@ -27,6 +27,7 @@ import AdminRoute from "./protected-routes/AdminRoute";
 import UserProfile from "./pages/UserProfile";
 import IncidentDashboardUser from "./pages/charts-user";
 import IncidentAnalyticsDashboard from "./pages/chart-global";
+import AnalyticsDashboard from "./pages/chart";
 
 const UserDashboard = lazy(() => import("./pages/UserDashboard"));
 const AdminDashboard = lazy(() => import("./pages/AdminDashboard"));
@@ -82,6 +83,7 @@ const App = () => {
                 path="/charts-global"
                 element={<IncidentAnalyticsDashboard />}
               />
+              <Route path="/charts" element={<AnalyticsDashboard />} />
               <Route path="/incident/:id" element={<ViewDetails />} />
               <Route path="/user/:userId" element={<UserProfile />} />
               {/* Redirect all unknown routes to Home */}

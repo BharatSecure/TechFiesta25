@@ -755,7 +755,7 @@ class ChatbotView_Therapist(APIView):
             Balance both roles carefully—your responses should be brief yet compassionate, legally sound, and practical. If appropriate, use the user’s location to recommend nearby government agencies or legal resources for further assistance.
              """),
             MessagesPlaceholder(variable_name="chat_history"),
-            ("human", "{user_input}, location: {location}"),
+            ("human", "{user_input}"),
         ])
         self.chain = self.prompt | self.llm | StrOutputParser()
 

@@ -312,7 +312,7 @@ const AdminDashboard = () => {
                 >
                   {incident.count > 1 ? (
                     <div className="text-3xl text-center text-red-500">
-                      Mass Report!!
+                      Multiple Reports!!
                     </div>
                   ) : (
                     ""

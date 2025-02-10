@@ -1,4 +1,4 @@
-# BharatSecure 
+# BharatSecure
 
 ## Overview
 
@@ -11,18 +11,20 @@
 - **Heatmap Analytics:** Visual representation of high-incident areas.
 - **End-to-End Tracking:** Track the status and resolution of reported incidents.
 - **Categorization:** Automatic classification of incidents for better prioritization.
-- **AI Chatbot Support:** Provides
-  - **Medical Support**
-  - **Emotional Support**
-  - **Legal Guidance**
-- **Emergency SOS Button:** Allows authorities to track the user’s location for 1 minute when activated, treating the SOS as a high-priority emergency.
+- **AI Chatbot Support:** Available 24/7, users can interact via text or voice to receive:
+
+  - **Medical Support** – First-aid guidance and health-related assistance.
+  - **Emotional Support** - Counseling and crisis intervention resources.
+  - **Legal Guidance** – Information on rights, reporting procedures, and legal steps.
+
+- **Emergency SOS Button:** Enables authorities to track the user’s location for 1 minute when activated, treating the SOS as a high-priority emergency.
 
 ## Contributors
 
 - [Mayank Mehta](https://github.com/code-runner1306)
 - [Shane Dias](https://github.com/Shane-Dias)
 - [Serene Dmello](https://github.com/ubet123)
-- [Mayank](https://github.com/ImpactG1)
+- [Mayank Bhuvad](https://github.com/ImpactG1)
 - [Jacell Jamble](https://github.com/JACELL100)
 
 ## Tech Stack
@@ -61,4 +63,3 @@
    npm start  # Starts the React frontend
    python manage.py runserver  # Starts the Django backend
    ``` -->
-

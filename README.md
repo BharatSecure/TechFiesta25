@@ -1,8 +1,8 @@
-# Incident Reporting and Response System
+# BharatSecure 
 
 ## Overview
 
-The **Incident Reporting and Response System** is a web-based platform designed to facilitate quick and effective incident reporting. It includes real-time alerts, location tracking, AI-driven support, and emergency assistance.
+**BharatSecure** is a web-based platform designed to facilitate quick and effective incident reporting. It includes real-time alerts, location tracking, AI-driven support, and emergency assistance.
 
 ## Key Features
 
@@ -16,6 +16,14 @@ The **Incident Reporting and Response System** is a web-based platform designed 
   - **Emotional Support**
   - **Legal Guidance**
 - **Emergency SOS Button:** Allows authorities to track the user’s location for 1 minute when activated, treating the SOS as a high-priority emergency.
+
+## Contributors
+
+- [Mayank Mehta](https://github.com/code-runner1306)
+- [Shane Dias](https://github.com/Shane-Dias)
+- [Serene Dmello](https://github.com/ubet123)
+- [Mayank](https://github.com/ImpactG1)
+- [Jacell Jamble](https://github.com/JACELL100)
 
 ## Tech Stack
 
@@ -33,7 +41,7 @@ The **Incident Reporting and Response System** is a web-based platform designed 
 4. **Users can track the status** of their reported incident.
 5. **Emergency SOS feature** enables location tracking for urgent cases.
 
-## Setup Instructions
+<!-- ## Setup Instructions
 
 1. Clone the repository:
    ```bash
@@ -52,16 +60,5 @@ The **Incident Reporting and Response System** is a web-based platform designed 
    ```bash
    npm start  # Starts the React frontend
    python manage.py runserver  # Starts the Django backend
-   ```
+   ``` -->
 
-## Contributing
-
-Feel free to submit pull requests to enhance the system. Ensure your changes align with the project's goals.
-
-## License
-
-This project is licensed under the MIT License.
-
----
-
-### 📢 Stay Safe & Report Responsibly!

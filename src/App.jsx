@@ -25,9 +25,7 @@ import ViewDetails from "./pages/ViewDetails";
 import UserRoute from "./protected-routes/UserRoute";
 import AdminRoute from "./protected-routes/AdminRoute";
 import UserProfile from "./pages/UserProfile";
-import IncidentDashboardUser from "./pages/charts-user";
-import IncidentAnalyticsDashboard from "./pages/chart-global";
-import AnalyticsDashboard from "./pages/chart";
+import { LocationProvider } from "../src/context/LocationContext";
 
 const UserDashboard = lazy(() => import("./pages/UserDashboard"));
 const AdminDashboard = lazy(() => import("./pages/AdminDashboard"));
@@ -52,46 +50,46 @@ if ("serviceWorker" in navigator) {
 const App = () => {
   return (
     <AuthProvider>
-      <div>
-        <BrowserRouter>
-          <Suspense fallback={<div>Loading...</div>}>
-            <ScrollToTop />
-            <Navbar1 />
-            <Routes>
-              <Route path="/" element={<Home />} />
-              <Route path="/report-incident" element={<IncidentReportForm />} />
-              {/* Protected Admin Route */}
-              <Route element={<AdminRoute />}>
-                <Route path="/admin" element={<AdminDashboard />} />
-              </Route>
-              {/* Protected User Route */}
-              <Route element={<UserRoute />}>
+      <LocationProvider>
+        <div>
+          <BrowserRouter>
+            <Suspense fallback={<div>Loading...</div>}>
+              <ScrollToTop />
+              <Navbar1 />
+              <Routes>
+                <Route path="/" element={<Home />} />
+                <Route
+                  path="/report-incident"
+                  element={<IncidentReportForm />}
+                />
+                {/* Protected Admin Route */}
+                <Route element={<AdminRoute />}>
+                  <Route path="/admin" element={<AdminDashboard />} />
+                </Route>
+                {/* Protected User Route */}
+                <Route element={<UserRoute />}>
+                  <Route path="/my-reports" element={<UserDashboard />} />
+                </Route>
                 <Route path="/my-reports" element={<UserDashboard />} />
-              </Route>
-              <Route path="/my-reports" element={<UserDashboard />} />
-              <Route path="/admin" element={<AdminDashboard />} />
-              <Route path="/About" element={<AboutUs />} />
-              <Route path="/heatmap" element={<HeatMap2 />} />
-              <Route path="/voice-report" element={<VoiceToText />} />
-              <Route path="/signUp" element={<SignUp />} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/InciLog" element={<RecentIncidents />} />
-              <Route path="/view-details/:id" element={<ViewDetails />} />
-              <Route path="/feedback" element={<FeedbackForm />} />
-              <Route path="chatbot" element={<Chatbot />} />
-              <Route
-                path="/charts-global"
-                element={<IncidentAnalyticsDashboard />}
-              />
-              <Route path="/charts" element={<AnalyticsDashboard />} />
-              <Route path="/incident/:id" element={<ViewDetails />} />
-              <Route path="/user/:userId" element={<UserProfile />} />
-              {/* Redirect all unknown routes to Home */}
-              <Route path="*" element={<Navigate to="/" replace />} />
-            </Routes>
-          </Suspense>
-        </BrowserRouter>
-      </div>
+                <Route path="/admin" element={<AdminDashboard />} />
+                <Route path="/About" element={<AboutUs />} />
+                <Route path="/heatmap" element={<HeatMap2 />} />
+                <Route path="/voice-report" element={<VoiceToText />} />
+                <Route path="/signUp" element={<SignUp />} />
+                <Route path="/login" element={<Login />} />
+                <Route path="/InciLog" element={<RecentIncidents />} />
+                <Route path="/view-details/:id" element={<ViewDetails />} />
+                <Route path="/feedback" element={<FeedbackForm />} />
+                <Route path="chatbot" element={<Chatbot />} />
+                <Route path="/incident/:id" element={<ViewDetails />} />
+                <Route path="/user/:userId" element={<UserProfile />} />
+                {/* Redirect all unknown routes to Home */}
+                <Route path="*" element={<Navigate to="/" replace />} />
+              </Routes>
+            </Suspense>
+          </BrowserRouter>
+        </div>
+      </LocationProvider>
     </AuthProvider>
   );
 };

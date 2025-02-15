@@ -90,40 +90,10 @@ const IncidentReportForm = () => {
   };
 
   // Handle checkbox change
-  const handleCheckboxChange = (e) => {
-    const { name, checked } = e.target;
-    setFormData({ ...formData, [name]: checked });
-  };
-
-  const getLocation = () => {
-    if (!navigator.geolocation) {
-      alert("Geolocation is not supported by your browser.");
-      return;
-    }
-
-    setLoadingLocation(true);
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        const { latitude, longitude } = position.coords;
-
-        setFormData((prevData) => ({
-          ...prevData,
-          location: {
-            latitude: latitude,
-            longitude: longitude,
-          },
-        }));
-
-        setLoadingLocation(false);
-      },
-      (error) => {
-        alert("Unable to retrieve location.");
-        console.error(error);
-        setLoadingLocation(false);
-      }
-    );
-  };
-
+  // const handleCheckboxChange = (e) => {
+  //   const { name, checked } = e.target;
+  //   setFormData({ ...formData, [name]: checked });
+  // };
   const [loadingSpinner, setLoadingSpinner] = useState(false);
 
   const handleSubmit = async (e) => {

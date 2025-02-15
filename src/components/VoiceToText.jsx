@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from "react";
 // import { FaMicrophone } from "react-icons/fa";
 import { Mic, Send, Repeat, StopCircle } from "lucide-react";
 import axios from "axios";
-
+import { BarLoader } from "react-spinners";
 import Footer from "./Footer";
 
 const VoiceInput = () => {
@@ -13,6 +13,7 @@ const VoiceInput = () => {
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [loadingSpinner, setLoadingSpinner] = useState(false);
 
   // Store recognition instance in useRef
   const recognitionRef = useRef(null);
@@ -159,6 +160,7 @@ const VoiceInput = () => {
       return;
     }
 
+    setLoadingSpinner(true);
     setLoading(true);
     setError(null);
     setSuccess(false);
@@ -175,10 +177,15 @@ const VoiceInput = () => {
 
       setSuccess(true);
       setText(""); // Reset transcript manually
+      alert("Incident submitted successfully!");
     } catch (err) {
       setError("Failed to process the incident. Please try again.");
       console.error(err);
+      setLoadingSpinner(false);
+      // alert(err.response.data.error);
+      alert("Please specify your location details too");
     }
+    setLoadingSpinner(false);
     setLoading(false);
   };
 
@@ -186,23 +193,6 @@ const VoiceInput = () => {
     setText(""); // Clear the text
     setIsStopped(false);
     startListening(); // Restart listening
-  };
-
-  const extractIncidentType = (text) => {
-    const types = ["fire", "theft", "accident", "medical emergency", "assault"];
-    return types.find((type) => text.toLowerCase().includes(type)) || "Unknown";
-  };
-
-  const extractLocation = (text) => {
-    const locationRegex = /(at|in|near|on) ([\w\s]+)/i;
-    const match = text.match(locationRegex);
-    return match ? match[2] : "Unknown";
-  };
-
-  const extractSeverity = (text) => {
-    if (/critical|severe|urgent/.test(text.toLowerCase())) return "High";
-    if (/moderate|serious/.test(text.toLowerCase())) return "Medium";
-    return "Low";
   };
 
   return (
@@ -337,6 +327,11 @@ const VoiceInput = () => {
                     <Repeat className="w-5 h-5 group-hover:scale-110 transition-transform" />
                     Re-record
                   </button>
+                </div>
+              )}
+              {loadingSpinner && (
+                <div className="flex justify-center mt-4">
+                  <BarLoader color="#06b6d4" />
                 </div>
               )}
             </div>

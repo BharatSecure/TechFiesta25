@@ -111,7 +111,7 @@ const IncidentDashboardUser = () => {
 
       {/* Summary Statistics Cards */}
       <div className="grid grid-cols-2 gap-6 mb-8">
-        <div className="bg-[#002345] rounded-xl p-6 shadow-[5px_5px_15px_rgba(0,0,0,0.3),-5px_-5px_15px_rgba(0,255,255,0.1)] border border-cyan-400/20 transform transition-all hover:shadow-[inset_5px_5px_15px_rgba(0,0,0,0.2),inset_-5px_-5px_15px_rgba(0,255,255,0.1)]">
+        <div className="bg-[#002345] rounded-xl p-6 shadow-[5px_5px_15px_rgba(0,0,0,0.3),-5px_-5px_15px_rgba(0,255,255,0.1)] border border-cyan-400/20 transform transition-all hover:shadow-[inset_5px_5px_15px_rgba(0,0,0,0.2),inset_-5px_-5px_15px_rgba(0,0,255,0.1)]">
           <div className="text-3xl font-bold text-cyan-400">
             {stats.total_incidents}
           </div>
@@ -119,7 +119,7 @@ const IncidentDashboardUser = () => {
             Total Incidents
           </div>
         </div>
-        <div className="bg-[#002345] rounded-xl p-6 shadow-[5px_5px_15px_rgba(0,0,0,0.3),-5px_-5px_15px_rgba(0,255,255,0.1)] border border-cyan-400/20 transform transition-all hover:shadow-[inset_5px_5px_15px_rgba(0,0,0,0.2),inset_-5px_-5px_15px_rgba(0,255,255,0.1)]">
+        <div className="bg-[#002345] rounded-xl p-6 shadow-[5px_5px_15px_rgba(0,0,0,0.3),-5px_-5px_15px_rgba(0,255,255,0.1)] border border-cyan-400/20 transform transition-all hover:shadow-[inset_5px_5px_15px_rgba(0,0,0,0.2),inset_-5px_-5px_15px_rgba(0,0,255,0.1)]">
           <div className="text-3xl font-bold text-cyan-400">
             {stats.average_score?.toFixed(1) || "N/A"}
           </div>
@@ -164,6 +164,10 @@ const IncidentDashboardUser = () => {
                   contentStyle={{
                     backgroundColor: "#002345",
                     border: "1px solid rgba(0,255,255,0.2)",
+                    color: "cyan", // Doesn't affect text inside tooltip
+                  }}
+                  itemStyle={{
+                    color: "cyan", // This actually changes text color
                   }}
                 />
                 <Legend />
@@ -185,6 +189,10 @@ const IncidentDashboardUser = () => {
                   contentStyle={{
                     backgroundColor: "#002345",
                     border: "1px solid rgba(0,255,255,0.2)",
+                    color: "cyan", // Doesn't affect text inside tooltip
+                  }}
+                  itemStyle={{
+                    color: "cyan", // This actually changes text color
                   }}
                 />
                 <Legend />
@@ -212,6 +220,10 @@ const IncidentDashboardUser = () => {
                   contentStyle={{
                     backgroundColor: "#002345",
                     border: "1px solid rgba(0,255,255,0.2)",
+                    color: "cyan", // Doesn't affect text inside tooltip
+                  }}
+                  itemStyle={{
+                    color: "cyan", // This actually changes text color
                   }}
                 />
                 <Bar dataKey="count">
@@ -237,6 +249,10 @@ const IncidentDashboardUser = () => {
                   contentStyle={{
                     backgroundColor: "#002345",
                     border: "1px solid rgba(0,255,255,0.2)",
+                    color: "cyan", // Doesn't affect text inside tooltip
+                  }}
+                  itemStyle={{
+                    color: "cyan", // This actually changes text color
                   }}
                 />
                 <Legend />

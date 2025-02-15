@@ -58,7 +58,7 @@ model = ChatGoogleGenerativeAI(
 
 @api_view(['GET'])
 def latest_incidents(request):
-    incidents = Incidents.objects.order_by('-reported_at')[:10]  # Adjust the number of incidents as needed
+    incidents = Incidents.objects.order_by('-reported_at')[:9]  # Adjust the number of incidents as needed
     serializer = IncidentSerializer(incidents, many=True)
     return Response(serializer.data)
 

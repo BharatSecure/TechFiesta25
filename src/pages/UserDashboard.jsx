@@ -16,7 +16,7 @@ import { useAuth } from "@/context/AuthContext";
 import FloatingChatbot from "@/components/FloatingChatbot";
 import { Navigate, useNavigate } from "react-router-dom";
 import OrderProgress from "@/components/ProgressBar";
-import ChartsUser from "./charts-user"
+import ChartsUser from "./charts-user";
 
 const UserDashboard = () => {
   const navigate = useNavigate();
@@ -119,7 +119,7 @@ const UserDashboard = () => {
         <div className="p-4 md:p-8 max-w-[1600px] mx-auto">
           {/* Header */}
           <div className="mb-10">
-            <h1 className="text-2xl text-left md:text-center md:text-5xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-sky-400 to-blue-600">
+            <h1 className="text-xl text-left md:text-center md:text-5xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-sky-400 to-blue-600 [text-shadow:_0_0_30px_rgb(6_182_212_/_45%)]">
               Your Dashboard
             </h1>
             <button

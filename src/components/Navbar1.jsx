@@ -16,7 +16,7 @@ import {
 } from "@mui/material";
 import { useNavigate, Link, useLocation } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
-import logo from "/logo.png";
+import logo from "/image.png";
 import MenuIcon from "@mui/icons-material/Menu";
 
 const Navbar = () => {
@@ -157,7 +157,7 @@ const Navbar = () => {
               <img
                 src={logo}
                 alt="Logo"
-                style={{ width: 40, height: 40, marginRight: 10 }}
+                style={{ width: 40, height: 40, marginRight: 10, borderRadius:"50%" }}
               />
             </IconButton>
             <Link to="/" style={{ textDecoration: "none" }}>

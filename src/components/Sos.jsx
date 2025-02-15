@@ -1,7 +1,9 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
+import useUserLocation from "@/lib/UserLocation";
 
 const Sos = () => {
+  const location = useUserLocation();
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [showAlert, setShowAlert] = useState(false);
   const [particles, setParticles] = useState([]);

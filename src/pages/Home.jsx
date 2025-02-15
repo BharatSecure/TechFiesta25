@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, Suspense, lazy } from "react";
+import React, { useState, useRef, useEffect, Suspense, lazy } from "react";
 import { useLocation } from "react-router-dom";
 import Sos from "../components/Sos";
 import OurFeatures from "../components/OurFeatures";
@@ -20,6 +20,7 @@ const LoadingSpinner = () => (
 );
 
 const Home = () => {
+  const [loading, setLoading] = useState(false);
   const faqRef = useRef(null);
   const location = useLocation();
 
@@ -79,10 +80,10 @@ const Home = () => {
             </section>
           </FadeInComponent>
           {/* <FadeInComponent> */}
-            {/* Features Section */}
-            <section className="relative shadow-[inset_0_-20px_30px_-20px_rgba(0,0,0,0.2)]">
-              <Chartglobal />
-            </section>
+          {/* Features Section */}
+          <section className="relative shadow-[inset_0_-20px_30px_-20px_rgba(0,0,0,0.2)]">
+            <Chartglobal />
+          </section>
           {/* </FadeInComponent> */}
 
           {/* Testimonials Section */}

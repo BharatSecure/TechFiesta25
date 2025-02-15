@@ -11,14 +11,14 @@ const Sos = () => {
 
   const features = [
     {
-      title: "Saathi AI",
-      path: "/chatbot",
-      description: "AI-powered medical & safety assistant",
-    },
-    {
       title: "Report Incident",
       path: "/report-incident",
       description: "Quick & efficient incident reporting",
+    },
+    {
+      title: "Saathi AI",
+      path: "/chatbot",
+      description: "AI-powered medical & safety assistant",
     },
     {
       title: "Heatmap",

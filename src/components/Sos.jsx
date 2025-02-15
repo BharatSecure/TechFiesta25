@@ -5,7 +5,7 @@ const Sos = () => {
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [showAlert, setShowAlert] = useState(false);
   const [particles, setParticles] = useState([]);
-  const [ripples, setRipples] = useState([]);
+  // const [ripples, setRipples] = useState([]);
 
   const features = [
     {
@@ -30,38 +30,32 @@ const Sos = () => {
     },
   ];
 
+  // Background effects setup
   useEffect(() => {
-    const generateParticles = () => {
-      return Array.from({ length: 30 }, (_, i) => ({
+    setParticles(
+      Array.from({ length: 30 }, (_, i) => ({
         id: i,
         x: Math.random() * 100,
         y: Math.random() * 100,
         size: Math.random() * 3 + 1,
         duration: Math.random() * 3 + 2,
-      }));
-    };
-    setParticles(generateParticles());
+      }))
+    );
   }, []);
 
-  // Generate ripples
-  useEffect(() => {
-    const generateRipples = () => {
-      return Array.from({ length: 3 }, (_, i) => ({
-        id: i,
-        scale: 1,
-        opacity: 0.8,
-        delay: i * 1
-      }));
-    };
-    setRipples(generateRipples());
-
-    // Regenerate ripples every 3 seconds
-    const interval = setInterval(() => {
-      setRipples(generateRipples());
-    }, 3000);
-
-    return () => clearInterval(interval);
-  }, []);
+  // useEffect(() => {
+  //   const generateRipples = () => {
+  //     return Array.from({ length: 3 }, (_, i) => ({
+  //       id: i,
+  //       scale: 1,
+  //       opacity: 0.8,
+  //       delay: i * 1,
+  //     }));
+  //   };
+  //   setRipples(generateRipples());
+  //   const interval = setInterval(() => setRipples(generateRipples()), 3000);
+  //   return () => clearInterval(interval);
+  // }, []);
 
   const handleSOSClick = () => setShowConfirmation(true);
   const confirmSOS = () => {
@@ -87,27 +81,10 @@ const Sos = () => {
   const cancelSOS = () => setShowConfirmation(false);
   const closeAlertModal = () => setShowAlert(false);
 
-  useEffect(() => {
-    if ("geolocation" in navigator) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          const { latitude, longitude } = position.coords;
-          localStorage.setItem(
-            "userCoordinates",
-            JSON.stringify({ latitude, longitude })
-          );
-        },
-        (error) => console.error("Error:", error.message),
-        { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
-      );
-    }
-  }, []);
-
   return (
     <div className="bg-slate-900 h-[90vh] flex items-center justify-center overflow-hidden relative">
-
-      {/* Water Ripple Effect Background */}
-      <div className="absolute inset-0 flex items-center justify-center overflow-hidden">
+      {/* Background Effects */}
+      {/* <div className="absolute inset-0 flex items-center justify-center overflow-hidden">
         {ripples.map((ripple) => (
           <div
             key={ripple.id}
@@ -115,16 +92,15 @@ const Sos = () => {
             style={{
               animation: `ripple 3s ease-out infinite`,
               animationDelay: `${ripple.delay}s`,
-              border: '2px solid rgba(0, 48, 130, 0.5)',
-              borderRadius: '50%',
-              transform: 'scale(0)',
+              border: "2px solid rgba(0, 48, 130, 0.5)",
+              borderRadius: "50%",
+              transform: "scale(0)",
               opacity: 0.8,
             }}
           />
         ))}
-      </div>
+      </div> */}
 
-      {/* Animated Background */}
       <div className="absolute inset-0 overflow-hidden">
         {particles.map((particle) => (
           <div
@@ -137,59 +113,50 @@ const Sos = () => {
               height: `${particle.size}px`,
               animation: `moveToCenter ${particle.duration}s infinite`,
             }}
-            
           />
         ))}
       </div>
 
+      {/* Main Content */}
       <div className="relative flex flex-col items-center">
-        <h1 className="text-3xl text-cyan-400 font-extrabold tracking-wide mb-20 lg:text-6xl drop-shadow-[0_0_15px_rgba(34,211,238,0.5)]">
+        {/* <h1 className="text-3xl text-cyan-400 font-extrabold tracking-wide mb-20 lg:text-6xl drop-shadow-[0_0_15px_rgba(34,211,238,0.5)]">
           Emergency SOS
-        </h1>
+        </h1> */}
 
-        <div className="relative w-96 h-96 flex items-center justify-center">
-          {features.map((feature, index) => (
-            <Link
-              key={feature.title}
-              to={feature.path}
-              className={`absolute w-48 h-48 animate-orbit-${
-                index + 1
-              } hover:pause`}
-              style={{
-                animation: `orbit ${20}s linear infinite`,
-                animationDelay: `${index * -5}s`,
-              }}
+        {/* Features Grid Layout */}
+        <div className="relative grid grid-cols-3 w-[800px] h-[600px] place-items-center">
+          {/* Top Feature */}
+          <div className="col-start-2">
+            <FeatureCard feature={features[0]} />
+          </div>
+
+          {/* Middle Row Features */}
+          <div className="col-start-1 row-start-2">
+            <FeatureCard feature={features[1]} />
+          </div>
+
+          {/* Center SOS Button */}
+          <div className="col-start-2 row-start-2">
+            <button
+              onClick={handleSOSClick}
+              className="relative bg-red-500 text-white font-bold text-3xl py-6 px-16 rounded-full shadow-[inset_-4px_-4px_8px_rgba(0,0,0,0.3),inset_4px_4px_8px_rgba(255,255,255,0.1)] hover:shadow-[0_0_20px_rgba(239,68,68,0.5)] transition-all duration-300 hover:scale-105 z-10"
             >
-              <div className="relative w-40 h-40 bg-slate-800 rounded-xl p-4 shadow-[inset_-8px_-8px_12px_rgba(0,0,0,0.3),inset_8px_8px_12px_rgba(255,255,255,0.1)] hover:shadow-[0_0_15px_rgba(34,211,238,0.3)] transition-all duration-300 flex flex-col items-center justify-center text-center transform hover:scale-105 overflow-hidden">
-                {/* Animated border */}
-                <div className="absolute inset-0 rounded-xl p-[2px]">
-                  <div className="absolute inset-0 bg-[conic-gradient(from_var(--shimmer-angle),#0F172A_0%,#0ea5e9_10%,#0F172A_20%)] animate-border-rotate [--shimmer-angle:0deg]">
-                    <div className="absolute inset-[2px] rounded-[inherit] bg-slate-800"></div>
-                  </div>
-                </div>
+              <span className="absolute inset-0 rounded-full bg-red-500 animate-ping opacity-30"></span>
+              SOS
+            </button>
+          </div>
 
-                {/* Content */}
-                <div className="relative z-10">
-                  <h3 className="text-cyan-400 font-bold mb-2 drop-shadow-[0_0_8px_rgba(34,211,238,0.3)]">
-                    {feature.title}
-                  </h3>
-                  <p className="text-slate-300 text-sm">
-                    {feature.description}
-                  </p>
-                </div>
-              </div>
-            </Link>
-          ))}
+          <div className="col-start-3 row-start-2">
+            <FeatureCard feature={features[2]} />
+          </div>
 
-          <button
-            onClick={handleSOSClick}
-            className="relative bg-red-500 text-white font-bold text-3xl py-6 px-16 rounded-full shadow-[inset_-4px_-4px_8px_rgba(0,0,0,0.3),inset_4px_4px_8px_rgba(255,255,255,0.1)] hover:shadow-[0_0_20px_rgba(239,68,68,0.5)] transition-all duration-300 hover:scale-105 z-10"
-          >
-            <span className="absolute inset-0 rounded-full bg-red-500 animate-ping opacity-30"></span>
-            SOS
-          </button>
+          {/* Bottom Feature */}
+          <div className="col-start-2 row-start-3">
+            <FeatureCard feature={features[3]} />
+          </div>
         </div>
 
+        {/* Modals */}
         {showConfirmation && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
             <div className="bg-slate-800 p-8 rounded-xl shadow-[inset_-8px_-8px_12px_rgba(0,0,0,0.3),inset_8px_8px_12px_rgba(255,255,255,0.1)]">
@@ -249,14 +216,6 @@ const Sos = () => {
           }
         }
 
-        @keyframes orbit {
-          from {
-            transform: rotate(0deg) translateX(150px) rotate(0deg);
-          }
-          to {
-            transform: rotate(360deg) translateX(150px) rotate(-360deg);
-          }
-        }
         @keyframes moveToCenter {
           0% {
             transform: scale(1) translate(0, 0);
@@ -269,35 +228,28 @@ const Sos = () => {
             transform: scale(1) translate(0, 0);
           }
         }
-        .hover\\:pause:hover {
-          animation-play-state: paused;
-        }
-
-        /* Enhance ripple effect with pulse */
-        @keyframes pulse {
-          0% {
-            box-shadow: 0 0 0 0 rgba(0, 48, 130, 0.4);
-          }
-          70% {
-            box-shadow: 0 0 0 100px rgba(0, 48, 130, 0);
-          }
-          100% {
-            box-shadow: 0 0 0 0 rgba(0, 48, 130, 0);
-          }
-        }
-
-        /* Add gradient to ripples */
-        .ripple-gradient {
-          background: radial-gradient(
-            circle,
-            rgba(0, 48, 130, 0.2) 0%,
-            rgba(0, 48, 130, 0.1) 50%,
-            rgba(0, 48, 130, 0) 70%
-          );
-        }
       `}</style>
     </div>
   );
 };
+
+// Feature Card Component
+const FeatureCard = ({ feature }) => (
+  <Link to={feature.path}>
+    <div className="w-52 h-52 bg-slate-800 rounded-xl p-4 shadow-[inset_-8px_-8px_12px_rgba(0,0,0,0.3),inset_8px_8px_12px_rgba(255,255,255,0.1)] hover:shadow-[0_0_15px_rgba(34,211,238,0.3)] transition-all duration-300 flex flex-col items-center justify-center text-center transform hover:scale-105 overflow-hidden">
+      <div className="absolute inset-0 rounded-xl p-[2px]">
+        <div className="absolute inset-0 bg-[conic-gradient(from_var(--shimmer-angle),#0F172A_0%,#0ea5e9_10%,#0F172A_20%)] animate-border-rotate [--shimmer-angle:0deg]">
+          <div className="absolute inset-[2px] rounded-[inherit] bg-slate-800"></div>
+        </div>
+      </div>
+      <div className="relative z-10">
+        <h3 className="text-cyan-400 text-2xl font-bold mb-2 drop-shadow-[0_0_8px_rgba(34,211,238,0.3)]">
+          {feature.title}
+        </h3>
+        <p className="text-slate-300">{feature.description}</p>
+      </div>
+    </div>
+  </Link>
+);
 
 export default Sos;

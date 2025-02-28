@@ -46,9 +46,10 @@ const Home = () => {
         );
         if (!response.ok) throw new Error("Failed to fetch data");
         const result = await response.json();
-        setData(result);
+        // setData(result);
       } catch (err) {
-        setError(err.message);
+        // setError(err.message);
+        console.error("Error fetching data:", err);
       } finally {
         setLoading(false);
       }

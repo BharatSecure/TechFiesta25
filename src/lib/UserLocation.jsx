@@ -16,6 +16,7 @@ const useUserLocation = () => {
             longitude: position.coords.longitude,
           };
           setLocation(coords);
+          console.log(coords);
           localStorage.setItem("userCoordinates", JSON.stringify(coords));
         },
         (error) => {

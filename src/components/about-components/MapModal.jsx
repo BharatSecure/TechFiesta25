@@ -37,6 +37,10 @@ const MapModal = ({ isOpen, onClose, onSelectLocation }) => {
     }
   }, []);
 
+  useEffect(() => {
+    console.log("Updated coordinates:", userLocation);
+  }, [userLocation]); // Logs the updated value whenever userLocation changes
+  
   const LocationMarker = () => {
     const map = useMap();
 

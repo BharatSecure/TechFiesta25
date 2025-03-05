@@ -76,6 +76,45 @@ const Sos = () => {
   //   return () => clearInterval(interval);
   // }, []);
 
+  //Mayank's new bakchodi 😎
+  useEffect(() => {
+    // Load particles.js script dynamically
+    const script = document.createElement("script");
+    script.src = "https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js";
+    script.async = true;
+    script.onload = () => {
+        if (typeof particlesJS !== "undefined") {
+            particlesJS("particles-js", {
+                "particles": {
+                    "number": { "value": 80, "density": { "enable": true, "value_area": 800 }},
+                    "color": { "value": ["#00E0C7", "#8C52FF"] },
+                    "shape": { "type": "circle" },
+                    "opacity": { "value": 1, "random": true },
+                    "size": { "value": 3, "random": true },
+                    "line_linked": { "enable": true, "distance": 150, "color": "#00E0C7", "opacity": 0.15, "width": 1 },
+                    "move": { "enable": true, "speed": 2, "random": true, "out_mode": "out" }
+                },
+                "interactivity": {
+                    "events": {
+                        "onhover": { "enable": true, "mode": "grab" },
+                        "onclick": { "enable": true, "mode": "push" }
+                    },
+                    "modes": {
+                        "grab": { "distance": 140, "line_linked": { "opacity": 0.8 }},
+                        "push": { "particles_nb": 4 }
+                    }
+                },
+                "retina_detect": true
+            });
+        }
+    };
+    document.body.appendChild(script);
+    
+    return () => {
+        document.body.removeChild(script);
+    };
+}, []);
+
   const handleSOSClick = () => setShowConfirmation(true);
   const confirmSOS = () => {
     setShowAlert(true);
@@ -120,7 +159,7 @@ const Sos = () => {
         ))}
       </div> */}
 
-      <div className="absolute inset-0 overflow-hidden">
+      <div className="absolute inset-0 overflow-hidden"id="particles-js">
         {particles.map((particle) => (
           <div
             key={particle.id}

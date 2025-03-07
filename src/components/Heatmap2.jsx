@@ -39,20 +39,20 @@ const PoliceStations = ({ policeStations }) => {
     };
   }, [map]);
 
-  useEffect(() => {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          setUserLocation([
-            position.coords.latitude,
-            position.coords.longitude,
-          ]);
-        },
-        (error) => console.error("Error fetching location:", error),
-        { enableHighAccuracy: true }
-      );
-    }
-  }, []);
+  // useEffect(() => {
+  //   if (navigator.geolocation) {
+  //     navigator.geolocation.getCurrentPosition(
+  //       (position) => {
+  //         setUserLocation([
+  //           position.coords.latitude,
+  //           position.coords.longitude,
+  //         ]);
+  //       },
+  //       (error) => console.error("Error fetching location:", error),
+  //       { enableHighAccuracy: true }
+  //     );
+  //   }
+  // }, []);
 
   return (
     <>

@@ -164,10 +164,12 @@ const VoiceInput = () => {
     setLoading(true);
     setError(null);
     setSuccess(false);
-
+    
     try {
       const extractedData = {
         user_input: text,
+        latitude: 19.086179097586797, //hard coded
+        longitude: 72.83292917653831
       };
 
       await axios.post(

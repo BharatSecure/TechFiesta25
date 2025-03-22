@@ -11,14 +11,14 @@ const Sos = () => {
 
   const features = [
     {
-      title: "Saathi AI",
-      path: "/chatbot",
-      description: "AI-powered medical & safety assistant",
-    },
-    {
       title: "Report Incident",
       path: "/report-incident",
       description: "Quick & efficient incident reporting",
+    },
+    {
+      title: "Saathi AI",
+      path: "/chatbot",
+      description: "AI-powered legal guidance & safety assistant",
     },
     {
       title: "Heatmap",
@@ -31,6 +31,23 @@ const Sos = () => {
       description: "Accessible voice reporting",
     },
   ];
+
+  useEffect(() => {
+    if ("geolocation" in navigator) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const { latitude, longitude } = position.coords;
+          localStorage.setItem(
+            "userCoordinates",
+            JSON.stringify({ latitude, longitude })
+          );
+          console.log(`${latitude}, ${longitude}`);
+        },
+        (error) => console.error("Error:", error.message),
+        { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+      );
+    }
+  }, []);
 
   // Background effects setup
   useEffect(() => {
@@ -58,6 +75,44 @@ const Sos = () => {
   //   const interval = setInterval(() => setRipples(generateRipples()), 3000);
   //   return () => clearInterval(interval);
   // }, []);
+
+  useEffect(() => {
+    // Load particles.js script dynamically
+    const script = document.createElement("script");
+    script.src = "https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js";
+    script.async = true;
+    script.onload = () => {
+        if (typeof particlesJS !== "undefined") {
+            particlesJS("particles-js", {
+                "particles": {
+                    "number": { "value": 80, "density": { "enable": true, "value_area": 800 }},
+                    "color": { "value": ["#00E0C7", "#8C52FF"] },
+                    "shape": { "type": "circle" },
+                    "opacity": { "value": 1, "random": true },
+                    "size": { "value": 3, "random": true },
+                    "line_linked": { "enable": true, "distance": 150, "color": "#00E0C7", "opacity": 0.15, "width": 1 },
+                    "move": { "enable": true, "speed": 2, "random": true, "out_mode": "out" }
+                },
+                "interactivity": {
+                    "events": {
+                        "onhover": { "enable": true, "mode": "grab" },
+                        "onclick": { "enable": true, "mode": "push" }
+                    },
+                    "modes": {
+                        "grab": { "distance": 140, "line_linked": { "opacity": 0.8 }},
+                        "push": { "particles_nb": 4 }
+                    }
+                },
+                "retina_detect": true
+            });
+        }
+    };
+    document.body.appendChild(script);
+    
+    return () => {
+        document.body.removeChild(script);
+    };
+}, []);
 
   const handleSOSClick = () => setShowConfirmation(true);
   const confirmSOS = () => {
@@ -103,7 +158,7 @@ const Sos = () => {
         ))}
       </div> */}
 
-      <div className="absolute inset-0 overflow-hidden">
+      <div className="absolute inset-0 overflow-hidden"id="particles-js">
         {particles.map((particle) => (
           <div
             key={particle.id}

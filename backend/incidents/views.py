@@ -361,7 +361,7 @@ class voicereport(APIView):
                 - Preserve all field names exactly as in the provided example.
                 - Ensure values are correctly formatted based on the input.
                 - Determine the severity level as 'high', 'medium', or 'low' based on the incident details.
-                - If no location is found in the input, return an error message
+                - Extract any location information from the user input if present
                 - Do not add, remove, or modify any fields.
                 - Ensure the response is a valid JSON object.
             """),
@@ -371,7 +371,7 @@ class voicereport(APIView):
         self.chain = self.prompt | self.llm | StrOutputParser()
 
     def post(self, request, *args, **kwargs):
-    # Authenticate user
+        # Authenticate user
         print("function started")
         user = None
         auth_header = request.META.get('HTTP_AUTHORIZATION')
@@ -396,24 +396,43 @@ class voicereport(APIView):
         }"""
 
         user_input = request.data.get("user_input", "").strip()
-            
+        latitude = request.data.get("latitude", "")
+        longitude = request.data.get("longitude", "")
+        
         if not user_input:
             return Response({"error": "user_input is required"}, status=status.HTTP_400_BAD_REQUEST)
 
+        # First, get the incident details from LLM without providing coordinates
         chain_input = {"user_input": user_input, "json_format": json_format}
         incident = self.chain.invoke(chain_input)
         match = re.search(r'\{.*\}', incident, re.DOTALL)
         if match:
             json_string = match.group()
             incident = json.loads(json_string)
+        
         if 'error' in incident:
             return Response(incident, status=status.HTTP_400_BAD_REQUEST)
+        
         print("passed error check")
-        if not incident['location']:
-            return Response({"error": "Location not specified in the incident report."}, status=status.HTTP_400_BAD_REQUEST)
-
-        incident['location'] = get_coordinates(incident['location'])
+        
+        # Check if location was found in user input
+        if not incident.get('location') and (not latitude or not longitude):
+            return Response({"error": "Location not specified in the incident report and no coordinates provided."}, 
+                          status=status.HTTP_400_BAD_REQUEST)
+        
+        # If no location in user input but coordinates are provided, use coordinates
+        if not incident.get('location') and latitude and longitude:
+            incident['location'] = f"{latitude}, {longitude}"
+        
+        # Convert location to coordinates
+        location_data = get_coordinates(incident['location'])
+        if not location_data:
+            return Response({"error": "Could not process location information"}, 
+                          status=status.HTTP_400_BAD_REQUEST)
+        
+        incident['location'] = location_data
         print(incident)
+        
         serializer = IncidentSerializer(data=incident)
         if not serializer.is_valid():
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -457,7 +476,7 @@ class voicereport(APIView):
                     nearest_stations['hospital_station'] = nearest_station
 
                 try:
-                    send_email_example("New Incident Alert", f"New {incident['incidentType']} reported at {incident['location']}", nearest_station.email)
+                    send_email_example("New Incident Alert", f"New {incident['incidentType']} \nreported at {incident['location']}", nearest_station.email)
                 except Exception as e:
                     print(f"Notification error: {str(e)}")
 
@@ -467,10 +486,6 @@ class voicereport(APIView):
         incident_obj.save()
 
         return Response({"message": "Incident reported successfully!", "incident_id": incident_obj.id}, status=status.HTTP_201_CREATED)
-
-
-        
-
 
 
 @api_view(['PATCH'])

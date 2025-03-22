@@ -76,6 +76,7 @@ const Sos = () => {
   //   return () => clearInterval(interval);
   // }, []);
 
+  //Mayank's New Particle Effect 😎
   useEffect(() => {
     // Load particles.js script dynamically
     const script = document.createElement("script");
@@ -90,7 +91,7 @@ const Sos = () => {
                     "shape": { "type": "circle" },
                     "opacity": { "value": 1, "random": true },
                     "size": { "value": 3, "random": true },
-                    "line_linked": { "enable": true, "distance": 150, "color": "#00E0C7", "opacity": 0.15, "width": 1 },
+                    "line_linked": { "enable": true, "distance": 150, "color": "#00E0C7", "opacity": 1.15, "width": 1 },
                     "move": { "enable": true, "speed": 2, "random": true, "out_mode": "out" }
                 },
                 "interactivity": {
@@ -158,7 +159,7 @@ const Sos = () => {
         ))}
       </div> */}
 
-      <div className="absolute inset-0 overflow-hidden"id="particles-js">
+      <div className="absolute inset-0 overflow-hidden" id="particles-js">
         {particles.map((particle) => (
           <div
             key={particle.id}

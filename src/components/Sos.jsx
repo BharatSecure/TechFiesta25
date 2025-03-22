@@ -11,14 +11,14 @@ const Sos = () => {
 
   const features = [
     {
+      title: "Saathi AI",
+      path: "/chatbot",
+      description: "AI-powered medical & safety assistant",
+    },
+    {
       title: "Report Incident",
       path: "/report-incident",
       description: "Quick & efficient incident reporting",
-    },
-    {
-      title: "Saathi AI",
-      path: "/chatbot",
-      description: "AI-powered legal guidance & safety assistant",
     },
     {
       title: "Heatmap",
@@ -31,23 +31,6 @@ const Sos = () => {
       description: "Accessible voice reporting",
     },
   ];
-
-  useEffect(() => {
-    if ("geolocation" in navigator) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          const { latitude, longitude } = position.coords;
-          localStorage.setItem(
-            "userCoordinates",
-            JSON.stringify({ latitude, longitude })
-          );
-          console.log(`${latitude}, ${longitude}`);
-        },
-        (error) => console.error("Error:", error.message),
-        { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
-      );
-    }
-  }, []);
 
   // Background effects setup
   useEffect(() => {
@@ -91,7 +74,7 @@ const Sos = () => {
                     "shape": { "type": "circle" },
                     "opacity": { "value": 1, "random": true },
                     "size": { "value": 3, "random": true },
-                    "line_linked": { "enable": true, "distance": 150, "color": "#00E0C7", "opacity": 1.15, "width": 1 },
+                    "line_linked": { "enable": true, "distance": 100, "color": "#00E0C7", "opacity": 0.4, "width": 1 },
                     "move": { "enable": true, "speed": 2, "random": true, "out_mode": "out" }
                 },
                 "interactivity": {

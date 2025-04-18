@@ -416,9 +416,9 @@ class voicereport(APIView):
         print("passed error check")
         
         # Check if location was found in user input
-        if not incident.get('location') and (not latitude or not longitude):
-            return Response({"error": "Location not specified in the incident report and no coordinates provided."}, 
-                          status=status.HTTP_400_BAD_REQUEST)
+        # if not incident.get('location') and (not latitude or not longitude):
+        #     return Response({"error": "Location not specified in the incident report and no coordinates provided."}, 
+        #                   status=status.HTTP_400_BAD_REQUEST)
         
         # If no location in user input but coordinates are provided, use coordinates
         if not incident.get('location') and latitude and longitude:
@@ -434,11 +434,12 @@ class voicereport(APIView):
         print(incident)
         
         serializer = IncidentSerializer(data=incident)
+        print("serializer created")
         if not serializer.is_valid():
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
         incident_obj = serializer.save(reported_by=user)
-
+        print("incident object created")
         user_lat = incident['location'].get('latitude')
         user_lon = incident['location'].get('longitude')
 

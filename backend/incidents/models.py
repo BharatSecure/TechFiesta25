@@ -126,6 +126,7 @@ class Incidents(models.Model):
         ("Missing Persons", "Missing Persons"),
         ("Natural Disaster", "Natural Disaster"),
         ("Medical Emergency", "Medical Emergency"),
+        ("Harassment", "Harassment"),
         ('Other', 'Other'),
     ]
     

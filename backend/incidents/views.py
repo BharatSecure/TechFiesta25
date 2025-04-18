@@ -48,10 +48,12 @@ from django.db.models.functions import (
 )
 from django.utils import timezone
 from datetime import timedelta
+from dotenv import load_dotenv
+
+load_dotenv()
 
 model = ChatGoogleGenerativeAI(
                 model="gemini-1.5-flash",
-                api_key="AIzaSyDv7RThoILjeXAryluncDRZ1QeFxAixR7Q",
                 max_retries=3,
                 retry_wait_strategy=wait_exponential(multiplier=1, min=4, max=10)
             )

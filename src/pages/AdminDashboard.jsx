@@ -14,7 +14,7 @@ import { useAuth } from "@/context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { MdOutlineReport } from "react-icons/md";
 import { MdReport } from "react-icons/md";
-import AdminCharts from "./chart";
+import AdminCharts from "./Chart";
 
 const AdminDashboard = () => {
   const [total, setTotal] = useState(0);

@@ -34,7 +34,7 @@ const RecentIncidents = lazy(() => import("./pages/RecentIncidents1"));
 const HeatMap2 = lazy(() => import("./components/Heatmap2"));
 const IncidentReportForm = lazy(() => import("./pages/IncidentReportForm2"));
 const FeedbackForm = lazy(() => import("./pages/FeedbackForm"));
-const Chatbot = lazy(() => import("./pages/chatbotTrial"));
+const Chatbot = lazy(() => import("./pages/ChatbotTrial"));
 
 if ("serviceWorker" in navigator) {
   navigator.serviceWorker

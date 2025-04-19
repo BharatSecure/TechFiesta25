@@ -106,7 +106,7 @@ const Sos = () => {
       const watchId = navigator.geolocation.watchPosition(
         (position) => {
           const { latitude, longitude } = position.coords;
-          fetch("http://127.0.0.1:8000/api/update-location/", {
+          fetch("https://techfiesta25-trial-1.onrender.com/api/update-location/", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ latitude, longitude }),

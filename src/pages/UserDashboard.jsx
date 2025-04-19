@@ -73,7 +73,7 @@ const UserDashboard = () => {
       try {
         // console.log(`Access Token: ${token}`);
         const response = await fetch(
-          "http://127.0.0.1:8000/api/all_user_incidents/",
+          "https://techfiesta25-trial-1.onrender.com/api/all_user_incidents/",
           {
             method: "GET",
             headers: {

@@ -32,7 +32,7 @@ const AddCommentForm = ({ incidentId, onAddComment }) => {
       }
 
       const response = await axios.post(
-        `http://127.0.0.1:8000/api/incidents/${incidentId}/comments/`,
+        `https://techfiesta25-trial-1.onrender.com/api/incidents/${incidentId}/comments/`,
         {
           comment: commentText,
         },

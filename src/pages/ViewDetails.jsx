@@ -14,7 +14,7 @@ const ViewDetails = () => {
     const fetchIncidentDetails = async () => {
       try {
         const response = await fetch(
-          `http://127.0.0.1:8000/api/incident/${id}/`,
+          `https://techfiesta25-trial-1.onrender.com/api/incident/${id}/`,
           {
             method: "GET",
             headers: { "Content-Type": "application/json" },

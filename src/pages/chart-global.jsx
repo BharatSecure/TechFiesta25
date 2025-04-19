@@ -91,7 +91,7 @@ const IncidentAnalyticsDashboard = () => {
       try {
         setLoading(true);
         const response = await fetch(
-          "http://127.0.0.1:8000/api/advanced-incident-analysis/",
+          "https://techfiesta25-trial-1.onrender.com/api/advanced-incident-analysis/",
           {
             method: "GET",
             headers: { Accept: "application/json" },

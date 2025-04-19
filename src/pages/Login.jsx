@@ -48,7 +48,7 @@ const Login = () => {
   const handleLogin = async () => {
     if (validate()) {
       try {
-        const response = await axios.post("http://127.0.0.1:8000/api/login/", {
+        const response = await axios.post("https://techfiesta25-trial-1.onrender.com/api/login/", {
           email: formData.email,
           password: formData.password,
         });

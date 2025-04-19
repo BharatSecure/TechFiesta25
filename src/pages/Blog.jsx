@@ -16,7 +16,7 @@ function IncidentList() {
   useEffect(() => {
     async function fetchIncidents() {
       try {
-        const response = await axios.get("http://127.0.0.1:8000/api/latest-incidents/");
+        const response = await axios.get("https://techfiesta25-trial-1.onrender.com/api/latest-incidents/");
         console.log("Fetched Incidents:", response.data); // Debugging
         setIncidents(response.data);
       } catch (error) {

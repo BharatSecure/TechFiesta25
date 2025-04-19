@@ -64,7 +64,7 @@ const SignUp = () => {
 
     try {
       const response = await axios.post(
-        "http://127.0.0.1:8000/api/signup/",
+        "https://techfiesta25-trial-1.onrender.com/api/signup/",
         formData
       );
       if (response.status === 201) {

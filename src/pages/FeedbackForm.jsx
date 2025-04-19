@@ -19,7 +19,7 @@ const FeedbackForm = () => {
     }
 
     try {
-      const response = await fetch("http://127.0.0.1:8000/submit-feedback/", {
+      const response = await fetch("https://techfiesta25-trial-1.onrender.com/submit-feedback/", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

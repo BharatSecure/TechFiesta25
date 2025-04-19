@@ -97,7 +97,7 @@ const RecentIncidents = () => {
       try {
         setLoading(true);
         const response = await axios.get(
-          "http://127.0.0.1:8000/api/latest-incidents/"
+          "https://techfiesta25-trial-1.onrender.com/api/latest-incidents/"
         );
 
         if (response.status === 200) {

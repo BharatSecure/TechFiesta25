@@ -41,7 +41,7 @@ const IncidentDashboardUser = () => {
         const token = localStorage.getItem("accessToken");
         setLoading(true);
         const response = await fetch(
-          "http://127.0.0.1:8000/api/incident-chart-user/",
+          "https://techfiesta25-trial-1.onrender.com/api/incident-chart-user/",
           {
             method: "GET",
             headers: {

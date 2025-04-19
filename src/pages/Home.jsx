@@ -4,7 +4,7 @@ import Sos from "../components/Sos";
 import OurFeatures from "../components/OurFeatures";
 import FadeInComponent from "../lib/FadeInComponent";
 import FloatingChatbot from "@/components/FloatingChatbot";
-import Chartglobal from "./Chart-global";
+import Chartglobal from "./chart-global";
 
 const Testimonials = lazy(() => import("@/components/Testimonials"));
 const FAQSection = lazy(() => import("@/components/FAQ"));

@@ -16,6 +16,13 @@ const userLocationIcon = L.icon({
   popupAnchor: [0, -40],
 });
 
+const selectedLocationIcon = L.icon({
+  iconUrl: "https://cdn-icons-png.flaticon.com/512/684/684908.png", // or any pin icon you prefer
+  iconSize: [35, 35],
+  iconAnchor: [15, 40],
+  popupAnchor: [0, -40],
+});
+
 const MapModal = ({ isOpen, onClose, onSelectLocation }) => {
   const [userLocation, setUserLocation] = useState(null);
   const [selectedLocation, setSelectedLocation] = useState(null);
@@ -72,7 +79,7 @@ const MapModal = ({ isOpen, onClose, onSelectLocation }) => {
           </Marker>
         )}
         {selectedLocation && (
-          <Marker position={selectedLocation}>
+          <Marker position={selectedLocation} icon={selectedLocationIcon}>
             <Popup>Selected Location</Popup>
           </Marker>
         )}

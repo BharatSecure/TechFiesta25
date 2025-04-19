@@ -63,7 +63,7 @@ const Navbar = () => {
       onClick={() => toggleDrawer(false)}
     >
       <List>
-        {["/", "/About", "/Blogs"].map((route, index) => {
+        {["/", "/About", "/Incilog"].map((route, index) => {
           const label = route.slice(1) || "Home";
           return (
             <ListItem
